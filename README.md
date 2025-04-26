@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -52,3 +53,7 @@ export default tseslint.config({
   },
 })
 ```
+=======
+# floatpilot-extension
+A Chrome extension to find profitable CS2 skin flips based on float value analysis
+>>>>>>> d74dcd24216c7e51a7940bc0637017f3f6eff024
