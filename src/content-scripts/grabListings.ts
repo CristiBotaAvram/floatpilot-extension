@@ -1,5 +1,23 @@
 console.log("✅ FloatPilot: Setting up smart MutationObserver...");
 
+type Sale = {
+    date: string;
+    price: number;
+};
+
+// 🛠 New function to fetch sale history via background.ts
+function fetchSaleHistoryFromBackground(itemName: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ type: "fetchSaleHistory", itemName }, (response) => {
+            if (response && response.success) {
+                resolve(response.data);
+            } else {
+                reject(new Error("Failed to fetch sale history"));
+            }
+        });
+    });
+}
+
 function grabListings() {
     const listings = document.querySelectorAll('item-card');
 
@@ -7,7 +25,7 @@ function grabListings() {
 
     const items: { name: string, price: number, float: number, element: HTMLElement }[] = [];
 
-    listings.forEach((listing) => {
+    listings.forEach(async (listing) => {
         const name = listing.querySelector('.item-name')?.textContent?.trim() || 'Unknown Name';
         const priceText = listing.querySelector('.price')?.textContent?.trim().replace('$', '') || '0';
         const floatText = listing.querySelector('.wear')?.textContent?.trim() || '0';
@@ -26,7 +44,24 @@ function grabListings() {
 
         console.log(`🖎 ${name} | Price: $${price} | Float: ${float}`);
 
-        // ✅ Change card background and related buttons if Price > 100
+        // 🛠 New: Fetch sales history from background script
+        const salesData = await fetchSaleHistoryFromBackground(name);
+
+        const last30DaysSales = (salesData.sales as Sale[]).filter((sale) => {
+            const saleDate = new Date(sale.date);
+            const now = new Date();
+            const daysAgo30 = new Date(now.setDate(now.getDate() - 30));
+            return saleDate > daysAgo30;
+        });
+
+        const salePrices = last30DaysSales.map((sale) => sale.price);
+
+        if (salePrices.length > 0) {
+            const averagePrice = salePrices.reduce((a, b) => a + b, 0) / salePrices.length;
+            console.log(`📈 Average sale price for ${name}: $${averagePrice.toFixed(2)}`);
+        }
+
+        // ✅ Change card background and buttons if Price > 100
         if (price > 100) {
             const card = listing.querySelector('mat-card') as HTMLElement;
             const buyNowButton = listing.querySelector('.buy-now-btn') as HTMLElement;
@@ -105,7 +140,7 @@ function startObserver() {
         subtree: true
     });
 
-    // 🛠 NEW PART: Detect when user clicks CSFloat refresh button
+    // 🛠 Detect when user clicks CSFloat refresh button
     const refreshButton = document.querySelector('.refresh button');
     if (refreshButton) {
         refreshButton.addEventListener('click', () => {
