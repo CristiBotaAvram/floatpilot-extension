@@ -1,17 +1,19 @@
 {
   "manifest_version": 3,
   "name": "FloatPilot",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Analyze CS2 skin floats and market data in real-time to find profitable flips.",
   "permissions": [
     "storage",
     "tabs",
     "scripting",
-    "activeTab"
+    "activeTab",
+    "https://api.exchangerate.host/*"
   ],
   "host_permissions": [
     "https://csfloat.com/*",
-    "https://skinport.com/*"
+    "https://skinport.com/*",
+    "https://api.exchangerate.host/*"
   ],
   "background": {
     "service_worker": "src/background/background.js"

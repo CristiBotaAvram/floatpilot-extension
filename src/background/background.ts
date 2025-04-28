@@ -1,54 +1,69 @@
-const API_KEY = "Z9B4w5Z1BaxXBt2j4orupfXSF-k5xaKi"; // Your CSFloat API Key
+// FloatPilot – background service worker (MV3)
+// Handles: 1) searchCSFloat requests, 2) key retrieval for content scripts.
+
+console.log("✅ FloatPilot background loaded");
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message.type === "searchCSFloat") {
-        const searchUrl = `https://csfloat.com/api/v1/listings?market_hash_name=${encodeURIComponent(message.itemName)}&sort_by=lowest_price&max_float=${message.maxFloat}&limit=1`;
+    /* ------------------------------------------------------------
+       1. Provide the stored API key back to popup/content scripts
+    -------------------------------------------------------------*/
+    if (message.type === 'getApiKey') {
+        chrome.storage.local.get('apiKey', ({ apiKey }) => sendResponse(apiKey ?? ''));
+        return true; // keep the channel open for async response
+    }
 
-        console.log(`🌐 FloatPilot: Fetching URL -> ${searchUrl}`);
-
-        fetch(searchUrl, {
-            method: 'GET',
-            headers: {
-                'Authorization': API_KEY,
-                'Accept': 'application/json'
+    /* ------------------------------------------------------------
+       2. Forward search requests to CSFloat using stored API key
+    -------------------------------------------------------------*/
+    if (message.type === 'searchCSFloat') {
+        chrome.storage.local.get('apiKey', ({ apiKey }) => {
+            if (!apiKey) {
+                console.warn('[FloatPilot] No API key saved – aborting search');
+                sendResponse({ success: false, error: 'no_api_key' });
+                return;
             }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.data && data.data.length > 0) {
-                    sendResponse({ success: true, data: data.data });
-                } else {
-                    // Retry without max_float if no listings found
-                    const fallbackUrl = `https://csfloat.com/api/v1/listings?market_hash_name=${encodeURIComponent(message.itemName)}&sort_by=lowest_price&limit=1`;
-                    console.log(`🔁 No results, retrying without max_float -> ${fallbackUrl}`);
-                    fetch(fallbackUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': API_KEY,
-                            'Accept': 'application/json'
-                        }
-                    })
-                        .then(fallbackResponse => {
-                            if (!fallbackResponse.ok) throw new Error(`HTTP Error ${fallbackResponse.status}`);
-                            return fallbackResponse.json();
-                        })
-                        .then(fallbackData => {
-                            sendResponse({ success: true, data: fallbackData.data });
-                        })
-                        .catch(fallbackError => {
-                            console.error('❌ FloatPilot fallback fetch error:', fallbackError);
-                            sendResponse({ success: false, error: fallbackError.message });
-                        });
-                }
-            })
-            .catch(error => {
-                console.error('❌ FloatPilot background fetch error:', error);
-                sendResponse({ success: false, error: error.message });
-            });
 
-        return true;
+            const buildUrl = (includeFloat: boolean): string => {
+                const params = new URLSearchParams({
+                    market_hash_name: message.itemName,
+                    sort_by: 'lowest_price',
+                    limit: '1',
+                });
+                if (includeFloat && message.maxFloat != null) params.set('max_float', message.maxFloat.toString());
+                return `https://csfloat.com/api/v1/listings?${params.toString()}`;
+            };
+
+            const headers = {
+                Authorization: apiKey,
+                Accept: 'application/json',
+            };
+
+            // primary fetch (with max_float)
+            fetch(buildUrl(true), { headers })
+                .then((r) => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.json();
+                })
+                .then((j) => {
+                    if (j.data?.length) {
+                        sendResponse({ success: true, data: j.data });
+                    } else {
+                        // fallback without max_float constraint
+                        console.log('[FloatPilot] No results with float filter – retrying');
+                        return fetch(buildUrl(false), { headers })
+                            .then((r2) => {
+                                if (!r2.ok) throw new Error(`HTTP ${r2.status}`);
+                                return r2.json();
+                            })
+                            .then((j2) => sendResponse({ success: true, data: j2.data }));
+                    }
+                })
+                .catch((err) => {
+                    console.error('[FloatPilot] CSFloat fetch error:', err);
+                    sendResponse({ success: false, error: err.message });
+                });
+        });
+
+        return true; // indicate async response
     }
 });

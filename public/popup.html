@@ -1,10 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>FloatPilot</title>
+    <meta charset="utf-8" />
+    <title>FloatPilot – API Key</title>
+    <style>
+        body   { font: 14px/1.4 system-ui, sans-serif; margin: 16px 18px; width: 260px; }
+        input  { width: 100%; padding: 6px 8px; border: 1px solid #888; border-radius: 6px; box-sizing: border-box; }
+        button { margin-top: 10px; padding: 6px 12px; border: 0; border-radius: 6px;
+            background:#009fef; color:#fff; cursor:pointer; width:100%; }
+        #status { margin-top: 8px; font-size: 0.9em; display:none; }
+    </style>
 </head>
 <body>
-<h1>FloatPilot is Live!</h1>
+<h3 style="margin-top:0">FloatPilot API Key</h3>
+
+<!-- input field -->
+<input id="apiKeyInput" type="text" placeholder="Paste API key…" spellcheck="false" />
+
+<!-- save button -->
+<button id="saveBtn">Save</button>
+
+<!-- status message (✔ / ⚠) -->
+<div id="status"></div>
+
+<!-- vanilla JS popup logic -->
+<script src="popup.js"></script>
 </body>
 </html>
