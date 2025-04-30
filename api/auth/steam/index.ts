@@ -1,25 +1,36 @@
-// api/auth/steam/index.ts
+// /api/auth/steam/index.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import OpenID from 'openid';
+import type { RelyingParty } from 'openid';
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-    const { RelyingParty } = OpenID;
+let relyingParty: RelyingParty | null = null;
 
-    // initialize Steam OpenID relying party
-    const rp = new RelyingParty(
-        `${process.env.BASE_URL}/api/auth/steam/return`, // your return URL
-        null,       // realm (not used by Steam)
-        true,       // use stateless verification
-        false,      // not using strict mode
-        []          // no extensions
+(async () => {
+    const openid = (await import('openid')).default;
+    relyingParty = new openid.RelyingParty(
+        `${process.env.BASE_URL}/api/auth/steam/return`,
+        null,
+        true,
+        false,
+        []
     );
+})();
 
-    // generate the redirect URL
-    const redirectUrl = rp.authenticationUrl(
-        'https://steamcommunity.com/openid/login'
+export default function handler(_: VercelRequest, res: VercelResponse) {
+    if (!relyingParty) {
+        console.error('RelyingParty not initialized yet');
+        return res.status(500).send('Login unavailable');
+    }
+
+    relyingParty.authenticate(
+        'https://steamcommunity.com/openid',
+        false,
+        (error: unknown, authUrl?: string) => {
+            if (error || !authUrl) {
+                console.error('Steam OpenID auth error:', error);
+                return res.status(500).send('Steam login unavailable');
+            }
+            res.writeHead(302, { Location: authUrl });
+            res.end();
+        }
     );
-
-    // send user off to Steam
-    res.writeHead(302, { Location: redirectUrl });
-    res.end();
 }
