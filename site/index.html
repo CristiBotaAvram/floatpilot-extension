@@ -60,18 +60,31 @@
 <footer class="text-center text-gray-500 text-sm mt-12 mb-4">
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
-
 <script>
     fetch('/api/me')
         .then(r => r.json())
         .then(data => {
+            const loginBtn = document.getElementById('loginBtn');
+            const welcome = document.getElementById('welcome');
+
             if (data.loggedIn) {
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('welcome').textContent =
-                    'Logged in as ' + data.steamID64;
+                // hide the “Login” link
+                loginBtn.style.display = 'none';
+
+                // show “Logged in as …”
+                welcome.textContent = 'Logged in as ' + data.steamID64;
+                welcome.style.display = 'block';
+            } else {
+                // not logged in yet: show the login link again
+                loginBtn.style.display = 'inline-block';
+                welcome.style.display = 'none';
             }
+        })
+        .catch(err => {
+            console.error('Error checking login status:', err);
         });
 </script>
+</body>
 
 </body>
 </html>
