@@ -22,8 +22,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     relyingParty.verifyAssertion(req, (error: unknown, result: AssertionResponse | null) => {
+        console.log('Steam OpenID result:', JSON.stringify(result, null, 2));
+        console.error('Steam OpenID return error:', error);
         if (error || !result?.authenticated || !result.claimedIdentifier) {
-            console.error('Steam OpenID return error:', error);
             return res.status(401).send('Login failed');
         }
 
