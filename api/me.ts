@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSteamID64 } from './_utils/session';
+import { getSteamID64 } from './_utils/session.js';
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
     const steamID64 = getSteamID64(req);
