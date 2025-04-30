@@ -43,7 +43,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Set-Cookie', [
             `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`,
         ]);
-        res.writeHead(302, { Location: '/site' });
+        res.writeHead(302, { Location: '/' });
         res.end();
     });
 }
