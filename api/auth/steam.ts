@@ -1,13 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-// @ts-expect-error – temporary until openid-client types fixed
-import { Issuer } from 'openid-client';
-
 
 export default async function handler(_: VercelRequest, res: VercelResponse) {
-    // Discover Steam’s OpenID issuer
-    const steam = await Issuer.discover('https://steamcommunity.com/openid');
+    // Skip broken TS types: dynamic import as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const openid = await import('openid-client') as any;
 
-    // Build auth URL (Steam ignores client_id, but openid-client requires one)
+    const steam = await openid.Issuer.discover('https://steamcommunity.com/openid');
+
     const url = steam.authorizationUrl({
         client_id: 'steam',
         redirect_uri: `${process.env.BASE_URL}/api/auth/steam/return`,
