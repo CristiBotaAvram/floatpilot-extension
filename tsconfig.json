@@ -1,3 +1,10 @@
 {
-  "extends": "./extension/tsconfig.json"
+  "extends": "./extension/tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["@types/node", "@vercel/node"]
+  }
 }
