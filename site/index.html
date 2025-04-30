@@ -61,23 +61,22 @@
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
 <script>
-    fetch('/api/me')
+    const loginBtn = document.getElementById('loginBtn');
+    const welcome  = document.getElementById('welcome');
+
+    fetch('/api/me', {
+        method: 'GET',
+        credentials: 'include'    // ← Add this line
+    })
         .then(r => r.json())
         .then(data => {
-            const loginBtn = document.getElementById('loginBtn');
-            const welcome = document.getElementById('welcome');
-
             if (data.loggedIn) {
-                // hide the “Login” link
                 loginBtn.style.display = 'none';
-
-                // show “Logged in as …”
-                welcome.textContent = 'Logged in as ' + data.steamID64;
+                welcome.textContent   = 'Logged in as ' + data.steamID64;
                 welcome.style.display = 'block';
             } else {
-                // not logged in yet: show the login link again
                 loginBtn.style.display = 'inline-block';
-                welcome.style.display = 'none';
+                welcome.style.display  = 'none';
             }
         })
         .catch(err => {
