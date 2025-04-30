@@ -4,7 +4,7 @@ import type { RelyingParty } from 'openid';
 let relyingParty: RelyingParty | null = null;
 
 (async () => {
-    const openid = await import('openid');
+    const openid = (await import('openid')).default;
     relyingParty = new openid.RelyingParty(
         `${process.env.BASE_URL}/api/auth/steam/return`,
         null,
