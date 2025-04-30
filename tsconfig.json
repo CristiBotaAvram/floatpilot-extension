@@ -1,11 +1,30 @@
 {
   "extends": "./extension/tsconfig.json",
   "compilerOptions": {
-    "moduleResolution": "node",
-    "target": "ES2020",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    // Emit ES modules so Node/Electron/Vercel can use native ESM (no CJS wrapper).
     "module": "ESNext",
+    // Resolve imports the Node-Next way, understanding “.js” vs “.ts”.
+    "moduleResolution": "NodeNext",
+    // Target modern JS; all modern runtimes support ES2020.
+    "target": "ES2020",
+
+    // Allow `import foo from "foo"` when modules export with CommonJS.
+    "esModuleInterop": true,
+    // Skip type checks on libraries to speed up builds.
+    "skipLibCheck": true,
+
+    // Generate declaration files if you consume your code as a library
+    "declaration": true,
+
+    // Place compiled JS files here (adjust if you’re using a different outDir).
+    "outDir": "./dist",
+
+    // Include type definitions for Node & Vercel’s runtime
     "types": ["@types/node", "@vercel/node"]
-  }
+  },
+
+  // Only compile your serverless/API code (omit client-side or unrelated files)
+  "include": ["api/**/*"],
+  // Exclude artifacts & build output
+  "exclude": ["node_modules", "dist", "extension"]
 }
