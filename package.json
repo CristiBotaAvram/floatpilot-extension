@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "cd extension && vite",
+    "build": "vite build --config extension/vite.config.ts",
+    "build:site": "echo \"Static site – no build step needed\"",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --config extension/vite.config.ts"
   },
   "dependencies": {
     "react": "^19.0.0",
