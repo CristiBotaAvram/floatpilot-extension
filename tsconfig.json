@@ -1,28 +1,18 @@
 {
+  "extends": "./extension/tsconfig.json",
   "compilerOptions": {
-    // Where TypeScript starts looking for .ts files
-    "rootDir": ".",
-    // Where to put the compiled .js files
-    "outDir": "dist",
-    // Keep ES module syntax so Vercel can detect functions
-    "module": "ESNext",
-    "target": "ES2020",
     "moduleResolution": "node",
+    "target": "ES2020",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    // Only generate code—no emit of declaration files
-    "declaration": false
+    "module": "ESNext",
+    "outDir": "./",
+    "rootDir": ".",
+    "types": ["@types/node", "@vercel/node"]
   },
-  // Restrict the compiler to just these source folders
   "include": [
     "api/**/*.ts",
-    "api/**/*.js",       // if you have any JS helpers
-    "site/**/*",         // your front-end code, if you ever compile it
-    "extension/**/*"     // optional, if you compile your extension
-  ],
-  // Exclude things you don’t want in dist
-  "exclude": [
-    "node_modules",
-    "dist"
+    "public/**/*",
+    // ...any other source dirs
   ]
 }
