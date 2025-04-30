@@ -1,30 +1,28 @@
 {
-  "extends": "./extension/tsconfig.json",
   "compilerOptions": {
-    // Emit ES modules so Node/Electron/Vercel can use native ESM (no CJS wrapper).
+    // Where TypeScript starts looking for .ts files
+    "rootDir": ".",
+    // Where to put the compiled .js files
+    "outDir": "dist",
+    // Keep ES module syntax so Vercel can detect functions
     "module": "ESNext",
-    // Resolve imports the Node-Next way, understanding “.js” vs “.ts”.
-    "moduleResolution": "NodeNext",
-    // Target modern JS; all modern runtimes support ES2020.
     "target": "ES2020",
-
-    // Allow `import foo from "foo"` when modules export with CommonJS.
+    "moduleResolution": "node",
     "esModuleInterop": true,
-    // Skip type checks on libraries to speed up builds.
     "skipLibCheck": true,
-
-    // Generate declaration files if you consume your code as a library
-    "declaration": true,
-
-    // Place compiled JS files here (adjust if you’re using a different outDir).
-    "outDir": "./dist",
-
-    // Include type definitions for Node & Vercel’s runtime
-    "types": ["@types/node", "@vercel/node"]
+    // Only generate code—no emit of declaration files
+    "declaration": false
   },
-
-  // Only compile your serverless/API code (omit client-side or unrelated files)
-  "include": ["api/**/*"],
-  // Exclude artifacts & build output
-  "exclude": ["node_modules", "dist", "extension"]
+  // Restrict the compiler to just these source folders
+  "include": [
+    "api/**/*.ts",
+    "api/**/*.js",       // if you have any JS helpers
+    "site/**/*",         // your front-end code, if you ever compile it
+    "extension/**/*"     // optional, if you compile your extension
+  ],
+  // Exclude things you don’t want in dist
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
