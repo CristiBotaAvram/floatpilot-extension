@@ -1,11 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(_: VercelRequest, res: VercelResponse) {
-    // Skip broken TS types: dynamic import as any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const openid = await import('openid-client') as any;
+    const openid = (await import('openid-client')) as Record<string, any>;
+    const Issuer = openid?.Issuer;
 
-    const steam = await openid.Issuer.discover('https://steamcommunity.com/openid');
+    if (!Issuer) {
+        console.error('❌ Issuer not found on openid-client');
+        return res.status(500).send('Steam login unavailable');
+    }
+
+    const steam = await Issuer.discover('https://steamcommunity.com/openid');
 
     const url = steam.authorizationUrl({
         client_id: 'steam',
