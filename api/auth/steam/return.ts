@@ -1,25 +1,38 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-// @ts-expect-error – temporary until openid-client types fixed
-import { Issuer } from 'openid-client';
-import * as jwt from 'jsonwebtoken';
+import * as openid from 'openid';
+import jwt from 'jsonwebtoken';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const steam = await Issuer.discover('https://steamcommunity.com/openid');
+const relyingParty = new openid.RelyingParty(
+    `${process.env.BASE_URL}/api/auth/steam/return`,
+    null,
+    true,
+    false,
+    []
+);
 
-    // Same redirect URI used above
-    const redirectUri = `${process.env.BASE_URL}/api/auth/steam/return`;
-    const client = new steam.Client({ client_id: 'steam', redirect_uris: [redirectUri], response_types: ['id_token'] });
+export default function handler(req: VercelRequest, res: VercelResponse) {
+    relyingParty.verifyAssertion(req, (error, result) => {
+        if (error || !result?.authenticated || !result.claimedIdentifier) {
+            console.error('Steam OpenID return error:', error);
+            return res.status(401).send('Login failed');
+        }
 
-    // Verify Steam’s assertion
-    const params    = client.callbackParams(req);
-    const tokenSet  = await client.callback(redirectUri, params);
-    const steamID64 = tokenSet.claims().sub.replace('https://steamcommunity.com/openid/id/', '');
+        // Extract the SteamID64 from the claimed identifier URL
+        const match = result.claimedIdentifier.match(/\/id\/([0-9]{17})$/) ||
+            result.claimedIdentifier.match(/\/openid\/id\/([0-9]{17})$/);
 
-    // Create a 7-day signed cookie (replace with your own session-store if you like)
-    const cookie = jwt.sign({ steamID64 }, process.env.JWT_SECRET!, { expiresIn: '7d' });
-    res.setHeader('Set-Cookie', `fp_session=${cookie}; Path=/; HttpOnly; Secure; SameSite=Lax`);
+        if (!match) {
+            return res.status(400).send('Invalid Steam response');
+        }
 
-    // Redirect back to your site (pricing/dashboard)
-    res.writeHead(302, { Location: '/site' });
-    res.end();
+        const steamID64 = match[1];
+        const token = jwt.sign({ steamID64 }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+
+        res.setHeader(
+            'Set-Cookie',
+            `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`
+        );
+        res.writeHead(302, { Location: '/site' });
+        res.end();
+    });
 }
