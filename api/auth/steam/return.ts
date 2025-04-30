@@ -1,29 +1,22 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
-import type { RelyingParty, AssertionResponse } from 'openid';
+import type { AssertionResponse } from 'openid';
 
-let relyingParty: RelyingParty | null = null;
-
-(async () => {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     const openid = (await import('openid')).default;
-    relyingParty = new openid.RelyingParty(
+
+    const relyingParty = new openid.RelyingParty(
         `${process.env.BASE_URL}/api/auth/steam/return`,
         null,
         true,
         false,
         []
     );
-})();
-
-export default function handler(req: VercelRequest, res: VercelResponse) {
-    if (!relyingParty) {
-        console.error('RelyingParty not initialized yet');
-        return res.status(500).send('Login unavailable');
-    }
 
     relyingParty.verifyAssertion(req, (error: unknown, result: AssertionResponse | null) => {
         console.log('Steam OpenID result:', JSON.stringify(result, null, 2));
-        console.error('Steam OpenID return error:', error);
+        console.error('Steam OpenID error:', error);
+
         if (error || !result?.authenticated || !result.claimedIdentifier) {
             return res.status(401).send('Login failed');
         }
