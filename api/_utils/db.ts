@@ -1,22 +1,7 @@
 // api/_utils/db.ts
-import Database from 'better-sqlite3'
-import { join } from 'path'
+import { createClient } from '@supabase/supabase-js'
 
-const dbPath = process.env.NODE_ENV === 'production'
-    ? '/var/task/db.sqlite3'
-    : join(process.cwd(), 'db.sqlite3')
+const supabaseUrl = process.env.SUPABASE_URL!
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
 
-export const db = new Database(dbPath)
-
-// On startup, create table if missing
-db
-    .prepare(`
-    CREATE TABLE IF NOT EXISTS users (
-      steamID64   TEXT PRIMARY KEY,
-      tier        TEXT     NOT NULL DEFAULT 'Cadet',
-      updatedAt   INTEGER  NOT NULL
-    )
-  `)
-    .run()
-
-export default db
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)

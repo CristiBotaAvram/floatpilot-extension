@@ -1,8 +1,17 @@
 // api/me.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { db } from './_utils/db.js'
+import { createClient } from '@supabase/supabase-js'
 import { getSteamID64 } from './_utils/session.js'
 import fetch from 'node-fetch'
+
+// Initialize Supabase (service role)
+const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const TIERS = ['Cadet', 'Co-Pilot', 'Commander'] as const
+type Tier = typeof TIERS[number]
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const steamID64 = getSteamID64(req)
@@ -10,44 +19,77 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ loggedIn: false })
     }
 
-    // 1) If this is a PUT, update their tier
     if (req.method === 'PUT') {
-        const { tier } = JSON.parse(req.body || '{}')
-        if (!['Cadet','Co-Pilot','Commander'].includes(tier)) {
+        // Define the expected body shape
+        interface PutBody {
+            tier?: string
+        }
+
+        let body: PutBody
+        try {
+            body = JSON.parse(req.body || '{}')
+        } catch {
+            return res.status(400).json({ error: 'Invalid JSON' })
+        }
+
+        const { tier } = body
+        if (!TIERS.includes(tier as Tier)) {
             return res.status(400).json({ error: 'Invalid tier' })
         }
-        db.prepare(`
-      INSERT INTO users (steamID64, tier, updatedAt)
-      VALUES (@steamID64, @tier, @time)
-      ON CONFLICT(steamID64) DO UPDATE SET
-        tier = excluded.tier,
-        updatedAt = excluded.updatedAt
-    `).run({
-            steamID64,
-            tier,
-            time: Date.now(),
-        })
+
+        // Upsert into supabase
+        const { error: upsertError } = await supabase
+            .from('users')
+            .upsert(
+                {
+                    steam_id:   steamID64,
+                    tier:       tier as Tier,
+                    created_at: new Date().toISOString(),
+                },
+                { onConflict: 'steam_id' }
+            )
+
+        if (upsertError) {
+            console.error('Supabase upsert error:', upsertError)
+            return res.status(500).json({ error: 'Database error' })
+        }
+
         return res.status(200).json({ success: true, tier })
     }
 
-    // 2) On GET: load their saved tier (defaults to Cadet)
-    const row = db.prepare(
-        'SELECT tier FROM users WHERE steamID64 = ?'
-    ).get(steamID64)
-    const tier = row?.tier || 'Cadet'
+    // GET — fetch saved tier
+    const { data: row, error: selectError } = await supabase
+        .from('users')
+        .select('tier')
+        .eq('steam_id', steamID64)
+        .single()
 
-    // 3) Fetch Steam displayName & avatar as before
+    if (selectError && selectError.code !== 'PGRST116') {
+        console.error('Supabase select error:', selectError)
+        return res.status(500).json({ error: 'Database error' })
+    }
+
+    const tier: Tier = (row?.tier as Tier) || 'Cadet'
+
+    // Fetch Steam profile data
     const key = process.env.STEAM_API_KEY!
-    const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${key}&steamids=${steamID64}`
-    let displayName = steamID64, avatarUrl = ''
+    const url = new URL('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/')
+    url.searchParams.set('key', key)
+    url.searchParams.set('steamids', steamID64)
+
+    let displayName = steamID64
+    let avatarUrl   = ''
+
     try {
-        const steamRes = await fetch(url)
-        const { response } = await steamRes.json()
-        const player = response.players?.[0]
-        displayName = player.personaname
-        avatarUrl  = player.avatarfull
-    } catch (e) {
-        console.error('Steam API error fetching persona:', e)
+        const steamRes = await fetch(url.toString())
+        const json     = await steamRes.json()
+        const player   = json.response?.players?.[0]
+        if (player) {
+            displayName = player.personaname
+            avatarUrl   = player.avatarfull
+        }
+    } catch (err) {
+        console.error('Steam API error:', err)
     }
 
     return res.status(200).json({
