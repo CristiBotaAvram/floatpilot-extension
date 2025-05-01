@@ -11,13 +11,29 @@
 <header class="text-center py-12">
     <h1 class="text-4xl font-bold">FloatPilot</h1>
     <p class="text-gray-400 mt-2">Track and compare CS2 skin deals. Smarter. Faster.</p>
-    <a id="loginBtn"
-       href="/api/auth/steam"
-       class="inline-block bg-[#171a21] hover:bg-[#1b1f25] text-white px-6 py-2 rounded-md font-semibold">
-        Login with Steam
-    </a>
-    <p id="welcome" class="mt-4 text-green-400 text-sm"></p>
+
+    <div id="authControls" class="mt-4 flex justify-center items-center space-x-4">
+        <!-- Login button (shown only if not logged in) -->
+        <a
+                id="loginBtn"
+                href="/api/auth/steam"
+                class="bg-[#171a21] hover:bg-[#1b1f25] text-white px-6 py-2 rounded-md font-semibold"
+        >
+            Login with Steam
+        </a>
+
+        <!-- Welcome text + Logout (shown only if logged in) -->
+        <p id="welcome" class="text-green-400 text-sm hidden"></p>
+        <a
+                id="logoutBtn"
+                href="/api/logout"
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-md text-sm hidden"
+        >
+            Logout
+        </a>
+    </div>
 </header>
+
 
 <main class="max-w-4xl mx-auto px-4 py-8">
     <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
@@ -61,27 +77,34 @@
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
 <script>
-    const loginBtn = document.getElementById('loginBtn');
-    const welcome  = document.getElementById('welcome');
-
     fetch('/api/me')
         .then(r => r.json())
         .then(data => {
             const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
             const welcome = document.getElementById('welcome');
 
             if (data.loggedIn) {
-                loginBtn.style.display = 'none';
+                // Hide login, show welcome + logout
+                loginBtn.classList.add('hidden');
+
                 welcome.textContent = `Welcome, ${data.displayName}!`;
+                welcome.classList.remove('hidden');
+
+                logoutBtn.classList.remove('hidden');
             } else {
-                loginBtn.style.display = 'inline-block';
-                welcome.style.display = 'none';
+                // Not logged in: show login, hide welcome + logout
+                loginBtn.classList.remove('hidden');
+
+                welcome.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
             }
         })
         .catch(err => {
             console.error('Error checking login status:', err);
         });
 </script>
+
 </body>
 
 </body>

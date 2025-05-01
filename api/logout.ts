@@ -1,10 +1,13 @@
+// api/logout.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default function handler(_: VercelRequest, res: VercelResponse) {
-    res.setHeader(
-        'Set-Cookie',
-        'fp_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax'
-    );
-    res.writeHead(302, { Location: '/site' });
+export default function handler(req: VercelRequest, res: VercelResponse) {
+    // Overwrite the cookie with an expired one
+    res.setHeader('Set-Cookie', [
+        `fp_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+    ]);
+
+    // Redirect back to homepage (or wherever)
+    res.writeHead(302, { Location: '/' });
     res.end();
 }
