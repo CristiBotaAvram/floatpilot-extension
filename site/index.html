@@ -24,15 +24,18 @@
             Login with Steam
         </a>
 
-        <!-- Welcome text + Logout (shown only if logged in) -->
-        <div id="welcomeContainer" class="hidden flex items-center space-x-2">
+        <!-- Welcome + avatar + Logout (shown only if logged in) -->
+        <div
+                id="welcomeContainer"
+                class="hidden flex items-center space-x-2 text-green-400 text-sm"
+        >
             <img
                     id="avatarImg"
                     src=""
                     alt="avatar"
                     class="w-8 h-8 rounded-full"
             />
-            <p id="welcomeText" class="text-green-400 text-sm"></p>
+            <p id="welcomeText"></p>
             <button
                     id="logoutBtn"
                     class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-semibold"
@@ -46,7 +49,7 @@
 <main class="max-w-4xl mx-auto px-4 py-8">
     <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
     <div class="grid md:grid-cols-3 gap-6">
-        <!-- Cadet -->
+        <!-- Cadet (always default free) -->
         <div class="bg-gray-800 p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-2">Cadet</h3>
             <p class="text-3xl font-bold mb-4">Free</p>
@@ -55,7 +58,9 @@
                 <li>✔ View deals on CSFloat & Skinport</li>
             </ul>
             <button
+                    id="tier-Cadet"
                     class="w-full bg-gray-600 text-white py-2 rounded cursor-not-allowed"
+                    disabled
             >
                 Current Plan
             </button>
@@ -71,10 +76,34 @@
                 <li>✔ Historical float alerts</li>
             </ul>
             <button
+                    data-tier-action="Co-Pilot"
+                    id="tier-Co-Pilot"
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
             >
                 Subscribe
             </button>
+            <script>
+                document.getElementById('subscribeCoPilot')
+                    .addEventListener('click', () => {
+                        fetch('/api/subscribe', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tier: 'Co-Pilot' })
+                        })
+                            .then(res => res.json())
+                            .then(json => {
+                                if (json.success) {
+                                    // Optionally update the UI in-place:
+                                    alert(`You are now a ${json.tier}!`)
+                                    // Or reload to fetch new tier from /api/me:
+                                    location.reload()
+                                } else {
+                                    console.error('Subscription error:', json.error)
+                                }
+                            })
+                            .catch(err => console.error('Network error:', err))
+                    })
+            </script>
         </div>
 
         <!-- Commander -->
@@ -87,6 +116,8 @@
                 <li>✔ Early deal access (1h)</li>
             </ul>
             <button
+                    data-tier-action="Commander"
+                    id="tier-Commander"
                     class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded"
             >
                 Subscribe
@@ -101,43 +132,80 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const loginBtn        = document.getElementById('loginBtn');
-        const welcomeContainer = document.getElementById('welcomeContainer');
-        const welcomeText     = document.getElementById('welcomeText');
-        const avatarImg       = document.getElementById('avatarImg');
-        const logoutBtn       = document.getElementById('logoutBtn');
+        const loginBtn         = document.getElementById('loginBtn')
+        const welcomeContainer = document.getElementById('welcomeContainer')
+        const welcomeText      = document.getElementById('welcomeText')
+        const avatarImg        = document.getElementById('avatarImg')
+        const logoutBtn        = document.getElementById('logoutBtn')
 
-        // Check login status
+        // Fetch user info (tier, name, avatar)
         fetch('/api/me')
             .then(res => res.json())
             .then(data => {
                 if (data.loggedIn) {
-                    // Hide login button
-                    loginBtn.classList.add('hidden');
+                    // Hide Steam login
+                    loginBtn.classList.add('hidden')
 
-                    // Populate avatar + welcome text
-                    avatarImg.src         = data.avatarUrl;
-                    avatarImg.alt         = data.displayName + ' avatar';
-                    welcomeText.textContent = `Welcome, ${data.displayName}!`;
+                    // Show avatar + welcome text
+                    avatarImg.src = data.avatarUrl
+                    avatarImg.alt = data.displayName + ' avatar'
+                    welcomeText.textContent = `Welcome, ${data.displayName}!`
 
-                    // Show welcome + logout
-                    welcomeContainer.classList.remove('hidden');
+                    // Show welcome container
+                    welcomeContainer.classList.remove('hidden')
 
-                    // Logout click handler
+                    // Highlight current tier button
+                    document.querySelectorAll('[id^="tier-"]').forEach(el => {
+                        el.disabled = false
+                        el.textContent = el.dataset.tierAction
+                            ? 'Subscribe'
+                            : 'Cadet' // default
+                        el.classList.remove('cursor-not-allowed', 'bg-gray-600')
+                        // reset button styles
+                        if (el.id === 'tier-Cadet') {
+                            el.classList.add('bg-gray-600', 'cursor-not-allowed')
+                            el.disabled = true
+                        } else if (el.id.replace('tier-','') === data.tier) {
+                            el.textContent = 'Current Plan'
+                            el.classList.add('bg-gray-600', 'cursor-not-allowed')
+                            el.disabled = true
+                        }
+                    })
+
+                    // Wire up subscribe buttons
+                    document.querySelectorAll('[data-tier-action]').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            const tier = btn.getAttribute('data-tier-action')
+                            const res  = await fetch('/api/me', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ tier })
+                            })
+                            const json = await res.json()
+                            if (json.success) {
+                                // reload to refresh highlight & data
+                                location.reload()
+                            } else {
+                                console.error('Update tier failed:', json)
+                            }
+                        })
+                    })
+
+                    // Logout
                     logoutBtn.addEventListener('click', () => {
                         fetch('/api/logout', { method: 'POST' })
                             .then(() => location.reload())
-                            .catch(err => console.error('Logout failed:', err));
-                    });
+                            .catch(err => console.error('Logout failed:', err))
+                    })
 
                 } else {
-                    // Not logged in: show login, hide welcome
-                    loginBtn.classList.remove('hidden');
-                    welcomeContainer.classList.add('hidden');
+                    // not logged in → show login only
+                    loginBtn.classList.remove('hidden')
+                    welcomeContainer.classList.add('hidden')
                 }
             })
-            .catch(err => console.error('Error checking login status:', err));
-    });
+            .catch(err => console.error('Error checking login status:', err))
+    })
 </script>
 
 </body>
