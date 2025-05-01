@@ -49,16 +49,18 @@
 <main class="max-w-4xl mx-auto px-4 py-8">
     <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
     <div class="grid md:grid-cols-3 gap-6">
-        <!-- Cadet (always default free) -->
+
+        <!-- Cadet -->
         <div class="bg-gray-800 p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-2">Cadet</h3>
             <p class="text-3xl font-bold mb-4">Free</p>
-            <ul class="text-sm text-gray-300 space-y-1 mb-4">
+            <ul class="text-sm text-gray-300 mb-4 space-y-1">
                 <li>✔ Basic float analysis</li>
                 <li>✔ View deals on CSFloat & Skinport</li>
             </ul>
             <button
                     id="tier-Cadet"
+                    data-tier="Cadet"
                     class="w-full bg-gray-600 text-white py-2 rounded cursor-not-allowed"
                     disabled
             >
@@ -70,59 +72,38 @@
         <div class="bg-gray-800 p-6 rounded-lg shadow border border-blue-500">
             <h3 class="text-xl font-semibold mb-2">Co-Pilot</h3>
             <p class="text-3xl font-bold mb-4">$10/mo</p>
-            <ul class="text-sm text-gray-300 space-y-1 mb-4">
+            <ul class="text-sm text-gray-300 mb-4 space-y-1">
                 <li>✔ All Cadet features</li>
                 <li>✔ Auto-deal highlighting</li>
                 <li>✔ Historical float alerts</li>
             </ul>
             <button
-                    data-tier-action="Co-Pilot"
                     id="tier-Co-Pilot"
+                    data-tier="Co-Pilot"
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
             >
                 Subscribe
             </button>
-            <script>
-                document.getElementById('subscribeCoPilot')
-                    .addEventListener('click', () => {
-                        fetch('/api/subscribe', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ tier: 'Co-Pilot' })
-                        })
-                            .then(res => res.json())
-                            .then(json => {
-                                if (json.success) {
-                                    // Optionally update the UI in-place:
-                                    alert(`You are now a ${json.tier}!`)
-                                    // Or reload to fetch new tier from /api/me:
-                                    location.reload()
-                                } else {
-                                    console.error('Subscription error:', json.error)
-                                }
-                            })
-                            .catch(err => console.error('Network error:', err))
-                    })
-            </script>
         </div>
 
         <!-- Commander -->
         <div class="bg-gray-800 p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-2">Commander</h3>
             <p class="text-3xl font-bold mb-4">$25/mo</p>
-            <ul class="text-sm text-gray-300 space-y-1 mb-4">
+            <ul class="text-sm text-gray-300 mb-4 space-y-1">
                 <li>✔ All Co-Pilot features</li>
                 <li>✔ Pattern ID filtering</li>
                 <li>✔ Early deal access (1h)</li>
             </ul>
             <button
-                    data-tier-action="Commander"
                     id="tier-Commander"
+                    data-tier="Commander"
                     class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded"
             >
                 Subscribe
             </button>
         </div>
+
     </div>
 </main>
 
@@ -138,73 +119,67 @@
         const avatarImg        = document.getElementById('avatarImg')
         const logoutBtn        = document.getElementById('logoutBtn')
 
-        // Fetch user info (tier, name, avatar)
         fetch('/api/me')
-            .then(res => res.json())
+            .then(r => r.json())
             .then(data => {
                 if (data.loggedIn) {
-                    // Hide Steam login
+                    // Hide Steam login link
                     loginBtn.classList.add('hidden')
 
                     // Show avatar + welcome text
-                    avatarImg.src = data.avatarUrl
-                    avatarImg.alt = data.displayName + ' avatar'
+                    avatarImg.src         = data.avatarUrl
+                    avatarImg.alt         = data.displayName + ' avatar'
                     welcomeText.textContent = `Welcome, ${data.displayName}!`
 
-                    // Show welcome container
                     welcomeContainer.classList.remove('hidden')
 
-                    // Highlight current tier button
-                    document.querySelectorAll('[id^="tier-"]').forEach(el => {
-                        el.disabled = false
-                        el.textContent = el.dataset.tierAction
-                            ? 'Subscribe'
-                            : 'Cadet' // default
-                        el.classList.remove('cursor-not-allowed', 'bg-gray-600')
-                        // reset button styles
-                        if (el.id === 'tier-Cadet') {
-                            el.classList.add('bg-gray-600', 'cursor-not-allowed')
-                            el.disabled = true
-                        } else if (el.id.replace('tier-','') === data.tier) {
-                            el.textContent = 'Current Plan'
-                            el.classList.add('bg-gray-600', 'cursor-not-allowed')
-                            el.disabled = true
+                    // Highlight the active tier
+                    document.querySelectorAll('[id^="tier-"]').forEach(btn => {
+                        const tier = btn.dataset.tier
+                        if (tier === data.tier) {
+                            btn.textContent = 'Current Plan'
+                            btn.disabled    = true
+                            btn.classList.remove('bg-blue-600','hover:bg-blue-700','bg-yellow-500','hover:bg-yellow-600')
+                            btn.classList.add('bg-gray-600','cursor-not-allowed')
+                        } else {
+                            btn.textContent = 'Subscribe'
+                            btn.disabled    = false
                         }
                     })
 
-                    // Wire up subscribe buttons
-                    document.querySelectorAll('[data-tier-action]').forEach(btn => {
+                    // Subscribe button handlers
+                    document.querySelectorAll('[data-tier]').forEach(btn => {
                         btn.addEventListener('click', async () => {
-                            const tier = btn.getAttribute('data-tier-action')
-                            const res  = await fetch('/api/me', {
-                                method: 'PUT',
+                            const newTier = btn.dataset.tier
+                            const res     = await fetch('/api/me', {
+                                method:  'PUT',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ tier })
+                                body:    JSON.stringify({ tier: newTier })
                             })
                             const json = await res.json()
                             if (json.success) {
-                                // reload to refresh highlight & data
                                 location.reload()
                             } else {
                                 console.error('Update tier failed:', json)
+                                alert('Could not update plan: ' + (json.error || 'Unknown'))
                             }
                         })
                     })
 
-                    // Logout
+                    // Logout button handler
                     logoutBtn.addEventListener('click', () => {
                         fetch('/api/logout', { method: 'POST' })
                             .then(() => location.reload())
-                            .catch(err => console.error('Logout failed:', err))
+                            .catch(console.error)
                     })
 
                 } else {
-                    // not logged in → show login only
+                    // Not logged in
                     loginBtn.classList.remove('hidden')
                     welcomeContainer.classList.add('hidden')
                 }
             })
-            .catch(err => console.error('Error checking login status:', err))
+            .catch(console.error)
     })
 </script>
 
