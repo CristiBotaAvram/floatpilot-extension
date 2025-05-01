@@ -1,37 +1,62 @@
 // api/me.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getSteamID64 } from './_utils/session.js';
-import fetch from 'node-fetch';  // install if you don’t have it yet
+import { verify } from 'jsonwebtoken';
+
+// Helper to read cookie
+function getToken(req: VercelRequest): string | null {
+    const cookie = req.headers.cookie;
+    if (!cookie) return null;
+
+    // Find fp_session=… in cookie header
+    const match = cookie.match(/(?:^|;\s*)fp_session=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const steamID64 = getSteamID64(req);
-    if (!steamID64) {
-        return res.status(200).json({ loggedIn: false });
+    const token = getToken(req);
+    if (!token) {
+        return res.json({ loggedIn: false });
     }
 
-    // Call Steam Web API to get the persona name
-    const key = process.env.STEAM_API_KEY!;
-    const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${key}&steamids=${steamID64}`;
+    let steamID64: string;
+    try {
+        const payload = verify(token, process.env.JWT_SECRET!) as {
+            steamID64: string;
+        };
+        steamID64 = payload.steamID64;
+    } catch (err) {
+        console.error('Invalid session token:', err);
+        return res.json({ loggedIn: false });
+    }
+
+    // Fetch Steam profile
+    const apiKey = process.env.STEAM_API_KEY!;
+    const url =
+        `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/` +
+        `?key=${apiKey}&steamids=${steamID64}`;
 
     try {
         const steamRes = await fetch(url);
-        const { response } = await steamRes.json();
-        const player = response?.players?.[0];
-        const displayName = player?.personaname || steamID64;
+        const data = await steamRes.json();
+
+        const player = data.response?.players?.[0] || {};
+        const displayName: string = player.personaname || steamID64;
+        const avatarUrl: string = player.avatarfull || '';
 
         return res.status(200).json({
             loggedIn: true,
             steamID64,
             displayName,
-            tier: 'Cadet', // or fetch from your DB
+            avatarUrl,
+            tier: 'Cadet', // retrieve from your DB when ready
         });
     } catch (err) {
-        console.error('Error fetching Steam persona:', err);
-        // Fallback: still return the SteamID if name fetch fails
+        console.error('Error fetching Steam profile:', err);
         return res.status(200).json({
             loggedIn: true,
             steamID64,
             displayName: steamID64,
+            avatarUrl: '',
             tier: 'Cadet',
         });
     }
