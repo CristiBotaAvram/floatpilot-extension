@@ -1,55 +1,60 @@
 // api/me.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import jwt from 'jsonwebtoken'        // <-- default import
-import fetch from 'node-fetch'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { db } from './_utils/db.js'
 import { getSteamID64 } from './_utils/session.js'
+import fetch from 'node-fetch'
 
-export default async function handler(
-    req: VercelRequest,
-    res: VercelResponse
-) {
-    // verifySession will throw if the token is invalid or missing
-    let steamID64: string | null = null
-    try {
-        const token = req.cookies.fp_session
-        if (!token) throw new Error('no cookie')
-        // jwt.verify is a method on the default export
-        const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
-            steamID64: string
-        }
-        steamID64 = payload.steamID64
-    } catch (err) {
-        console.log('No valid session:', err)
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    const steamID64 = getSteamID64(req)
+    if (!steamID64) {
         return res.status(200).json({ loggedIn: false })
     }
 
-    // now that we have a valid steamID64, fetch their Steam profile:
+    // 1) If this is a PUT, update their tier
+    if (req.method === 'PUT') {
+        const { tier } = JSON.parse(req.body || '{}')
+        if (!['Cadet','Co-Pilot','Commander'].includes(tier)) {
+            return res.status(400).json({ error: 'Invalid tier' })
+        }
+        db.prepare(`
+      INSERT INTO users (steamID64, tier, updatedAt)
+      VALUES (@steamID64, @tier, @time)
+      ON CONFLICT(steamID64) DO UPDATE SET
+        tier = excluded.tier,
+        updatedAt = excluded.updatedAt
+    `).run({
+            steamID64,
+            tier,
+            time: Date.now(),
+        })
+        return res.status(200).json({ success: true, tier })
+    }
+
+    // 2) On GET: load their saved tier (defaults to Cadet)
+    const row = db.prepare(
+        'SELECT tier FROM users WHERE steamID64 = ?'
+    ).get(steamID64)
+    const tier = row?.tier || 'Cadet'
+
+    // 3) Fetch Steam displayName & avatar as before
     const key = process.env.STEAM_API_KEY!
     const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${key}&steamids=${steamID64}`
-
+    let displayName = steamID64, avatarUrl = ''
     try {
         const steamRes = await fetch(url)
         const { response } = await steamRes.json()
-        const player = response?.players?.[0] || {}
-        const displayName = player.personaname || steamID64
-        const avatarUrl   = player.avatarmedium || ''
-
-        return res.status(200).json({
-            loggedIn:    true,
-            steamID64,
-            displayName,
-            avatarUrl,
-            tier: 'Cadet',
-        })
-    } catch (err) {
-        console.error('Error fetching Steam profile:', err)
-        return res.status(200).json({
-            loggedIn:    true,
-            steamID64,
-            displayName: steamID64,
-            avatarUrl:   '',
-            tier:        'Cadet',
-        })
+        const player = response.players?.[0]
+        displayName = player.personaname
+        avatarUrl  = player.avatarfull
+    } catch (e) {
+        console.error('Steam API error fetching persona:', e)
     }
+
+    return res.status(200).json({
+        loggedIn:    true,
+        steamID64,
+        displayName,
+        avatarUrl,
+        tier,
+    })
 }
