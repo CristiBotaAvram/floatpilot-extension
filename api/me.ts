@@ -1,7 +1,7 @@
 // api/me.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 // NOTE: no “.js” here—Vercel will treat .ts files as modules automatically
-import { getSteamID64 } from './_utils/session';
+import { getSteamID64 } from './_utils/session.js';
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
     const steamID64 = getSteamID64(req);
