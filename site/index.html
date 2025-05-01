@@ -64,19 +64,18 @@
     const loginBtn = document.getElementById('loginBtn');
     const welcome  = document.getElementById('welcome');
 
-    fetch('/api/me', {
-        method: 'GET',
-        credentials: 'include'    // ← Add this line
-    })
+    fetch('/api/me')
         .then(r => r.json())
         .then(data => {
+            const loginBtn = document.getElementById('loginBtn');
+            const welcome = document.getElementById('welcome');
+
             if (data.loggedIn) {
                 loginBtn.style.display = 'none';
-                welcome.textContent   = 'Logged in as ' + data.steamID64;
-                welcome.style.display = 'block';
+                welcome.textContent = `Welcome, ${data.displayName}!`;
             } else {
                 loginBtn.style.display = 'inline-block';
-                welcome.style.display  = 'none';
+                welcome.style.display = 'none';
             }
         })
         .catch(err => {
