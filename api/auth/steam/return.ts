@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             // 3) Set the cookie and redirect home
             res.setHeader('Set-Cookie', [
-                `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`
+                `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=None`
             ]);
             res.writeHead(302, { Location: '/' });
             return res.end();

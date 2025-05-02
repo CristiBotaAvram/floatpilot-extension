@@ -8,12 +8,14 @@
     "tabs",
     "scripting",
     "activeTab",
-    "https://api.exchangerate.host/*"
+    "https://api.exchangerate.host/*",
+    "https://floatpilot.store/"
   ],
   "host_permissions": [
     "https://csfloat.com/*",
     "https://skinport.com/*",
-    "https://api.exchangerate.host/*"
+    "https://api.exchangerate.host/*",
+    "https://floatpilot.store/"
   ],
   "background": {
     "service_worker": "src/background/background.js"
