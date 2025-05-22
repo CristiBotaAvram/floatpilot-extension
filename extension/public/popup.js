@@ -1,66 +1,145 @@
-// FloatPilot popup logic (MV3)
-// Fetches user info from floatpilot.store using session cookie
-// Handles login redirect, loading UI, and setting toggle states
-
 document.addEventListener('DOMContentLoaded', async () => {
     const avatarEl = document.getElementById('avatar');
     const usernameEl = document.getElementById('username');
     const planEl = document.getElementById('plan');
-    const badgeEl = document.querySelector('.badge');
+    const badgeEl = document.getElementById('footerTier');
+    const loginBtn = document.getElementById('loginBtn');
+    const settingsEls = document.querySelectorAll('.setting');
 
-    // Initial loading state
-    avatarEl.style.opacity = '0.4';
-    usernameEl.textContent = 'Loading...';
-    badgeEl.textContent = '...';
+    function setFallbackUI() {
+        avatarEl.src = 'default-avatar.png';
+        usernameEl.textContent = 'Not logged in';
+        planEl.textContent = '';
+        badgeEl.textContent = 'Guest';
+    }
+
+    function getOverlayByText(text) {
+        return Array.from(document.querySelectorAll('.locked-overlay')).find(el => el.textContent.includes(text));
+    }
+
+    /**
+     * Bind checkboxes and number inputs inside each .setting element
+     * so their state persists in chrome.storage.local under a user‑scoped key.
+     */
+    function bindSettings(steamID64, tier) {
+        const storageKey = `floatpilot_settings_${steamID64}`;
+
+        chrome.storage.local.get(storageKey, (result) => {
+            const storedSettings = result[storageKey] || {};
+
+            settingsEls.forEach(el => {
+                const key = el.dataset.key;
+                if (!key) return;
+
+                const checkbox = el.querySelector('.checkbox');
+                const numberInput = /** @type {HTMLInputElement|null} */ (el.querySelector('input[type="number"]'));
+
+                // --- checkbox behaviour ---
+                if (checkbox) {
+                    const checked = !!storedSettings[key];
+                    checkbox.classList.toggle('checked', checked);
+
+                    el.addEventListener('click', () => {
+                        // ignore clicks that originate from a number input inside the same setting
+                        if (numberInput && numberInput === document.activeElement) return;
+
+                        const nowChecked = !checkbox.classList.contains('checked');
+                        checkbox.classList.toggle('checked', nowChecked);
+
+                        const newSettings = { ...storedSettings, [key]: nowChecked };
+                        chrome.storage.local.set({ [storageKey]: newSettings });
+                    });
+                }
+
+                // --- number input behaviour ---
+                if (numberInput) {
+                    if (storedSettings[key] !== undefined) {
+                        numberInput.value = storedSettings[key];
+                    }
+
+                    numberInput.addEventListener('input', () => {
+                        const val = numberInput.value.trim();
+                        const newSettings = { ...storedSettings };
+
+                        if (val === '') {
+                            delete newSettings[key];
+                        } else {
+                            newSettings[key] = Number(val);
+                        }
+
+                        chrome.storage.local.set({ [storageKey]: newSettings });
+                    });
+                }
+            });
+        });
+
+        // Unlock Co‑Pilot settings if user has Co‑Pilot or Commander
+        if (tier === 'Co-Pilot' || tier === 'Commander') {
+            const coPilotOverlay = getOverlayByText('Co-Pilot');
+            if (coPilotOverlay) coPilotOverlay.remove();
+            document.querySelectorAll('[data-key="itemEstimation"], [data-key="profitTarget"], [data-key="listingCardHighlight"], [data-key="manipulationWarning"]').forEach(el => {
+                el.classList.remove('locked');
+            });
+        }
+
+        // Unlock Commander settings if user has Commander
+        if (tier === 'Commander') {
+            const commanderOverlay = getOverlayByText('Commander');
+            if (commanderOverlay) commanderOverlay.remove();
+            document.querySelectorAll('[data-key="removeAffiliate"], [data-key="editStickers"], [data-key="estimateMethod"], [data-key="rarePatterns"], [data-key="flippability"]').forEach(el => {
+                el.classList.remove('locked');
+            });
+        }
+    }
 
     try {
         const res = await fetch('https://floatpilot.store/api/me', {
             credentials: 'include'
         });
 
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+
         const data = await res.json();
+        if (!data.loggedIn) throw new Error('Not logged in');
 
-        if (!res.ok || !data.loggedIn) {
-            throw new Error('Not authenticated');
-        }
-
+        // Display user info
         avatarEl.src = data.avatarUrl;
-        avatarEl.style.opacity = '1';
         usernameEl.textContent = data.displayName;
         planEl.textContent = data.tier;
         badgeEl.textContent = data.tier;
 
-        // Load toggle settings per user from local storage (per SteamID64)
-        const userKey = `floatpilot_settings_${data.steamID64}`;
-        chrome.storage.local.get(userKey, (result) => {
-            const toggles = result[userKey] || {};
-            document.getElementById('toggle-cheaper').checked = toggles.cheaper ?? false;
-            document.getElementById('toggle-other').checked = toggles.other ?? true;
-        });
+        // Cache user info
+        chrome.storage.local.set({ floatpilot_user: data });
 
-        // Attach listeners to sync state changes
-        ['toggle-cheaper', 'toggle-other'].forEach(id => {
-            document.getElementById(id).addEventListener('change', async () => {
-                const updatedSettings = {
-                    cheaper: document.getElementById('toggle-cheaper').checked,
-                    other: document.getElementById('toggle-other').checked
-                };
-                const toSave = {};
-                toSave[userKey] = updatedSettings;
-                chrome.storage.local.set(toSave);
-            });
-        });
+        // Load + bind toggles / inputs
+        bindSettings(data.steamID64, data.tier);
 
     } catch (err) {
-        console.warn('[FloatPilot popup] Not logged in or failed to fetch:', err);
-        usernameEl.textContent = 'Not logged in';
-        planEl.textContent = '';
-        badgeEl.textContent = 'Guest';
-        avatarEl.style.opacity = '0.3';
+        console.warn('[FloatPilot] API fetch failed, fallback to cache', err);
 
-        // Optional: redirect user to login
-        setTimeout(() => {
-            chrome.tabs.create({ url: 'https://floatpilot.store' });
-        }, 1500);
+        chrome.storage.local.get('floatpilot_user', ({ floatpilot_user }) => {
+            if (floatpilot_user && floatpilot_user.loggedIn) {
+                console.log('[FloatPilot] Loaded user from cache');
+                avatarEl.src = floatpilot_user.avatarUrl;
+                usernameEl.textContent = floatpilot_user.displayName;
+                planEl.textContent = floatpilot_user.tier;
+                badgeEl.textContent = floatpilot_user.tier;
+                bindSettings(floatpilot_user.steamID64, floatpilot_user.tier);
+            } else {
+                console.warn('[FloatPilot] No user info found');
+                setFallbackUI();
+                loginBtn.style.display = 'block';
+            }
+        });
     }
+
+    loginBtn.addEventListener('click', () => {
+        chrome.tabs.create({ url: 'https://floatpilot.store/' });
+    });
+
+    document.body.addEventListener('click', e => {
+        if (e.target.matches('.upgrade-btn')) {
+            chrome.tabs.create({ url: 'https://floatpilot.store/manage-subscription' });
+        }
+    });
 });
