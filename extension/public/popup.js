@@ -1,3 +1,5 @@
+// popup.js
+
 document.addEventListener('DOMContentLoaded', async () => {
     const avatarEl = document.getElementById('avatar');
     const usernameEl = document.getElementById('username');
@@ -17,10 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return Array.from(document.querySelectorAll('.locked-overlay')).find(el => el.textContent.includes(text));
     }
 
-    /**
-     * Bind checkboxes and number inputs inside each .setting element
-     * so their state persists in chrome.storage.local under a user‑scoped key.
-     */
     function bindSettings(steamID64, tier) {
         const storageKey = `floatpilot_settings_${steamID64}`;
 
@@ -34,13 +32,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const checkbox = el.querySelector('.checkbox');
                 const numberInput = /** @type {HTMLInputElement|null} */ (el.querySelector('input[type="number"]'));
 
-                // --- checkbox behaviour ---
                 if (checkbox) {
                     const checked = !!storedSettings[key];
                     checkbox.classList.toggle('checked', checked);
 
                     el.addEventListener('click', () => {
-                        // ignore clicks that originate from a number input inside the same setting
                         if (numberInput && numberInput === document.activeElement) return;
 
                         const nowChecked = !checkbox.classList.contains('checked');
@@ -48,10 +44,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         const newSettings = { ...storedSettings, [key]: nowChecked };
                         chrome.storage.local.set({ [storageKey]: newSettings });
+
+                        // ✅ Sync showPriceDiff when cheapestToggle is toggled
+                        if (key === 'cheapestToggle') {
+                            chrome.storage.sync.set({ showPriceDiff: nowChecked });
+                        }
                     });
                 }
 
-                // --- number input behaviour ---
                 if (numberInput) {
                     if (storedSettings[key] !== undefined) {
                         numberInput.value = storedSettings[key];
@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Unlock Co‑Pilot settings if user has Co‑Pilot or Commander
         if (tier === 'Co-Pilot' || tier === 'Commander') {
             const coPilotOverlay = getOverlayByText('Co-Pilot');
             if (coPilotOverlay) coPilotOverlay.remove();
@@ -82,7 +81,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Unlock Commander settings if user has Commander
         if (tier === 'Commander') {
             const commanderOverlay = getOverlayByText('Commander');
             if (commanderOverlay) commanderOverlay.remove();
@@ -102,16 +100,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await res.json();
         if (!data.loggedIn) throw new Error('Not logged in');
 
-        // Display user info
         avatarEl.src = data.avatarUrl;
         usernameEl.textContent = data.displayName;
         planEl.textContent = data.tier;
         badgeEl.textContent = data.tier;
 
-        // Cache user info
         chrome.storage.local.set({ floatpilot_user: data });
 
-        // Load + bind toggles / inputs
         bindSettings(data.steamID64, data.tier);
 
     } catch (err) {

@@ -37,6 +37,11 @@
       "run_at": "document_idle"
     },
     {
+      "matches": ["https://csfloat.com/*"],
+      "js": ["src/content-scripts/priceDiff.js"],
+      "run_at": "document_idle"
+    },
+    {
       "matches": ["*://csfloat.com/search*"],
       "js": ["src/content-scripts/injectStyle.js", "src/content-scripts/searchFilter.js"],
       "run_at": "document_idle"
