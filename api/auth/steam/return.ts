@@ -3,12 +3,15 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
 import OpenID from 'openid';
 import fetch from 'node-fetch';
-import { supabase } from '../../_utils/db.js';
+import { supabase } from '../../_utils/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { RelyingParty } = OpenID;
+    const host = req.headers.host;
+    const dynamicBaseUrl = `https://${host}`;
+
     const relyingParty = new RelyingParty(
-        `${process.env.BASE_URL}/api/auth/steam/return`,
+        `${dynamicBaseUrl}/api/auth/steam/return`,
         null,
         true,
         false,
