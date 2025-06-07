@@ -2,19 +2,19 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
 import OpenID from 'openid';
-import fetch from 'node-fetch'; // or use the built-in global fetch in Node 18+
+import fetch from 'node-fetch';
+import { supabase } from '../../_utils/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { RelyingParty } = OpenID;
     const relyingParty = new RelyingParty(
-        `${process.env.BASE_URL}/api/auth/steam/return`, // your callback
+        `${process.env.BASE_URL}/api/auth/steam/return`,
         null,
         true,
         false,
         []
     );
 
-    // verifyAssertion can be promisified manually:
     relyingParty.verifyAssertion(req, async (err, result) => {
         if (err) {
             console.error('Steam OpenID return error:', err);
@@ -25,7 +25,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(401).send('Login failed');
         }
 
-        // Extract the SteamID64
         const match = result.claimedIdentifier.match(/\/(?:id|openid\/id)\/([0-9]{17})$/);
         if (!match) {
             console.error('Invalid claimedIdentifier:', result.claimedIdentifier);
@@ -33,7 +32,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         const steamID64 = match[1];
 
-        // 1) Fetch the player’s avatar from Steam Web API
         try {
             const apiKey = process.env.STEAM_API_KEY;
             if (!apiKey) throw new Error('Missing STEAM_API_KEY');
@@ -46,22 +44,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             const player = summaryJson.response.players?.[0];
             const avatarUrl: string | undefined = player?.avatarfull;
+            const displayName: string | undefined = player?.personaname;
 
-            // 2) Sign a JWT with both steamID64 and avatarUrl
+            // 1. Upsert the user with optional FF field
+            await supabase.from('users').upsert({
+                steam_id: steamID64,
+                avatar: avatarUrl,
+                name: displayName,
+                ff_balance: 0
+            }, {
+                onConflict: 'steam_id'
+            });
+
+            // 2. Sign a JWT with both steamID64 and avatarUrl
             const token = jwt.sign(
                 { steamID64, avatarUrl },
                 process.env.JWT_SECRET!,
                 { expiresIn: '7d' }
             );
 
-            // 3) Set the cookie and redirect home
+            // 3. Set the cookie and redirect
             res.setHeader('Set-Cookie', [
                 `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=None`
             ]);
             res.writeHead(302, { Location: '/' });
             return res.end();
         } catch (fetchErr) {
-            console.error('Error fetching Steam profile:', fetchErr);
+            console.error('Error fetching Steam profile or upserting:', fetchErr);
             return res.status(500).send('Login failed');
         }
     });

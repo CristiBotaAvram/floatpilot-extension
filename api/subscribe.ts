@@ -1,27 +1,30 @@
 // File: api/subscribe.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
-import { getSteamID64 } from './_utils/session.js'  // we trust session for steam_id
+import { getSteamID64 } from './_utils/session.js'
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const COST: Record<string, number> = {
+    'Cadet': 0,
+    'Co-Pilot': 150,
+    'Commander': 500
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Only allow POST
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST')
         return res.status(405).json({ error: 'Method Not Allowed' })
     }
 
-    // Ensure user is logged in
     const steam_id = getSteamID64(req)
     if (!steam_id) {
         return res.status(401).json({ error: 'Not authenticated' })
     }
 
-    // Parse and validate the requested tier
     let tier: string
     try {
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
@@ -35,21 +38,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: `Tier must be one of ${validTiers.join(', ')}` })
     }
 
-    // Upsert into Supabase: insert new row or update existing
-    const { data, error } = await supabase
+    const { data: user, error: fetchError } = await supabase
         .from('users')
-        .upsert(
-            { steam_id, tier },        // the record to insert or update
-            { onConflict: 'steam_id' } // use steam_id column as unique key
-        )
-        .select()                    // return the row
-        .single()                    // expect exactly one row
+        .select('ff_balance, tier')
+        .eq('steam_id', steam_id)
+        .single()
 
-    if (error) {
-        console.error('Supabase error:', error)
-        return res.status(500).json({ error: error.message })
+    if (fetchError || !user) {
+        return res.status(500).json({ error: 'User not found' })
     }
 
-    // data is guaranteed non-null by `.single()`
-    return res.status(200).json({ success: true, tier: data.tier })
+    const currentBalance = user.ff_balance || 0
+    const price = COST[tier]
+
+    if (user.tier === tier) {
+        return res.status(200).json({ success: true, tier, ff_balance: currentBalance })
+    }
+
+    if (currentBalance < price) {
+        return res.status(400).json({ error: `Not enough FF. Required: ${price}` })
+    }
+
+    const { data, error: updateError } = await supabase
+        .from('users')
+        .update({
+            tier,
+            ff_balance: currentBalance - price,
+            updated_at: new Date().toISOString()
+        })
+        .eq('steam_id', steam_id)
+        .select()
+        .single()
+
+    if (updateError) {
+        console.error('Supabase error:', updateError)
+        return res.status(500).json({ error: updateError.message })
+    }
+
+    return res.status(200).json({ success: true, tier: data.tier, ff_balance: data.ff_balance })
 }

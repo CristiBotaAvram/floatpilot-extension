@@ -14,6 +14,12 @@ const supabase = createClient(
 const TIERS = ['Cadet', 'Co-Pilot', 'Commander'] as const;
 type Tier = (typeof TIERS)[number];
 
+const FF_COST: Record<Tier, number> = {
+    'Cadet': 0,
+    'Co-Pilot': 150,
+    'Commander': 500
+};
+
 // ---------------  Handler ---------------------
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const steamID64 = getSteamID64(req);
@@ -23,40 +29,60 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ---------- PUT  (update tier) --------------
     if (req.method === 'PUT') {
-        // Vercel already parsed JSON if content-type was application/json
         const { tier } = (req.body ?? {}) as { tier?: string };
 
-        // Validate tier
         if (!tier || !TIERS.includes(tier as Tier)) {
             return res.status(400).json({ error: 'Invalid tier' });
         }
 
-        // Upsert user record
+        const { data: user, error: fetchError } = await supabase
+            .from('users')
+            .select('ff_balance, tier')
+            .eq('steam_id', steamID64)
+            .single();
+
+        if (fetchError || !user) {
+            console.error('Supabase fetch error:', fetchError);
+            return res.status(500).json({ error: 'User fetch error' });
+        }
+
+        const currentTier = user.tier || 'Cadet';
+        const currentBalance = user.ff_balance || 0;
+
+        if (currentTier === tier) {
+            return res.status(200).json({ success: true, tier });
+        }
+
+        const newTier = tier as Tier;
+        const cost = FF_COST[newTier];
+
+        if (currentBalance < cost) {
+            return res.status(400).json({ error: `Not enough FF. Required: ${cost}` });
+        }
+
         const { error: upsertError } = await supabase
             .from('users')
-            .upsert(
-                {
-                    steam_id:   steamID64,
-                    tier:       tier as Tier,
-                    created_at: new Date().toISOString()
-                },
-                { onConflict: 'steam_id', ignoreDuplicates: false }
-            );
+            .update({
+                tier: newTier,
+                ff_balance: currentBalance - cost,
+                updated_at: new Date().toISOString()
+            })
+            .eq('steam_id', steamID64);
 
         if (upsertError) {
             console.error('Supabase upsert error:', upsertError);
             return res.status(500).json({ error: 'Database error' });
         }
 
-        return res.status(200).json({ success: true, tier });
+        return res.status(200).json({ success: true, tier: newTier, new_balance: currentBalance - cost });
     }
 
     // ---------- GET  (load profile + tier) ------
     const { data: row, error: selectError } = await supabase
         .from('users')
-        .select('tier')
+        .select('tier, ff_balance')
         .eq('steam_id', steamID64)
-        .maybeSingle();          // returns null instead of 404 error
+        .maybeSingle();
 
     if (selectError) {
         console.error('Supabase select error:', selectError);
@@ -64,6 +90,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const tier: Tier = (row?.tier as Tier) || 'Cadet';
+    const ff_balance = row?.ff_balance ?? 0;
 
     // ---------- Steam profile -------------------
     let displayName = steamID64;
@@ -92,6 +119,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         steamID64,
         displayName,
         avatarUrl,
-        tier
+        tier,
+        ff_balance
     });
 }
