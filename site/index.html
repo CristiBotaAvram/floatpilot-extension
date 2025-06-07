@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>FloatPilot</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon16.png"/>
+    <link rel="icon" type="image/png" sizes="48x48" href="./icons/icon48.png"/>
+    <link rel="icon" type="image/png" sizes="128x128" href="./icons/icon128.png"/>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white font-sans">
@@ -11,7 +15,7 @@
 <!-- Header -->
 <header class="flex justify-between items-center px-6 py-4 border-b border-gray-700 bg-gray-800">
     <div class="flex items-center space-x-4">
-        <img src="/plane-icon.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
         <h1 class="text-2xl font-signature">FloatPilot</h1>
         <nav class="flex space-x-6 ml-6 text-lg">
             <a href="#" class="hover:text-blue-400">Home</a>
@@ -21,15 +25,18 @@
         </nav>
     </div>
 
-    <div class="flex items-center space-x-2">
-        <a href="https://github.com" target="_blank" class="bg-black rounded-full p-2">
-            <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub" class="w-4 h-4"/>
+    <div class="flex items-center space-x-4">
+        <!-- GitHub icon without circle -->
+        <a href="https://github.com/your-repo" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
+            <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6"/>
         </a>
-        <button class="bg-black text-white font-bold rounded-full w-8 h-8 flex items-center justify-center">X</button>
+        <!-- X / Twitter icon without circle -->
+        <a href="https://x.com/your-handle" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity">
+            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6"/>
+        </a>
 
         <!-- Not logged in -->
-        <a id="loginBtn" href="/api/auth/steam" class="ml-2 bg-white text-black font-semibold px-4 py-1 rounded hidden">Sign in</a>
-
+        <a href="/api/auth/steam" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold hidden" id="loginHeaderBtn">Login</a>
         <!-- Logged in -->
         <div id="userMenu" class="hidden relative">
             <button class="flex items-center space-x-3 px-3 py-1 rounded bg-gray-700 hover:bg-gray-600">
@@ -106,63 +113,63 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const loginBtn     = document.getElementById('loginBtn')
-        const userMenu     = document.getElementById('userMenu')
-        const avatarImg    = document.getElementById('avatarImg')
-        const steamName    = document.getElementById('steamName')
-        const steamID      = document.getElementById('steamID')
-        const ffBalance    = document.getElementById('ffBalance')
-        const userTier     = document.getElementById('userTier')
-        const tierBadge    = document.getElementById('tierBadge')
-        const userDropdown = document.getElementById('userDropdown')
+        const loginBtn     = document.getElementById('loginBtn');
+        const userMenu     = document.getElementById('userMenu');
+        const avatarImg    = document.getElementById('avatarImg');
+        const steamName    = document.getElementById('steamName');
+        const steamID      = document.getElementById('steamID');
+        const ffBalance    = document.getElementById('ffBalance');
+        const userTier     = document.getElementById('userTier');
+        const tierBadge    = document.getElementById('tierBadge');
+        const userDropdown = document.getElementById('userDropdown');
 
-        let currentFF = 0
+        let currentFF = 0;
 
         fetch('/api/me')
             .then(r => r.json())
             .then(data => {
                 if (data.loggedIn) {
-                    loginBtn.classList.add('hidden')
-                    userMenu.classList.remove('hidden')
-                    avatarImg.src         = data.avatarUrl
-                    steamName.textContent = data.displayName
-                    steamID.textContent   = data.steamId
-                    userTier.textContent  = data.tier || 'Cadet'
-                    currentFF             = data.ff_balance || 0
-                    ffBalance.textContent = `${currentFF} FF`
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    userMenu.classList.remove('hidden');
+                    avatarImg.src         = data.avatarUrl;
+                    steamName.textContent = data.displayName;
+                    steamID.textContent   = data.steamId;
+                    userTier.textContent  = data.tier || 'Cadet';
+                    currentFF             = data.ff_balance || 0;
+                    ffBalance.textContent = `${currentFF} FF`;
 
-                    tierBadge.textContent = data.tier || 'Cadet'
-                    tierBadge.className = `text-xs px-2 py-0.5 rounded font-semibold ${data.tierStyle}`
+                    tierBadge.textContent = data.tier || 'Cadet';
+                    tierBadge.className   = `text-xs px-2 py-0.5 rounded font-semibold ${data.tierStyle}`;
 
                     document.querySelectorAll('[data-tier]').forEach(btn => {
                         btn.addEventListener('click', async () => {
-                            const newTier = btn.dataset.tier
-                            const cost = newTier === 'Commander' ? 500 : newTier === 'Co-Pilot' ? 150 : 0
+                            const newTier = btn.dataset.tier;
+                            const cost = newTier === 'Commander' ? 500 : newTier === 'Co-Pilot' ? 150 : 0;
 
                             if (currentFF < cost) {
-                                alert(`You need ${cost} FF to subscribe to ${newTier}.`)
-                                return
+                                alert(`You need ${cost} FF to subscribe to ${newTier}.`);
+                                return;
                             }
 
-                            const res = await fetch('/api/me', {
+                            const res  = await fetch('/api/me', {
                                 method: 'PUT',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ tier: newTier })
-                            })
-                            const json = await res.json()
+                            });
+                            const json = await res.json();
                             if (json.success) {
-                                location.reload()
+                                location.reload();
                             } else {
-                                alert('Subscription failed.')
+                                alert('Subscription failed.');
                             }
-                        })
-                    })
+                        });
+                    });
                 } else {
-                    loginBtn.classList.remove('hidden')
-                    userMenu.classList.add('hidden')
+                    document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
+                    userMenu.classList.add('hidden');
                 }
             })
-            .catch(console.error)
+            .catch(console.error);
 
         userMenu?.addEventListener('click', () => {
             userDropdown.classList.toggle('hidden')
