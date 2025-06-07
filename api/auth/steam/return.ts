@@ -48,20 +48,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const avatarUrl: string | undefined = player?.avatarfull;
             const displayName: string | undefined = player?.personaname;
 
-            const upsertResult = await supabase
+            const { data: existingUser, error: selectError } = await supabase
                 .from('users')
-                .upsert({
-                    steam_id: steamID64,
-                    ff_balance: 0
-                }, { onConflict: 'steam_id' })
-                .select();
+                .select('*')
+                .eq('steam_id', steamID64)
+                .single();
 
-            const userData = upsertResult.data?.[0];
+            let userData = existingUser;
 
-            if (upsertResult.error || !userData) {
-                console.error('Upsert failed:', upsertResult.error);
-                return res.status(500).send('User DB error');
+            if (!existingUser && !selectError) {
+                const insertResult = await supabase
+                    .from('users')
+                    .insert({ steam_id: steamID64, ff_balance: 0 })
+                    .select()
+                    .single();
+
+                if (insertResult.error || !insertResult.data) {
+                    console.error('Insert failed:', insertResult.error);
+                    return res.status(500).send('User insert error');
+                }
+
+                userData = insertResult.data;
             }
+
+
 
             const tier = userData.tier || 'Cadet';
             const ff_balance = userData.ff_balance || 0;

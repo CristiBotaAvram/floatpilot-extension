@@ -25,24 +25,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 return res.status(500).send('Steam login unavailable');
             }
 
-            const match = authUrl.match(/openid\.steam\.com\/openid\/id\/(\d+)/);
-            const steamId = match?.[1];
-
-            if (steamId) {
-                const { data: existingUser, error } = await supabase
-                    .from('users')
-                    .select('steam_id')
-                    .eq('steam_id', steamId)
-                    .single();
-
-                if (!existingUser && !error) {
-                    await supabase.from('users').insert({
-                        steam_id: steamId,
-                        ff_balance: 0
-                    });
-                }
-            }
-
             res.writeHead(302, { Location: authUrl });
             res.end();
         }
