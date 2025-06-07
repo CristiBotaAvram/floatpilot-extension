@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
 import OpenID from 'openid';
 import fetch from 'node-fetch';
-import { supabase } from '../../_utils/db.js';
+import { supabase } from '../../_utils/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { RelyingParty } = OpenID;
@@ -49,8 +49,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 .from('users')
                 .upsert({
                     steam_id: steamID64,
-                    avatar: avatarUrl,
-                    name: displayName,
                     ff_balance: 0
                 }, { onConflict: 'steam_id' })
                 .select();
@@ -66,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const ff_balance = userData.ff_balance || 0;
 
             const token = jwt.sign(
-                { steamID64, avatarUrl, tier, ff_balance },
+                { steamID64, avatarUrl, displayName, tier, ff_balance },
                 process.env.JWT_SECRET!,
                 { expiresIn: '7d' }
             );
