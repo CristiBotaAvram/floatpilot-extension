@@ -8,48 +8,50 @@
 </head>
 <body class="bg-gray-900 text-white font-sans">
 
-<header class="text-center py-12">
-    <h1 class="text-4xl font-bold">FloatPilot</h1>
-    <p class="text-gray-400 mt-2">
-        Track and compare CS2 skin deals. Smarter. Faster.
-    </p>
+<!-- Header -->
+<header class="flex justify-between items-center px-6 py-4 border-b border-gray-700 bg-gray-800">
+    <div class="flex items-center space-x-4">
+        <img src="/plane-icon.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <h1 class="text-2xl font-signature">FloatPilot</h1>
+        <nav class="flex space-x-6 ml-6 text-lg">
+            <a href="#" class="hover:text-blue-400">Home</a>
+            <a href="#" class="hover:text-blue-400">Pricing</a>
+            <a href="#" class="hover:text-blue-400">Marketplace</a>
+            <a href="#" class="hover:text-blue-400">Configs</a>
+        </nav>
+    </div>
 
-    <div id="authControls" class="mt-4 flex justify-center items-center space-x-4">
-        <!-- Login button (shown only if not logged in) -->
-        <a
-                id="loginBtn"
-                href="/api/auth/steam"
-                class="bg-[#171a21] hover:bg-[#1b1f25] text-white px-6 py-2 rounded-md font-semibold"
-        >
-            Login with Steam
+    <div class="flex items-center space-x-2">
+        <a href="https://github.com" target="_blank" class="bg-black rounded-full p-2">
+            <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub" class="w-4 h-4"/>
         </a>
+        <button class="bg-black text-white font-bold rounded-full w-8 h-8 flex items-center justify-center">X</button>
 
-        <!-- Welcome + avatar + Logout (shown only if logged in) -->
-        <div
-                id="welcomeContainer"
-                class="hidden flex items-center space-x-2 text-green-400 text-sm"
-        >
-            <img
-                    id="avatarImg"
-                    src=""
-                    alt="avatar"
-                    class="w-8 h-8 rounded-full"
-            />
-            <p id="welcomeText"></p>
-            <button
-                    id="logoutBtn"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-semibold"
-            >
-                Logout
+        <!-- Not logged in -->
+        <a id="loginBtn" href="/api/auth/steam" class="ml-2 bg-white text-black font-semibold px-4 py-1 rounded hidden">Sign in</a>
+
+        <!-- Logged in -->
+        <div id="userMenu" class="hidden relative">
+            <button class="flex items-center space-x-2 px-3 py-1 rounded bg-gray-700 hover:bg-gray-600">
+                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
+                <span id="ffBalance" class="text-blue-400 font-semibold">100 FF</span>
             </button>
+            <div class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
+                <div class="px-4 py-2 border-b border-gray-700">
+                    <p id="steamName" class="font-semibold">Steam name</p>
+                    <p id="steamID" class="text-gray-400 text-xs">SteamID</p>
+                </div>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-700">Orders</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-700">Configs</a>
+            </div>
         </div>
     </div>
 </header>
 
+<!-- Main -->
 <main class="max-w-4xl mx-auto px-4 py-8">
     <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
     <div class="grid md:grid-cols-3 gap-6">
-
         <!-- Cadet -->
         <div class="bg-gray-800 p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-2">Cadet</h3>
@@ -58,12 +60,7 @@
                 <li>✔ Basic float analysis</li>
                 <li>✔ View deals on CSFloat & Skinport</li>
             </ul>
-            <button
-                    id="tier-Cadet"
-                    data-tier="Cadet"
-                    class="w-full bg-gray-600 text-white py-2 rounded cursor-not-allowed"
-                    disabled
-            >
+            <button id="tier-Cadet" data-tier="Cadet" class="w-full bg-gray-600 text-white py-2 rounded cursor-not-allowed" disabled>
                 Current Plan
             </button>
         </div>
@@ -77,11 +74,7 @@
                 <li>✔ Auto-deal highlighting</li>
                 <li>✔ Historical float alerts</li>
             </ul>
-            <button
-                    id="tier-Co-Pilot"
-                    data-tier="Co-Pilot"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
-            >
+            <button id="tier-Co-Pilot" data-tier="Co-Pilot" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
                 Subscribe
             </button>
         </div>
@@ -95,18 +88,14 @@
                 <li>✔ Pattern ID filtering</li>
                 <li>✔ Early deal access (1h)</li>
             </ul>
-            <button
-                    id="tier-Commander"
-                    data-tier="Commander"
-                    class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded"
-            >
+            <button id="tier-Commander" data-tier="Commander" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded">
                 Subscribe
             </button>
         </div>
-
     </div>
 </main>
 
+<!-- Footer -->
 <footer class="text-center text-gray-500 text-sm mt-12 mb-4">
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
@@ -114,72 +103,33 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const loginBtn         = document.getElementById('loginBtn')
-        const welcomeContainer = document.getElementById('welcomeContainer')
-        const welcomeText      = document.getElementById('welcomeText')
+        const userMenu         = document.getElementById('userMenu')
         const avatarImg        = document.getElementById('avatarImg')
-        const logoutBtn        = document.getElementById('logoutBtn')
+        const steamName        = document.getElementById('steamName')
+        const steamID          = document.getElementById('steamID')
+        const ffBalance        = document.getElementById('ffBalance')
+        const userDropdown     = document.getElementById('userDropdown')
 
         fetch('/api/me')
             .then(r => r.json())
             .then(data => {
                 if (data.loggedIn) {
-                    // Hide Steam login link
                     loginBtn.classList.add('hidden')
-
-                    // Show avatar + welcome text
+                    userMenu.classList.remove('hidden')
                     avatarImg.src         = data.avatarUrl
-                    avatarImg.alt         = data.displayName + ' avatar'
-                    welcomeText.textContent = `Welcome, ${data.displayName}!`
-
-                    welcomeContainer.classList.remove('hidden')
-
-                    // Highlight the active tier
-                    document.querySelectorAll('[id^="tier-"]').forEach(btn => {
-                        const tier = btn.dataset.tier
-                        if (tier === data.tier) {
-                            btn.textContent = 'Current Plan'
-                            btn.disabled    = true
-                            btn.classList.remove('bg-blue-600','hover:bg-blue-700','bg-yellow-500','hover:bg-yellow-600')
-                            btn.classList.add('bg-gray-600','cursor-not-allowed')
-                        } else {
-                            btn.textContent = 'Subscribe'
-                            btn.disabled    = false
-                        }
-                    })
-
-                    // Subscribe button handlers
-                    document.querySelectorAll('[data-tier]').forEach(btn => {
-                        btn.addEventListener('click', async () => {
-                            const newTier = btn.dataset.tier
-                            const res     = await fetch('/api/me', {
-                                method:  'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body:    JSON.stringify({ tier: newTier })
-                            })
-                            const json = await res.json()
-                            if (json.success) {
-                                location.reload()
-                            } else {
-                                console.error('Update tier failed:', json)
-                                alert('Could not update plan: ' + (json.error || 'Unknown'))
-                            }
-                        })
-                    })
-
-                    // Logout button handler
-                    logoutBtn.addEventListener('click', () => {
-                        fetch('/api/logout', { method: 'POST' })
-                            .then(() => location.reload())
-                            .catch(console.error)
-                    })
-
+                    steamName.textContent = data.displayName
+                    steamID.textContent   = data.steamId
+                    ffBalance.textContent = data.balance + ' FF'
                 } else {
-                    // Not logged in
                     loginBtn.classList.remove('hidden')
-                    welcomeContainer.classList.add('hidden')
+                    userMenu.classList.add('hidden')
                 }
             })
             .catch(console.error)
+
+        userMenu?.addEventListener('click', () => {
+            userDropdown.classList.toggle('hidden')
+        })
     })
 </script>
 
