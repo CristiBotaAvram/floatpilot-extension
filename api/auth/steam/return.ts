@@ -37,8 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (!apiKey) throw new Error('Missing STEAM_API_KEY');
 
             const summaryRes = await fetch(
-                `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/` +
-                `?key=${apiKey}&steamids=${steamID64}`
+                `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamID64}`
             );
             const summaryJson = await summaryRes.json();
 
@@ -46,24 +45,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const avatarUrl: string | undefined = player?.avatarfull;
             const displayName: string | undefined = player?.personaname;
 
-            // 1. Upsert the user with optional FF field
-            await supabase.from('users').upsert({
-                steam_id: steamID64,
-                avatar: avatarUrl,
-                name: displayName,
-                ff_balance: 0
-            }, {
-                onConflict: 'steam_id'
-            });
+            const upsertResult = await supabase
+                .from('users')
+                .upsert({
+                    steam_id: steamID64,
+                    avatar: avatarUrl,
+                    name: displayName,
+                    ff_balance: 0
+                }, { onConflict: 'steam_id' })
+                .select();
 
-            // 2. Sign a JWT with both steamID64 and avatarUrl
+            const userData = upsertResult.data?.[0];
+
+            if (upsertResult.error || !userData) {
+                console.error('Upsert failed:', upsertResult.error);
+                return res.status(500).send('User DB error');
+            }
+
+            const tier = userData.tier || 'Cadet';
+            const ff_balance = userData.ff_balance || 0;
+
             const token = jwt.sign(
-                { steamID64, avatarUrl },
+                { steamID64, avatarUrl, tier, ff_balance },
                 process.env.JWT_SECRET!,
                 { expiresIn: '7d' }
             );
 
-            // 3. Set the cookie and redirect
             res.setHeader('Set-Cookie', [
                 `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=None`
             ]);

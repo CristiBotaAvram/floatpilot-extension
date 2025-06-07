@@ -36,10 +36,11 @@
                 <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
                 <span id="ffBalance" class="text-blue-400 font-semibold">100 FF</span>
             </button>
-            <div class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
+            <div class="absolute right-0 mt-2 w-56 bg-gray-800 border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
                 <div class="px-4 py-2 border-b border-gray-700">
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-gray-400 text-xs">SteamID</p>
+                    <p id="userTier" class="text-sm text-yellow-400 mt-1">Tier</p>
                 </div>
                 <a href="#" class="block px-4 py-2 hover:bg-gray-700">Orders</a>
                 <a href="#" class="block px-4 py-2 hover:bg-gray-700">Configs</a>
@@ -109,6 +110,7 @@
         const steamID          = document.getElementById('steamID')
         const ffBalance        = document.getElementById('ffBalance')
         const userDropdown     = document.getElementById('userDropdown')
+        const userTier         = document.getElementById('userTier')
 
         let currentFF = 0
 
@@ -121,8 +123,9 @@
                     avatarImg.src         = data.avatarUrl
                     steamName.textContent = data.displayName
                     steamID.textContent   = data.steamId
+                    userTier.textContent  = data.tier || 'Cadet'
                     currentFF             = data.ff_balance || 0
-                    ffBalance.textContent = currentFF + ' FF'
+                    ffBalance.textContent = `${data.tier || 'Cadet'} – ${currentFF} FF`
 
                     document.querySelectorAll('[data-tier]').forEach(btn => {
                         btn.addEventListener('click', async () => {
