@@ -3,24 +3,18 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { RelyingParty } from 'openid';
 import { supabase } from '../../_utils/db.js';
 
-let relyingParty: RelyingParty | null = null;
-
-(async () => {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     const openid = (await import('openid')).default;
-    relyingParty = new openid.RelyingParty(
-        `${process.env.BASE_URL}/api/auth/steam/return`,
+    const host = req.headers.host;
+    const dynamicBaseUrl = `https://${host}`;
+
+    const relyingParty: RelyingParty = new openid.RelyingParty(
+        `${dynamicBaseUrl}/api/auth/steam/return`,
         null,
         true,
         false,
         []
     );
-})();
-
-export default function handler(_: VercelRequest, res: VercelResponse) {
-    if (!relyingParty) {
-        console.error('RelyingParty not initialized yet');
-        return res.status(500).send('Login unavailable');
-    }
 
     relyingParty.authenticate(
         'https://steamcommunity.com/openid',
@@ -31,12 +25,10 @@ export default function handler(_: VercelRequest, res: VercelResponse) {
                 return res.status(500).send('Steam login unavailable');
             }
 
-            // Extract Steam ID
             const match = authUrl.match(/openid\.steam\.com\/openid\/id\/(\d+)/);
             const steamId = match?.[1];
 
             if (steamId) {
-                // Ensure user exists and has FF balance
                 await supabase.from('users').upsert({
                     steam_id: steamId,
                     ff_balance: 0
