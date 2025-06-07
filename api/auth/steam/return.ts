@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
 import OpenID from 'openid';
 import fetch from 'node-fetch';
-import { supabase } from '../../_utils/db';
+import { supabase } from '../../_utils/db.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { RelyingParty } = OpenID;

@@ -1,7 +1,7 @@
 // /api/auth/steam/index.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { RelyingParty } from 'openid';
-import { supabase } from '../../_utils/db';
+import { supabase } from '../../_utils/db.js';
 
 let relyingParty: RelyingParty | null = null;
 
