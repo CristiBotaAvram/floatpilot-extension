@@ -68,28 +68,28 @@
         <!-- Co-Pilot -->
         <div class="bg-gray-800 p-6 rounded-lg shadow border border-blue-500">
             <h3 class="text-xl font-semibold mb-2">Co-Pilot</h3>
-            <p class="text-3xl font-bold mb-4">$10/mo</p>
+            <p class="text-3xl font-bold mb-4">150 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
                 <li>✔ All Cadet features</li>
                 <li>✔ Auto-deal highlighting</li>
                 <li>✔ Historical float alerts</li>
             </ul>
             <button id="tier-Co-Pilot" data-tier="Co-Pilot" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
-                Subscribe
+                Subscribe for 150 FF
             </button>
         </div>
 
         <!-- Commander -->
         <div class="bg-gray-800 p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-2">Commander</h3>
-            <p class="text-3xl font-bold mb-4">$25/mo</p>
+            <p class="text-3xl font-bold mb-4">500 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
                 <li>✔ All Co-Pilot features</li>
                 <li>✔ Pattern ID filtering</li>
                 <li>✔ Early deal access (1h)</li>
             </ul>
             <button id="tier-Commander" data-tier="Commander" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded">
-                Subscribe
+                Subscribe for 500 FF
             </button>
         </div>
     </div>
@@ -110,6 +110,8 @@
         const ffBalance        = document.getElementById('ffBalance')
         const userDropdown     = document.getElementById('userDropdown')
 
+        let currentFF = 0
+
         fetch('/api/me')
             .then(r => r.json())
             .then(data => {
@@ -119,7 +121,32 @@
                     avatarImg.src         = data.avatarUrl
                     steamName.textContent = data.displayName
                     steamID.textContent   = data.steamId
-                    ffBalance.textContent = data.balance + ' FF'
+                    currentFF             = data.ff_balance || 0
+                    ffBalance.textContent = currentFF + ' FF'
+
+                    document.querySelectorAll('[data-tier]').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            const newTier = btn.dataset.tier
+                            const cost = newTier === 'Commander' ? 500 : newTier === 'Co-Pilot' ? 150 : 0
+
+                            if (currentFF < cost) {
+                                alert(`You need ${cost} FF to subscribe to ${newTier}.`)
+                                return
+                            }
+
+                            const res = await fetch('/api/me', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ tier: newTier })
+                            })
+                            const json = await res.json()
+                            if (json.success) {
+                                location.reload()
+                            } else {
+                                alert('Subscription failed.')
+                            }
+                        })
+                    })
                 } else {
                     loginBtn.classList.remove('hidden')
                     userMenu.classList.add('hidden')
