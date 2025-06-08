@@ -10,10 +10,10 @@
     <link rel="icon" type="image/png" sizes="128x128" href="./icons/icon128.png"/>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#161616] text-white font-sans">
+<body class="bg-[#0f0f0f] text-white font-sans">
 
 <!-- Header -->
-<header class="flex justify-between items-center px-6 py-4 border-b border-gray-700 bg-[#050c13]">
+<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
     <div class="flex items-center space-x-4">
         <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
         <h1 class="text-2xl font-signature">FloatPilot</h1>
@@ -28,11 +28,11 @@
     <div class="flex items-center space-x-4">
         <!-- GitHub icon without circle -->
         <a href="https://github.com/your-repo" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6"/>
+            <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
         <!-- X / Twitter icon without circle -->
-        <a href="https://x.com/your-handle" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity">
-            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6"/>
+        <a href="https://x.com/your-handle" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
+            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
 
         <!-- Not logged in -->
@@ -45,7 +45,7 @@
                     <span id="tierBadge" class="px-4 py-1 rounded-2xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span id="ffBalance" class="text-blue-400 font-semibold">100 FF</span>
+                    <span id="ffBalance" class="text-white font-semibold">100 FF</span>
                 </div>
             </button>
             <div class="absolute right-0 mt-2 w-56 bg-[#050c13] border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
@@ -68,20 +68,20 @@
     <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
     <div class="grid md:grid-cols-3 gap-6">
         <!-- Cadet -->
-        <div class="bg-[#050c13] p-6 rounded-lg shadow">
+        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#CD7F32]">
             <h3 class="text-xl font-semibold mb-2">Cadet</h3>
             <p class="text-3xl font-bold mb-4">Free</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
                 <li>✔ Basic float analysis</li>
                 <li>✔ View deals on CSFloat & Skinport</li>
             </ul>
-            <button id="tier-Cadet" data-tier="Cadet" class="w-full bg-gray-600 text-white py-2 rounded cursor-not-allowed" disabled>
+            <button id="tier-Cadet" data-tier="Cadet" class="w-full bg-[#CD7F32] text-black font-bold py-2 rounded cursor-not-allowed hover:bg-[#be660e]" disabled>
                 Current Plan
             </button>
         </div>
 
         <!-- Co-Pilot -->
-        <div class="bg-[#050c13] p-6 rounded-lg shadow border border-blue-500">
+        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#C0C0C0]">
             <h3 class="text-xl font-semibold mb-2">Co-Pilot</h3>
             <p class="text-3xl font-bold mb-4">150 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
@@ -89,13 +89,13 @@
                 <li>✔ Auto-deal highlighting</li>
                 <li>✔ Historical float alerts</li>
             </ul>
-            <button id="tier-Co-Pilot" data-tier="Co-Pilot" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
+            <button id="tier-Co-Pilot" data-tier="Co-Pilot" class="w-full bg-[#C0C0C0] hover:bg-[#919191] text-black font-bold py-2 rounded">
                 Subscribe for 150 FF
             </button>
         </div>
 
         <!-- Commander -->
-        <div class="bg-[#050c13] p-6 rounded-lg shadow">
+        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#FFD700]">
             <h3 class="text-xl font-semibold mb-2">Commander</h3>
             <p class="text-3xl font-bold mb-4">500 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
@@ -103,7 +103,7 @@
                 <li>✔ Pattern ID filtering</li>
                 <li>✔ Early deal access (1h)</li>
             </ul>
-            <button id="tier-Commander" data-tier="Commander" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-2 rounded">
+            <button id="tier-Commander" data-tier="Commander" class="w-full bg-[#FFD700] hover:bg-[#ccad00] text-black font-bold py-2 rounded">
                 Subscribe for 500 FF
             </button>
         </div>
