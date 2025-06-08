@@ -148,8 +148,10 @@
                     tierBadge.textContent = tier;
                     tierBadge.style.backgroundColor = tierColor;
                     tierBadge.style.color = '#fff';
-                    tierBadge.style.textShadow = '1px 1px 1px rgba(0,0,0,0.7)';
-                    tierBadge.style.webkitTextStroke = '1px black';
+                    tierBadge.style.textShadow = '1px 1px 1px rgba(0,0,0,0)';
+                    tierBadge.style.webkitTextStroke = '1.2px black';
+                    tierBadge.style.fontWeight = '800'; // Extra bold
+
 
                     document.querySelectorAll('[data-tier]').forEach(btn => {
                         btn.addEventListener('click', async () => {
