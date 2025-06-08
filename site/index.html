@@ -10,10 +10,10 @@
     <link rel="icon" type="image/png" sizes="128x128" href="./icons/icon128.png"/>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white font-sans">
+<body class="bg-[#161616] text-white font-sans">
 
 <!-- Header -->
-<header class="flex justify-between items-center px-6 py-4 border-b border-gray-700 bg-gray-800">
+<header class="flex justify-between items-center px-6 py-4 border-b border-gray-700 bg-[#050c13]">
     <div class="flex items-center space-x-4">
         <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
         <h1 class="text-2xl font-signature">FloatPilot</h1>
@@ -48,7 +48,7 @@
                     <span id="ffBalance" class="text-blue-400 font-semibold">100 FF</span>
                 </div>
             </button>
-            <div class="absolute right-0 mt-2 w-56 bg-gray-800 border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
+            <div class="absolute right-0 mt-2 w-56 bg-[#050c13] border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
                 <div class="px-4 py-2 border-b border-gray-700">
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-gray-400 text-xs">Steam ID</p>
@@ -68,7 +68,7 @@
     <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
     <div class="grid md:grid-cols-3 gap-6">
         <!-- Cadet -->
-        <div class="bg-gray-800 p-6 rounded-lg shadow">
+        <div class="bg-[#050c13] p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-2">Cadet</h3>
             <p class="text-3xl font-bold mb-4">Free</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
@@ -81,7 +81,7 @@
         </div>
 
         <!-- Co-Pilot -->
-        <div class="bg-gray-800 p-6 rounded-lg shadow border border-blue-500">
+        <div class="bg-[#050c13] p-6 rounded-lg shadow border border-blue-500">
             <h3 class="text-xl font-semibold mb-2">Co-Pilot</h3>
             <p class="text-3xl font-bold mb-4">150 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
@@ -95,7 +95,7 @@
         </div>
 
         <!-- Commander -->
-        <div class="bg-gray-800 p-6 rounded-lg shadow">
+        <div class="bg-[#050c13] p-6 rounded-lg shadow">
             <h3 class="text-xl font-semibold mb-2">Commander</h3>
             <p class="text-3xl font-bold mb-4">500 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
@@ -147,10 +147,11 @@
                     else if (tier === 'Co-Pilot') tierColor = '#C0C0C0';
                     tierBadge.textContent = tier;
                     tierBadge.style.backgroundColor = tierColor;
-                    tierBadge.style.color = '#fff';
-                    tierBadge.style.textShadow = '1px 1px 1px rgba(0,0,0,0)';
-                    tierBadge.style.webkitTextStroke = '1.2px black';
-                    tierBadge.style.fontWeight = '800'; // Extra bold
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+                    tierBadge.style.webkitTextStroke = '0px';
+                    tierBadge.style.textShadow = 'none';
+
 
 
                     document.querySelectorAll('[data-tier]').forEach(btn => {
