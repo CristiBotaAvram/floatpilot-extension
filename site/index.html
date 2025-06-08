@@ -42,7 +42,9 @@
             <button class="flex items-center space-x-3 px-3 py-1 rounded bg-gray-700 hover:bg-gray-600">
                 <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
                 <div class="flex items-center gap-2">
-                    <span id="tierBadge" class="text-white font-bold px-4 py-1 rounded-xl border border-black shadow-sm text-sm"></span>
+                    <span id="tierBadge" class="px-4 py-1 rounded-2xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+                </div>
+                <div class="flex items-center gap-2">
                     <span id="ffBalance" class="text-blue-400 font-semibold">100 FF</span>
                 </div>
             </button>
@@ -145,7 +147,7 @@
                     else if (tier === 'Co-Pilot') tierColor = '#C0C0C0';
                     tierBadge.textContent = tier;
                     tierBadge.style.backgroundColor = tierColor;
-                    tierBadge.style.color = '#000';
+                    tierBadge.style.color = '#fff';
                     tierBadge.style.textShadow = '1px 1px 1px rgba(0,0,0,0.7)';
 
                     document.querySelectorAll('[data-tier]').forEach(btn => {
