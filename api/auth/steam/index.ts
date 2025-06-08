@@ -1,7 +1,7 @@
 // /api/auth/steam/index.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { RelyingParty } from 'openid';
-import { supabase } from '../../_utils/db.js';
+// import { supabase } from '../../_utils/db.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const openid = (await import('openid')).default;
