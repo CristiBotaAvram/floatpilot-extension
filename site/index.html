@@ -36,10 +36,10 @@
         </a>
 
         <!-- Not logged in -->
-        <a href="/api/auth/steam" class="bg-[#0b1927] hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold hidden" id="loginHeaderBtn">Login</a>
+        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
         <!-- Logged in -->
         <div id="userMenu" class="hidden relative">
-            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-gray-600">
+            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
                 <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
                 <div class="flex items-center gap-2">
                     <span id="tierBadge" class="px-4 py-1 rounded-2xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
@@ -48,7 +48,7 @@
                     <span id="ffBalance" class="text-white font-semibold">100 FF</span>
                 </div>
             </button>
-            <div class="absolute right-0 mt-2 w-56 bg-[#050c13] border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
+            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-gray-700 rounded-md shadow-lg hidden" id="userDropdown">
                 <div class="px-4 py-2 border-b border-gray-700">
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-gray-400 text-xs">Steam ID</p>
