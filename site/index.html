@@ -136,8 +136,8 @@
                     userMenu.classList.remove('hidden');
                     avatarImg.src         = data.avatarUrl;
                     steamName.textContent = data.displayName;
-                    steamID.textContent   = data.steamId;
-                    userTier.textContent = data.steamId;
+                    steamID.textContent   = data.steamID64;
+                    userTier.textContent = data.steamID64;
                     currentFF             = data.ff_balance || 0;
                     ffBalance.textContent = `${currentFF} FF`;
 
