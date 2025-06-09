@@ -30,6 +30,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let tier: string, duration: string, cost: number
     try {
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+        if (!body || !body.tier || !body.duration || typeof body.cost !== 'number') {
+            return res.status(400).json({ error: 'Missing or invalid fields in request body' })
+        }
         tier = body.tier
         duration = body.duration
         cost = body.cost
@@ -105,14 +108,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Log in ff_ledger and transactions
-    await supabase.from('ff_ledger').insert({
+    const ledgerInsert = await supabase.from('ff_ledger').insert({
         steam_id,
         amount: -cost,
         type: `${tier.toLowerCase()}_subscription`,
         reference: `subscription_${duration}`,
         created_at: now.toISOString()
     })
-    await supabase.from('transactions').insert({
+
+    const transactionInsert = await supabase.from('transactions').insert({
         steam_id,
         type: `${tier.toLowerCase()}_subscription`,
         ff_before: user.ff_balance,
@@ -120,6 +124,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         amount: -cost,
         created_at: now.toISOString()
     })
+
+    if (ledgerInsert.error || transactionInsert.error) {
+        return res.status(500).json({ error: 'Failed to log ledger or transaction' })
+    }
 
     return res.status(200).json({
         success: true,
