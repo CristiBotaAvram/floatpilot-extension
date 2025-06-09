@@ -13,12 +13,12 @@
 <body class="bg-[#0f0f0f] text-white font-sans">
 <!-- Confirmation Modal -->
 <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
         <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
-        <p id="confirmationText" class="mb-4 text-gray-300">Are you sure you want to subscribe?</p>
-        <div class="flex justify-center space-x-4">
-            <button id="confirmSubscribe" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Yes</button>
-            <button id="cancelSubscribe" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Cancel</button>
+        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-12 bg-gray-800 rounded-full overflow-hidden cursor-pointer">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-12 bg-green-600 text-white flex items-center justify-center font-bold rounded-full transition-all duration-300">→</div>
         </div>
     </div>
 </div>
@@ -28,11 +28,11 @@
     <div class="flex items-center space-x-4">
         <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
         <h1 class="text-2xl font-signature">FloatPilot</h1>
-        <nav class="flex space-x-6 ml-6 text-lg">
-            <a href="#" class="hover:text-blue-400">Home</a>
-            <a href="#" class="hover:text-blue-400">Pricing</a>
-            <a href="#" class="hover:text-blue-400">Marketplace</a>
-            <a href="#" class="hover:text-blue-400">Configs</a>
+        <nav class="flex space-x-0 ml-6 text-lg">
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
         </nav>
     </div>
 
@@ -143,14 +143,16 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const ffBalance = document.getElementById('ffBalance');
-        const confirmationModal = document.getElementById('confirmationModal');
-        const confirmationText = document.getElementById('confirmationText');
-        const confirmSubscribe = document.getElementById('confirmSubscribe');
-        const cancelSubscribe = document.getElementById('cancelSubscribe');
         let selectedTier = null;
         let selectedCost = 0;
         let currentFF = 0;
+
+        const ffBalance = document.getElementById('ffBalance');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmationText = document.getElementById('confirmationText');
+        const sliderThumb = document.getElementById('sliderThumb');
+        const closeModal = document.getElementById('closeModal');
+        let isSliding = false, startX = 0;
 
         fetch('/api/me')
             .then(r => r.json())
@@ -183,7 +185,8 @@
                                 alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
                                 return;
                             }
-                            confirmationText.textContent = `Are you sure you want to subscribe to the ${selectedTier} plan for ${selectedCost} FF?`;
+                            confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
+                            sliderThumb.style.left = '0';
                             confirmationModal.classList.remove('hidden');
                         });
                     });
@@ -191,40 +194,49 @@
                     document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
                     document.getElementById('userMenu')?.classList.add('hidden');
                 }
-            })
-            .catch(console.error);
-
-        document.getElementById('userMenu')?.addEventListener('click', (event) => {
-            event.stopPropagation();
-            document.getElementById('userDropdown').classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('userDropdown');
-            const dropdownVisible = !dropdown.classList.contains('hidden');
-            if (dropdownVisible && !document.getElementById('userMenu').contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        confirmSubscribe.addEventListener('click', async () => {
-            confirmationModal.classList.add('hidden');
-            if (!selectedTier || selectedCost === 0) return;
-            const res = await fetch('/api/me', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tier: selectedTier })
             });
-            const json = await res.json();
-            if (json.success) {
-                location.reload();
-            } else {
-                alert('Subscription failed.');
-            }
+
+        closeModal.addEventListener('click', () => {
+            confirmationModal.classList.add('hidden');
         });
 
-        cancelSubscribe.addEventListener('click', () => {
-            confirmationModal.classList.add('hidden');
+        sliderThumb.addEventListener('mousedown', e => {
+            isSliding = true;
+            startX = e.clientX;
+        });
+
+        document.addEventListener('mousemove', e => {
+            if (!isSliding) return;
+            const slider = sliderThumb.parentElement;
+            const delta = Math.min(Math.max(0, e.clientX - startX), slider.offsetWidth - sliderThumb.offsetWidth);
+            sliderThumb.style.left = `${delta}px`;
+        });
+
+        document.addEventListener('mouseup', async e => {
+            if (!isSliding) return;
+            isSliding = false;
+            const slider = sliderThumb.parentElement;
+            const threshold = slider.offsetWidth - sliderThumb.offsetWidth - 10;
+            const finalLeft = parseInt(sliderThumb.style.left);
+
+            if (finalLeft >= threshold) {
+                sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
+                confirmationModal.classList.add('hidden');
+                if (!selectedTier || selectedCost === 0) return;
+                const res = await fetch('/api/me', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tier: selectedTier })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    location.reload();
+                } else {
+                    alert('Subscription failed.');
+                }
+            } else {
+                sliderThumb.style.left = '0';
+            }
         });
     });
 </script>
