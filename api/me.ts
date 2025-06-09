@@ -24,6 +24,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ loggedIn: false });
     }
 
+    // Helper: Calculate FF from ledger
+    async function getCurrentFF(): Promise<number> {
+        const { data, error } = await supabase
+            .from('ff_ledger')
+            .select('amount')
+            .eq('steam_id', steamID64);
+
+        if (error) {
+            console.error('Ledger fetch error:', error);
+            return 0;
+        }
+
+        return data?.reduce((sum, row) => sum + row.amount, 0) || 0;
+    }
+
     if (req.method === 'PUT') {
         const { tier } = (req.body ?? {}) as { tier?: string };
 
@@ -33,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const { data: user, error: fetchError } = await supabase
             .from('users')
-            .select('ff_balance, tier')
+            .select('tier')
             .eq('steam_id', steamID64)
             .single();
 
@@ -43,39 +58,65 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const currentTier = user.tier || 'Cadet';
-        const currentBalance = user.ff_balance || 0;
-
         if (currentTier === tier) {
             return res.status(200).json({ success: true, tier });
         }
 
         const newTier = tier as Tier;
         const cost = FF_COST[newTier];
+        const currentBalance = await getCurrentFF();
 
         if (currentBalance < cost) {
             return res.status(400).json({ error: `Not enough FF. Required: ${cost}` });
         }
 
-        const { error: upsertError } = await supabase
+        const { error: tierUpdateErr } = await supabase
             .from('users')
-            .update({
-                tier: newTier,
-                ff_balance: currentBalance - cost,
-                updated_at: new Date().toISOString()
-            })
+            .update({ tier: newTier, updated_at: new Date().toISOString() })
             .eq('steam_id', steamID64);
 
-        if (upsertError) {
-            console.error('Supabase upsert error:', upsertError);
-            return res.status(500).json({ error: 'Database error' });
+        if (tierUpdateErr) {
+            console.error('Tier update error:', tierUpdateErr);
+            return res.status(500).json({ error: 'Failed to update tier' });
         }
 
-        return res.status(200).json({ success: true, tier: newTier, new_balance: currentBalance - cost });
+        const { error: ledgerError } = await supabase.from('ff_ledger').insert([
+            {
+                steam_id: steamID64,
+                amount: -cost,
+                type: 'subscription',
+                reference: `tier:${newTier}`
+            },
+            {
+                steam_id: 'platform',
+                amount: cost,
+                type: 'subscription',
+                reference: `tier:${newTier}`
+            }
+        ]);
+
+        if (ledgerError) {
+            console.error('Ledger insert error:', ledgerError);
+            return res.status(500).json({ error: 'Failed to insert ledger entries' });
+        }
+        const { error: txError } = await supabase.from('transactions').insert({
+            steam_id: steamID64,
+            type: `${newTier.toLowerCase().replace(/ /g, '-')}_subscription`,
+            ff_before: currentBalance,
+            ff_after: currentBalance - cost
+        });
+
+        if (txError) {
+            console.error('Transaction log error:', txError);
+        }
+
+
+        return res.status(200).json({ success: true, tier: newTier });
     }
 
     const { data: row, error: selectError } = await supabase
         .from('users')
-        .select('tier, ff_balance, display_name, avatar_url, last_fetched_at')
+        .select('tier, display_name, avatar_url, last_fetched_at')
         .eq('steam_id', steamID64)
         .maybeSingle();
 
@@ -85,7 +126,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const tier: Tier = (row?.tier as Tier) || 'Cadet';
-    const ff_balance = row?.ff_balance ?? 0;
     let displayName = row?.display_name ?? steamID64;
     let avatarUrl = row?.avatar_url ?? '';
     const lastFetchedAt = row?.last_fetched_at ? new Date(row.last_fetched_at) : null;
@@ -116,6 +156,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.error('Steam API error:', err);
         }
     }
+
+    const ff_balance = await getCurrentFF();
 
     return res.status(200).json({
         loggedIn: true,
