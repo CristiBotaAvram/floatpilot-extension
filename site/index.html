@@ -119,11 +119,11 @@
                 <li>✔ Auto-deal highlighting</li>
                 <li>✔ Historical float alerts</li>
             </ul>
-            <div class="relative w-full">
-                <div class="flex items-center justify-between">
+            <div class="relative w-full group" id="subscribeRow-Co-Pilot">
+                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Co-Pilot">
                     <div class="flex rounded overflow-hidden">
                         <span class="bg-[#C0C0C0] text-black px-3 py-2 font-bold">Subscribe for</span>
-                        <button id="dropdownToggle-Co-Pilot" class="bg-black text-white px-4 py-2 font-semibold" type="button">
+                        <button id="dropdownToggle-Co-Pilot" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
                             <span id="selectedDuration-Co-Pilot">1 hour</span>
                         </button>
                     </div>
@@ -147,11 +147,11 @@
                 <li>✔ Pattern ID filtering</li>
                 <li>✔ Early deal access (1h)</li>
             </ul>
-            <div class="relative w-full">
-                <div class="flex items-center justify-between">
+            <div class="relative w-full group" id="subscribeRow-Commander">
+                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Commander">
                     <div class="flex rounded overflow-hidden">
                         <span class="bg-[#FFD700] text-black px-3 py-2 font-bold">Subscribe for</span>
-                        <button id="dropdownToggle-Commander" class="bg-black text-white px-4 py-2 font-semibold" type="button">
+                        <button id="dropdownToggle-Commander" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
                             <span id="selectedDuration-Commander">1 hour</span>
                         </button>
                     </div>
@@ -172,6 +172,32 @@
 <footer class="text-center text-gray-500 text-sm mt-12 mb-4">
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
+
+<script>
+    ['Co-Pilot', 'Commander'].forEach(tierId => {
+        const trigger = document.getElementById(`subscribeTrigger-${tierId}`);
+        const toggle = document.getElementById(`dropdownToggle-${tierId}`);
+        const selectedText = document.getElementById(`selectedDuration-${tierId}`);
+        const costDisplay = document.getElementById(`costDisplay-${tierId}`);
+
+        trigger?.addEventListener('click', e => {
+            if (e.target === toggle || toggle.contains(e.target)) return; // Ignore clicks on dropdown
+
+            const cost = parseInt(costDisplay.textContent);
+            selectedTier = tierId;
+            selectedCost = cost;
+
+            if (currentFF < selectedCost) {
+                alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
+                return;
+            }
+
+            confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
+            sliderThumb.style.left = '0';
+            confirmationModal.classList.remove('hidden');
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
