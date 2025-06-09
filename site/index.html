@@ -174,35 +174,10 @@
 </footer>
 
 <script>
-    ['Co-Pilot', 'Commander'].forEach(tierId => {
-        const trigger = document.getElementById(`subscribeTrigger-${tierId}`);
-        const toggle = document.getElementById(`dropdownToggle-${tierId}`);
-        const selectedText = document.getElementById(`selectedDuration-${tierId}`);
-        const costDisplay = document.getElementById(`costDisplay-${tierId}`);
-
-        trigger?.addEventListener('click', e => {
-            if (e.target === toggle || toggle.contains(e.target)) return; // Ignore clicks on dropdown
-
-            const cost = parseInt(costDisplay.textContent);
-            selectedTier = tierId;
-            selectedCost = cost;
-
-            if (currentFF < selectedCost) {
-                alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
-                return;
-            }
-
-            confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
-            sliderThumb.style.left = '0';
-            confirmationModal.classList.remove('hidden');
-        });
-    });
-</script>
-
-<script>
     document.addEventListener('DOMContentLoaded', () => {
         let selectedTier = null;
         let selectedCost = 0;
+        let selectedDuration = '';
         let currentFF = 0;
 
         const ffBalance = document.getElementById('ffBalance');
@@ -229,22 +204,25 @@
                     selectedText.textContent = duration;
                     costDisplay.textContent = `${cost} FF`;
                     menu.classList.add('hidden');
-
-                    const button = document.getElementById(`tier-${tierId}`);
-                    button.onclick = () => {
-                        selectedTier = tierId;
-                        selectedCost = cost;
-
-                        if (currentFF < selectedCost) {
-                            alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
-                            return;
-                        }
-
-                        confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
-                        sliderThumb.style.left = '0';
-                        confirmationModal.classList.remove('hidden');
-                    };
                 });
+            });
+
+            const trigger = document.getElementById(`subscribeTrigger-${tierId}`);
+            trigger?.addEventListener('click', (e) => {
+                if (e.target === toggle || toggle.contains(e.target)) return;
+
+                selectedTier = tierId;
+                selectedDuration = document.getElementById(`selectedDuration-${tierId}`).textContent.trim();
+                selectedCost = parseInt(document.getElementById(`costDisplay-${tierId}`).textContent);
+
+                if (currentFF < selectedCost) {
+                    alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
+                    return;
+                }
+
+                confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
+                sliderThumb.style.left = '0';
+                confirmationModal.classList.remove('hidden');
             });
         };
 
@@ -318,11 +296,11 @@
             if (finalLeft >= threshold) {
                 sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
                 confirmationModal.classList.add('hidden');
-                if (!selectedTier || selectedCost === 0) return;
-                const res = await fetch('/api/me', {
-                    method: 'PUT',
+                if (!selectedTier || selectedCost === 0 || !selectedDuration) return;
+                const res = await fetch('/api/subscribe', {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier: selectedTier }) // duration to be added later
+                    body: JSON.stringify({ tier: selectedTier, duration: selectedDuration, cost: selectedCost })
                 });
                 const json = await res.json();
                 if (json.success) {
@@ -336,6 +314,7 @@
         });
     });
 </script>
+
 </body>
 </html>
 
