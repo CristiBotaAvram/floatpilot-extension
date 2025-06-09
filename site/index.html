@@ -297,6 +297,7 @@
                 sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
                 confirmationModal.classList.add('hidden');
                 if (!selectedTier || selectedCost === 0 || !selectedDuration) return;
+                console.log({ selectedTier, selectedDuration, selectedCost });
                 const res = await fetch('/api/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -306,7 +307,8 @@
                 if (json.success) {
                     location.reload();
                 } else {
-                    alert('Subscription failed.');
+                    console.error('Subscription failed:', json);
+                    alert(`Subscription failed: ${json.error || 'Unknown error'}`);
                 }
             } else {
                 sliderThumb.style.left = '0';
