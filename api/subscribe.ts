@@ -115,7 +115,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             type: `${tier.toLowerCase()}_subscription`,
             ff_before: currentBalance,
             ff_after: currentBalance - cost,
-            amount: -cost,
             created_at: nowIso
         }
     ]);
