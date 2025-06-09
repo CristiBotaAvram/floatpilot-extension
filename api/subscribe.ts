@@ -95,24 +95,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: 'Failed to insert subscription' });
     }
 
-    // Insert ledger + transaction
     const nowIso = now.toISOString();
-    const { error: ledgerInsertError } = await supabase.from('ff_ledger').insert({
-        steam_id,
-        amount: -cost,
-        type: `${tier.toLowerCase()}_subscription`,
-        reference: `subscription_${duration}`,
-        created_at: nowIso
-    });
 
-    const { error: txError } = await supabase.from('transactions').insert({
-        steam_id,
-        type: `${tier.toLowerCase()}_subscription`,
-        ff_before: currentBalance,
-        ff_after: currentBalance - cost,
-        amount: -cost,
-        created_at: nowIso
-    });
+    // Insert ledger entry as array
+    const { error: ledgerInsertError } = await supabase.from('ff_ledger').insert([
+        {
+            steam_id,
+            amount: -cost,
+            type: `${tier.toLowerCase()}_subscription`,
+            reference: `subscription_${duration}`,
+            created_at: nowIso
+        }
+    ]);
+
+    // Insert transaction as array
+    const { error: txError } = await supabase.from('transactions').insert([
+        {
+            steam_id,
+            type: `${tier.toLowerCase()}_subscription`,
+            ff_before: currentBalance,
+            ff_after: currentBalance - cost,
+            amount: -cost,
+            created_at: nowIso
+        }
+    ]);
 
     if (ledgerInsertError || txError) {
         return res.status(500).json({ error: 'Failed to log ledger or transaction' });
