@@ -13,13 +13,13 @@
 <body class="bg-[#0f0f0f] text-white font-sans">
 <!-- Confirmation Modal -->
 <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="relative bg-[#0f0f0f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
         <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
         <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
         <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#001711] rounded-full overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-black flex items-center justify-center rounded-full transition-all duration-300 select-none">
-                &#10140;
+        <div class="relative w-full h-16 bg-[#003326] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
+                &#10132;
             </div>
         </div>
     </div>
@@ -41,11 +41,11 @@
 
     <div class="flex items-center space-x-4">
         <!-- GitHub icon without circle -->
-        <a href="https://github.com/CristiBotaAvram/floatpilot-extension" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
+        <a href="https://github.com/your-repo" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
             <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
         <!-- X / Twitter icon without circle -->
-        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
+        <a href="https://x.com/your-handle" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
             <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
 
@@ -118,9 +118,18 @@
                 <li>✔ Auto-deal highlighting</li>
                 <li>✔ Historical float alerts</li>
             </ul>
-            <button id="tier-Co-Pilot" data-tier="Co-Pilot" class="w-full bg-[#C0C0C0] hover:bg-[#919191] text-black font-bold py-2 rounded">
-                Subscribe for 150 FF
-            </button>
+            <div class="relative w-full">
+                <button id="dropdownToggle-Co-Pilot" class="w-full bg-[#C0C0C0] hover:bg-[#919191] text-black font-bold py-2 rounded flex justify-between items-center px-4">
+                    <span>Subscribe for <span id="selectedDuration-Co-Pilot">1 hour</span></span>
+                    <span id="costDisplay-Co-Pilot" class="text-sm">50 FF</span>
+                </button>
+                <ul id="dropdownMenu-Co-Pilot" class="absolute z-10 w-full mt-1 bg-[#1a1a1a] text-white rounded shadow-md hidden">
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 hour" data-cost="50">1 hour</li>
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 day" data-cost="100">1 day</li>
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 week" data-cost="150">1 week</li>
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 month" data-cost="400">1 month</li>
+                </ul>
+            </div>
         </div>
 
         <!-- Commander -->
@@ -132,9 +141,18 @@
                 <li>✔ Pattern ID filtering</li>
                 <li>✔ Early deal access (1h)</li>
             </ul>
-            <button id="tier-Commander" data-tier="Commander" class="w-full bg-[#FFD700] hover:bg-[#ccad00] text-black font-bold py-2 rounded">
-                Subscribe for 500 FF
-            </button>
+            <div class="relative w-full">
+                <button id="dropdownToggle-Commander" class="w-full bg-[#FFD700] hover:bg-[#ccad00] text-black font-bold py-2 rounded flex justify-between items-center px-4">
+                    <span>Subscribe for <span id="selectedDuration-Commander">1 hour</span></span>
+                    <span id="costDisplay-Commander" class="text-sm">100 FF</span>
+                </button>
+                <ul id="dropdownMenu-Commander" class="absolute z-10 w-full mt-1 bg-[#1a1a1a] text-white rounded shadow-md hidden">
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 hour" data-cost="100">1 hour</li>
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 day" data-cost="250">1 day</li>
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 week" data-cost="500">1 week</li>
+                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 month" data-cost="700">1 month</li>
+                </ul>
+            </div>
         </div>
     </div>
 </main>
