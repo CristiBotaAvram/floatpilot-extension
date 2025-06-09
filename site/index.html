@@ -119,15 +119,20 @@
                 <li>✔ Historical float alerts</li>
             </ul>
             <div class="relative w-full">
-                <button id="dropdownToggle-Co-Pilot" class="w-full bg-[#C0C0C0] hover:bg-[#919191] text-black font-bold py-2 rounded flex justify-between items-center px-4">
-                    <span>Subscribe for <span id="selectedDuration-Co-Pilot">1 hour</span></span>
-                    <span id="costDisplay-Co-Pilot" class="text-sm">50 FF</span>
-                </button>
-                <ul id="dropdownMenu-Co-Pilot" class="absolute z-10 w-full mt-1 bg-[#1a1a1a] text-white rounded shadow-md hidden">
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 hour" data-cost="50">1 hour</li>
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 day" data-cost="100">1 day</li>
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 week" data-cost="150">1 week</li>
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 month" data-cost="400">1 month</li>
+                <div class="flex items-center justify-between">
+                    <div class="flex rounded overflow-hidden">
+                        <span class="bg-[#C0C0C0] text-black px-3 py-2 font-bold">Subscribe for</span>
+                        <button id="dropdownToggle-Co-Pilot" class="bg-black text-white px-4 py-2 font-semibold" type="button">
+                            <span id="selectedDuration-Co-Pilot">1 hour</span>
+                        </button>
+                    </div>
+                    <span id="costDisplay-Co-Pilot" class="ml-4 text-white text-lg">50 FF</span>
+                </div>
+                <ul id="dropdownMenu-Co-Pilot" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 hour" data-cost="50">1 hour</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 day" data-cost="100">1 day</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 week" data-cost="150">1 week</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 month" data-cost="400">1 month</li>
                 </ul>
             </div>
         </div>
@@ -142,15 +147,20 @@
                 <li>✔ Early deal access (1h)</li>
             </ul>
             <div class="relative w-full">
-                <button id="dropdownToggle-Commander" class="w-full bg-[#FFD700] hover:bg-[#ccad00] text-black font-bold py-2 rounded flex justify-between items-center px-4">
-                    <span>Subscribe for <span id="selectedDuration-Commander">1 hour</span></span>
-                    <span id="costDisplay-Commander" class="text-sm">100 FF</span>
-                </button>
-                <ul id="dropdownMenu-Commander" class="absolute z-10 w-full mt-1 bg-[#1a1a1a] text-white rounded shadow-md hidden">
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 hour" data-cost="100">1 hour</li>
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 day" data-cost="250">1 day</li>
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 week" data-cost="500">1 week</li>
-                    <li class="px-4 py-2 hover:bg-[#333] cursor-pointer" data-duration="1 month" data-cost="700">1 month</li>
+                <div class="flex items-center justify-between">
+                    <div class="flex rounded overflow-hidden">
+                        <span class="bg-[#FFD700] text-black px-3 py-2 font-bold">Subscribe for</span>
+                        <button id="dropdownToggle-Commander" class="bg-black text-white px-4 py-2 font-semibold" type="button">
+                            <span id="selectedDuration-Commander">1 hour</span>
+                        </button>
+                    </div>
+                    <span id="costDisplay-Commander" class="ml-4 text-white text-lg">100 FF</span>
+                </div>
+                <ul id="dropdownMenu-Commander" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 hour" data-cost="100">1 hour</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 day" data-cost="250">1 day</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 week" data-cost="500">1 week</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 month" data-cost="700">1 month</li>
                 </ul>
             </div>
         </div>
