@@ -185,6 +185,45 @@
         const closeModal = document.getElementById('closeModal');
         let isSliding = false, startX = 0;
 
+        const setupDropdown = (tierId) => {
+            const toggle = document.getElementById(`dropdownToggle-${tierId}`);
+            const menu = document.getElementById(`dropdownMenu-${tierId}`);
+            const selectedText = document.getElementById(`selectedDuration-${tierId}`);
+            const costDisplay = document.getElementById(`costDisplay-${tierId}`);
+
+            toggle.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+
+            menu.querySelectorAll('li').forEach(option => {
+                option.addEventListener('click', () => {
+                    const duration = option.dataset.duration;
+                    const cost = parseInt(option.dataset.cost);
+                    selectedText.textContent = duration;
+                    costDisplay.textContent = `${cost} FF`;
+                    menu.classList.add('hidden');
+
+                    const button = document.getElementById(`tier-${tierId}`);
+                    button.onclick = () => {
+                        selectedTier = tierId;
+                        selectedCost = cost;
+
+                        if (currentFF < selectedCost) {
+                            alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
+                            return;
+                        }
+
+                        confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
+                        sliderThumb.style.left = '0';
+                        confirmationModal.classList.remove('hidden');
+                    };
+                });
+            });
+        };
+
+        setupDropdown('Co-Pilot');
+        setupDropdown('Commander');
+
         fetch('/api/me')
             .then(r => r.json())
             .then(data => {
@@ -201,26 +240,12 @@
                     let tierColor = '#CD7F32';
                     if (tier === 'Commander') tierColor = '#FFD700';
                     else if (tier === 'Co-Pilot') tierColor = '#C0C0C0';
+
                     const tierBadge = document.getElementById('tierBadge');
                     tierBadge.textContent = tier;
                     tierBadge.style.backgroundColor = tierColor;
                     tierBadge.style.color = '#000';
                     tierBadge.style.fontWeight = 'bold';
-
-                    document.querySelectorAll('[data-tier]').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            selectedTier = btn.dataset.tier;
-                            selectedCost = selectedTier === 'Commander' ? 500 : selectedTier === 'Co-Pilot' ? 150 : 0;
-
-                            if (currentFF < selectedCost) {
-                                alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
-                                return;
-                            }
-                            confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
-                            sliderThumb.style.left = '0';
-                            confirmationModal.classList.remove('hidden');
-                        });
-                    });
                 } else {
                     document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
                     document.getElementById('userMenu')?.classList.add('hidden');
@@ -270,7 +295,7 @@
                 const res = await fetch('/api/me', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier: selectedTier })
+                    body: JSON.stringify({ tier: selectedTier }) // duration to be added later
                 });
                 const json = await res.json();
                 if (json.success) {
@@ -284,6 +309,8 @@
         });
     });
 </script>
+</body>
+</html>
 
 
 </body>
