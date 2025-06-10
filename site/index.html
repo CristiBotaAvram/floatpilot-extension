@@ -248,6 +248,11 @@
                     tierBadge.style.color = '#000';
                     tierBadge.style.fontWeight = 'bold';
 
+                    if (tier !== 'Cadet') {
+                        const cadetBox = document.getElementById('tier-Cadet')?.closest('div');
+                        if (cadetBox) cadetBox.remove();
+                    }
+
                     if (data.subscriptionExpiresAt) {
                         const expire = new Date(data.subscriptionExpiresAt);
                         const remaining = Math.max(0, expire - Date.now());
