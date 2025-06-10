@@ -274,8 +274,9 @@
                                 if (trigger) {
                                     trigger.classList.add('opacity-40', 'cursor-not-allowed');
                                     trigger.classList.remove('group-hover:opacity-90', 'hover:opacity-90');
-                                    trigger.addEventListener('mouseenter', (e) => e.stopPropagation());
-                                    trigger.addEventListener('mouseover', (e) => e.stopPropagation());
+                                    // Prevent any click from propagating
+                                    trigger.addEventListener('click', e => e.preventDefault());
+                                    trigger.addEventListener('mousedown', e => e.stopPropagation());
                                 }
                             }
                         });
