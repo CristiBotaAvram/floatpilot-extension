@@ -249,8 +249,8 @@
                     tierBadge.style.fontWeight = 'bold';
 
                     if (tier !== 'Cadet') {
-                        const cadetBox = document.getElementById('tier-Cadet')?.closest('div');
-                        if (cadetBox) cadetBox.remove();
+                        const cadetBtn = document.getElementById('tier-Cadet');
+                        if (cadetBtn) cadetBtn.remove();
                     }
 
                     if (data.subscriptionExpiresAt) {
@@ -270,7 +270,13 @@
 
                         ['Co-Pilot', 'Commander'].forEach(t => {
                             if (t !== tier) {
-                                document.getElementById(`subscribeTrigger-${t}`)?.classList.add('opacity-40', 'pointer-events-none');
+                                const trigger = document.getElementById(`subscribeTrigger-${t}`);
+                                if (trigger) {
+                                    trigger.classList.add('opacity-40', 'cursor-not-allowed');
+                                    trigger.classList.remove('group-hover:opacity-90', 'hover:opacity-90');
+                                    trigger.addEventListener('mouseenter', (e) => e.stopPropagation());
+                                    trigger.addEventListener('mouseover', (e) => e.stopPropagation());
+                                }
                             }
                         });
                     }
