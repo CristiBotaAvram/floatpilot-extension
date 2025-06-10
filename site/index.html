@@ -242,41 +242,33 @@
                     ffBalance.textContent = `${currentFF} FF`;
 
                     const tier = data.tier || 'Cadet';
-                    const expires = data.expires_at ? new Date(data.expires_at) : null;
-                    let tierColor = '#CD7F32';
-
-                    if (tier === 'Commander') tierColor = '#FFD700';
-                    else if (tier === 'Co-Pilot') tierColor = '#C0C0C0';
-
                     const tierBadge = document.getElementById('tierBadge');
                     tierBadge.textContent = tier;
-                    tierBadge.style.backgroundColor = tierColor;
+                    tierBadge.style.backgroundColor = tier === 'Commander' ? '#FFD700' : tier === 'Co-Pilot' ? '#C0C0C0' : '#CD7F32';
                     tierBadge.style.color = '#000';
                     tierBadge.style.fontWeight = 'bold';
 
-                    const now = new Date();
-                    if (tier === 'Commander' && expires && expires > now) {
-                        document.getElementById('subscribeRow-Co-Pilot')?.classList.add('opacity-40', 'pointer-events-none');
-                    } else if (tier === 'Co-Pilot' && expires && expires > now) {
-                        document.getElementById('subscribeRow-Commander')?.classList.add('opacity-40', 'pointer-events-none');
+                    if (data.subscriptionExpiresAt) {
+                        const expire = new Date(data.subscriptionExpiresAt);
+                        const remaining = Math.max(0, expire - Date.now());
+                        const hrs = Math.floor(remaining / (1000 * 60 * 60));
+                        const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                        const info = `Active for ${hrs}h ${mins}m`;
+
+                        const planContainer = document.querySelector(`#subscribeRow-${tier}`);
+                        if (planContainer) {
+                            const display = document.createElement('p');
+                            display.className = 'text-xs text-gray-400 mt-2';
+                            display.textContent = info;
+                            planContainer.appendChild(display);
+                        }
+
+                        ['Co-Pilot', 'Commander'].forEach(t => {
+                            if (t !== tier) {
+                                document.getElementById(`subscribeTrigger-${t}`)?.classList.add('opacity-40', 'pointer-events-none');
+                            }
+                        });
                     }
-
-                    if (expires && expires > now) {
-                        const timeLeft = Math.max(0, Math.floor((expires - now) / 1000));
-                        const hours = Math.floor(timeLeft / 3600);
-                        const minutes = Math.floor((timeLeft % 3600) / 60);
-                        const seconds = timeLeft % 60;
-
-                        const display = `${hours}h ${minutes}m ${seconds}s remaining`;
-                        const subHeader = document.createElement('p');
-                        subHeader.className = 'text-center text-sm text-gray-400 mt-2';
-                        subHeader.textContent = `Active subscription: ${tier} — ${display}`;
-                        document.querySelector('main')?.insertBefore(subHeader, document.querySelector('main').children[1]);
-                    }
-
-                } else {
-                    document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
-                    document.getElementById('userMenu')?.classList.add('hidden');
                 }
             });
 
@@ -339,6 +331,7 @@
         });
     });
 </script>
+
 
 
 </body>
