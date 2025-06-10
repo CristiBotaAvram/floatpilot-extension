@@ -211,9 +211,12 @@
             trigger?.addEventListener('click', (e) => {
                 if (e.target === toggle || toggle.contains(e.target)) return;
 
+                const triggerEl = e.currentTarget;
+                if (triggerEl.classList.contains('opacity-40')) return; // block interaction if disabled
+
                 selectedTier = tierId;
-                selectedDuration = document.getElementById(`selectedDuration-${tierId}`).textContent.trim();
-                selectedCost = parseInt(document.getElementById(`costDisplay-${tierId}`).textContent);
+                selectedDuration = selectedText.textContent.trim();
+                selectedCost = parseInt(costDisplay.textContent);
 
                 if (currentFF < selectedCost) {
                     alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
