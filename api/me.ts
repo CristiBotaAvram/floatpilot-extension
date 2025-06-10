@@ -21,12 +21,12 @@ const FF_COST: Record<Tier, number> = {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const steamID64 = getSteamID64(req);
     if (!steamID64) {
-        return res.status(200).json({ loggedIn: false });
+        return res.status(200).json({loggedIn: false});
     }
 
-    // Helper: Calculate FF from ledger
+// Helper: Calculate FF from ledger
     async function getCurrentFF(): Promise<number> {
-        const { data, error } = await supabase
+        const {data, error} = await supabase
             .from('ff_ledger')
             .select('amount')
             .eq('steam_id', steamID64);
@@ -40,26 +40,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'PUT') {
-        return res.status(405).json({ error: 'Manual tier updates are disabled. Use /api/subscribe instead.' });
+        return res.status(405).json({error: 'Manual tier updates are disabled. Use /api/subscribe instead.'});
     }
 
     const now = new Date();
 
-    // Get most recent subscription
-    const { data: sub, error: subError } = await supabase
+// Get most recent subscription
+    const {data: sub, error: subError} = await supabase
         .from('subscriptions')
         .select('tier, expires_at')
         .eq('steam_id', steamID64)
-        .order('expires_at', { ascending: false })
+        .order('expires_at', {ascending: false})
         .limit(1)
         .maybeSingle();
 
     let tier: Tier = 'Cadet';
+    let subscriptionExpiresAt: string | null = null;
     if (sub && sub.expires_at && new Date(sub.expires_at) > now) {
         tier = sub.tier as Tier;
+        subscriptionExpiresAt = sub.expires_at;
     }
 
-    const { data: row, error: selectError } = await supabase
+    const {data: row, error: selectError} = await supabase
         .from('users')
         .select('display_name, avatar_url, last_fetched_at')
         .eq('steam_id', steamID64)
@@ -67,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (selectError) {
         console.error('Supabase select error:', selectError);
-        return res.status(500).json({ error: 'Database error' });
+        return res.status(500).json({error: 'Database error'});
     }
 
     let displayName = row?.display_name ?? steamID64;
@@ -109,6 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         displayName,
         avatarUrl,
         tier,
-        ff_balance
+        ff_balance,
+        subscriptionExpiresAt
     });
 }
