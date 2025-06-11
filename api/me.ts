@@ -64,11 +64,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 displayName = player.personaname;
                 avatarUrl = player.avatarfull;
 
-                await supabase.from('users').update({
+                await supabase.from('users').upsert({
+                    steam_id: steamID64,
                     display_name: displayName,
                     avatar_url: avatarUrl,
                     last_fetched_at: new Date().toISOString()
-                }).eq('steam_id', steamID64);
+                }, { onConflict: 'steam_id' });
             }
         } catch (err) {
             console.error('Steam API error:', err);
