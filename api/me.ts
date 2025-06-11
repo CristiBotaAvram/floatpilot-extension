@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!steamID64) {
         return res.status(200).json({ loggedIn: false });
     }
-    console.log(req.headers.cookie)
+    console.log(req.headers.cookie);
     const now = new Date();
 
     // Get most recent active subscription
@@ -49,6 +49,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const lastFetchedAt = row?.last_fetched_at ? new Date(row.last_fetched_at) : null;
     const shouldRefresh = !lastFetchedAt || (Date.now() - lastFetchedAt.getTime()) > 30 * 24 * 60 * 60 * 1000;
 
+    if (!row) {
+        try {
+            const { error } = await supabase.from('users').upsert({
+                steam_id: steamID64,
+                display_name: displayName,
+                avatar_url: avatarUrl,
+                last_fetched_at: new Date().toISOString()
+            }, { onConflict: 'steam_id' });
+
+            if (error) console.error('Initial upsert error:', error);
+        } catch (err) {
+            console.error('Initial upsert exception:', err);
+        }
+    }
+
     if (shouldRefresh) {
         try {
             const key = process.env.STEAM_API_KEY!;
@@ -65,18 +80,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 avatarUrl = player.avatarfull;
 
                 try {
-                    const { error } = await supabase.from('users').upsert({
-                        steam_id: steamID64,
+                    const { error } = await supabase.from('users').update({
                         display_name: displayName,
                         avatar_url: avatarUrl,
                         last_fetched_at: new Date().toISOString()
-                    }, { onConflict: 'steam_id' });
+                    }).eq('steam_id', steamID64);
 
-                    if (error) console.error('Upsert error:', error);
+                    if (error) console.error('Update error:', error);
                 } catch (err) {
-                    console.error('Upsert exception:', err);
+                    console.error('Update exception:', err);
                 }
-
             }
         } catch (err) {
             console.error('Steam API error:', err);
