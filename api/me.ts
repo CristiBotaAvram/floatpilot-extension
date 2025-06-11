@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!steamID64) {
         return res.status(200).json({ loggedIn: false });
     }
-
+    console.log(req.headers.cookie)
     const now = new Date();
 
     // Get most recent active subscription
