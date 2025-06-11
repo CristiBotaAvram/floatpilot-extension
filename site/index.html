@@ -19,13 +19,11 @@
         <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
         <div class="relative w-full h-16 bg-[#003326] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
             <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
-                &#10132;
+                ➜
             </div>
         </div>
     </div>
 </div>
-</div>
-
 <!-- Header -->
 <header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
     <div class="flex items-center space-x-4">
@@ -81,87 +79,47 @@
 <!-- Main -->
 <main class="w-full px-4 py-8 xl:px-0">
     <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
-    <div class="grid md:grid-cols-3 gap-6 md:gap-10 xl:gap-20 2xl:gap-32 xl:max-w-7xl xl:mx-auto">
-        <!-- Cadet -->
-        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#CD7F32] relative w-full xl:min-w-[350px] xl:max-w-[420px]">
-            <div class="absolute text-2xl -top-0 left-0 bg-[#CD7F32] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Cadet</div>
-            <p class="text-3xl font-bold mb-4 mt-6">Free</p>
+    <div class="grid md:grid-cols-2 gap-6 md:gap-10 xl:gap-20 2xl:gap-32 xl:max-w-5xl xl:mx-auto">
+        <!-- Free Plan -->
+        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#848884] relative w-full xl:min-w-[350px] xl:max-w-[420px]">
+            <div class="absolute text-2xl -top-0 left-0 bg-[#848884] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Free</div>
+            <p class="text-3xl font-bold mb-4 mt-6">0 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
                 <li>✔ Basic float analysis</li>
                 <li>✔ View deals on CSFloat & Skinport</li>
-                <li>✔ </li>
             </ul>
-            <button id="tier-Cadet" data-tier="Cadet" class="w-full bg-[#CD7F32] text-black font-bold py-2 rounded cursor-not-allowed hover:bg-[#be660e]" disabled>
+            <button id="tier-Free" data-tier="Free" class="w-full bg-[#848884] text-black font-bold py-2 rounded cursor-not-allowed" disabled>
                 Current Plan
             </button>
         </div>
-        <style>
-            @keyframes grow {
-                0%, 100% {
-                    transform: scale(1.10) rotate(30deg);
-                }
-                50% {
-                    transform: scale(1.05) rotate(30deg);
 
-                }
-            }
-            .animate-grow {
-                animation: grow 1.2s ease-in-out infinite;
-            }
-        </style>
-        <!-- Co-Pilot -->
-        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#C0C0C0] relative w-full xl:min-w-[350px] xl:max-w-[420px] xl:mx-auto">
-            <div class="absolute text-2xl -top-0 left-0 bg-[#C0C0C0] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Co-Pilot</div>
-            <div class="absolute -top-3 -right-5 bg-red-500 text-black text-2xl font-bold px-2 py-0.5 rounded animate-grow">Popular</div>
-            <p class="text-3xl font-bold mb-4 mt-6">150 FF</p>
+        <!-- Pro Plan -->
+        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#0068ff] relative w-full xl:min-w-[350px] xl:max-w-[420px] xl:mx-auto">
+            <div class="absolute text-2xl -top-0 left-0 bg-[#0068ff] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Pro</div>
+            <p class="text-3xl font-bold mb-4 mt-6">Starts at 50 FF</p>
             <ul class="text-sm text-gray-300 mb-4 space-y-1">
-                <li>✔ All Cadet features</li>
+                <li>✔ All Free features</li>
                 <li>✔ Auto-deal highlighting</li>
                 <li>✔ Historical float alerts</li>
+                <li>✔ Pattern ID filtering</li>
+                <li>✔ Early deal access (1h)</li>
+                <li>✔ Advanced Configurations</li>
             </ul>
-            <div class="relative w-full group" id="subscribeRow-Co-Pilot">
-                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Co-Pilot">
+            <div class="relative w-full group" id="subscribeRow-Pro">
+                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Pro">
                     <div class="flex rounded overflow-hidden">
-                        <span class="bg-[#C0C0C0] text-black px-3 py-2 font-bold">Subscribe for</span>
-                        <button id="dropdownToggle-Co-Pilot" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
-                            <span id="selectedDuration-Co-Pilot">1 hour</span>
+                        <span class="bg-[#0068ff] text-black px-3 py-2 font-bold">Subscribe for</span>
+                        <button id="dropdownToggle-Pro" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
+                            <span id="selectedDuration-Pro">1 hour</span>
                         </button>
                     </div>
-                    <span id="costDisplay-Co-Pilot" class="ml-4 text-white text-lg">50 FF</span>
+                    <span id="costDisplay-Pro" class="ml-4 text-white text-lg">50 FF</span>
                 </div>
-                <ul id="dropdownMenu-Co-Pilot" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
+                <ul id="dropdownMenu-Pro" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
                     <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 hour" data-cost="50">1 hour</li>
                     <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 day" data-cost="100">1 day</li>
                     <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 week" data-cost="150">1 week</li>
                     <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 month" data-cost="400">1 month</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Commander -->
-        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#FFD700] relative w-full xl:min-w-[350px] xl:max-w-[420px] xl:mx-auto">
-            <div class="absolute text-2xl -top-0 left-0 bg-[#FFD700] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Commander</div>
-            <p class="text-3xl font-bold mb-4 mt-6">500 FF</p>
-            <ul class="text-sm text-gray-300 mb-4 space-y-1">
-                <li>✔ All Co-Pilot features</li>
-                <li>✔ Pattern ID filtering</li>
-                <li>✔ Early deal access (1h)</li>
-            </ul>
-            <div class="relative w-full group" id="subscribeRow-Commander">
-                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Commander">
-                    <div class="flex rounded overflow-hidden">
-                        <span class="bg-[#FFD700] text-black px-3 py-2 font-bold">Subscribe for</span>
-                        <button id="dropdownToggle-Commander" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
-                            <span id="selectedDuration-Commander">1 hour</span>
-                        </button>
-                    </div>
-                    <span id="costDisplay-Commander" class="ml-4 text-white text-lg">100 FF</span>
-                </div>
-                <ul id="dropdownMenu-Commander" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 hour" data-cost="100">1 hour</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 day" data-cost="250">1 day</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 week" data-cost="500">1 week</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 month" data-cost="700">1 month</li>
                 </ul>
             </div>
         </div>
@@ -173,6 +131,7 @@
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
 
+<!-- JavaScript functionality for merged Pro tier -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         let selectedTier = null;
@@ -187,171 +146,79 @@
         const closeModal = document.getElementById('closeModal');
         let isSliding = false, startX = 0;
 
-        const setupDropdown = (tierId) => {
-            const toggle = document.getElementById(`dropdownToggle-${tierId}`);
-            const menu = document.getElementById(`dropdownMenu-${tierId}`);
-            const selectedText = document.getElementById(`selectedDuration-${tierId}`);
-            const costDisplay = document.getElementById(`costDisplay-${tierId}`);
+        const setupDropdown = () => {
+            const toggle = document.getElementById(`dropdownToggle-Pro`);
+            const menu = document.getElementById(`dropdownMenu-Pro`);
+            const selectedText = document.getElementById(`selectedDuration-Pro`);
+            const costDisplay = document.getElementById(`costDisplay-Pro`);
 
-            toggle.addEventListener('click', () => {
-                menu.classList.toggle('hidden');
-            });
-
+            toggle.addEventListener('click', () => menu.classList.toggle('hidden'));
             menu.querySelectorAll('li').forEach(option => {
                 option.addEventListener('click', () => {
-                    const duration = option.dataset.duration;
-                    const cost = parseInt(option.dataset.cost);
-                    selectedText.textContent = duration;
-                    costDisplay.textContent = `${cost} FF`;
+                    selectedText.textContent = option.dataset.duration;
+                    costDisplay.textContent = `${option.dataset.cost} FF`;
                     menu.classList.add('hidden');
                 });
             });
 
-            const trigger = document.getElementById(`subscribeTrigger-${tierId}`);
-            trigger?.addEventListener('click', (e) => {
+            document.getElementById('subscribeTrigger-Pro').addEventListener('click', (e) => {
                 if (e.target === toggle || toggle.contains(e.target)) return;
-
-                const triggerEl = e.currentTarget;
-                if (triggerEl.classList.contains('opacity-40')) return; // block interaction if disabled
-
-                selectedTier = tierId;
+                if (e.currentTarget.classList.contains('opacity-40')) return;
+                selectedTier = 'Pro';
                 selectedDuration = selectedText.textContent.trim();
                 selectedCost = parseInt(costDisplay.textContent);
-
-                if (currentFF < selectedCost) {
-                    alert(`You need ${selectedCost} FF to subscribe to ${selectedTier}.`);
-                    return;
-                }
-
-                confirmationText.textContent = `Slide to confirm your ${selectedTier} subscription for ${selectedCost} FF.`;
+                if (currentFF < selectedCost) return alert(`You need ${selectedCost} FF.`);
+                confirmationText.textContent = `Slide to confirm your Pro subscription for ${selectedCost} FF.`;
                 sliderThumb.style.left = '0';
                 confirmationModal.classList.remove('hidden');
             });
         };
 
-        setupDropdown('Co-Pilot');
-        setupDropdown('Commander');
+        setupDropdown();
 
-        fetch('/api/me')
-            .then(r => r.json())
-            .then(data => {
-                if (data.loggedIn) {
-                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
-                    document.getElementById('userMenu')?.classList.remove('hidden');
-                    document.getElementById('avatarImg').src = data.avatarUrl;
-                    document.getElementById('steamName').textContent = data.displayName;
-                    document.getElementById('steamID').textContent = data.steamID64;
-                    currentFF = data.ff_balance || 0;
-                    ffBalance.textContent = `${currentFF} FF`;
-
-                    const tier = data.tier || 'Cadet';
-                    const tierBadge = document.getElementById('tierBadge');
-                    tierBadge.textContent = tier;
-                    tierBadge.style.backgroundColor = tier === 'Commander' ? '#FFD700' : tier === 'Co-Pilot' ? '#C0C0C0' : '#CD7F32';
-                    tierBadge.style.color = '#000';
-                    tierBadge.style.fontWeight = 'bold';
-
-                    if (tier !== 'Cadet') {
-                        const cadetBtn = document.getElementById('tier-Cadet');
-                        if (cadetBtn) cadetBtn.remove();
-                    }
-
-                    if (data.subscriptionExpiresAt) {
-                        const expire = new Date(data.subscriptionExpiresAt);
-                        const remaining = Math.max(0, expire - Date.now());
-                        const hrs = Math.floor(remaining / (1000 * 60 * 60));
-                        const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                        const info = `Active for ${hrs}h ${mins}m`;
-
-                        const planContainer = document.querySelector(`#subscribeRow-${tier}`);
-                        if (planContainer) {
-                            const display = document.createElement('p');
-                            display.className = 'text-xs text-gray-400 mt-2';
-                            display.textContent = info;
-                            planContainer.appendChild(display);
-                        }
-
-                        ['Co-Pilot', 'Commander'].forEach(t => {
-                            if (t !== tier) {
-                                const trigger = document.getElementById(`subscribeTrigger-${t}`);
-                                if (trigger) {
-                                    trigger.classList.add('opacity-40', 'cursor-not-allowed');
-                                    trigger.classList.remove('group-hover:opacity-90', 'hover:opacity-90');
-                                    // Prevent any click from propagating
-                                    trigger.addEventListener('click', e => e.preventDefault());
-                                    trigger.addEventListener('mousedown', e => e.stopPropagation());
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-
-        document.getElementById('userMenu')?.addEventListener('click', (event) => {
-            event.stopPropagation();
-            document.getElementById('userDropdown')?.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('userDropdown');
-            const menu = document.getElementById('userMenu');
-            if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) {
-                dropdown.classList.add('hidden');
+        fetch('/api/me').then(r => r.json()).then(data => {
+            if (!data.loggedIn) return;
+            currentFF = data.ff_balance || 0;
+            ffBalance.textContent = `${currentFF} FF`;
+            if (data.tier === 'Pro' && data.subscriptionExpiresAt) {
+                const remaining = Math.max(0, new Date(data.subscriptionExpiresAt) - Date.now());
+                const hrs = Math.floor(remaining / 3600000);
+                const mins = Math.floor((remaining % 3600000) / 60000);
+                const text = `Active for ${hrs}h ${mins}m`;
+                const msg = document.createElement('p');
+                msg.className = 'text-xs text-gray-400 mt-2';
+                msg.textContent = text;
+                document.getElementById('subscribeRow-Pro').appendChild(msg);
+                document.getElementById('subscribeTrigger-Pro').classList.add('opacity-40', 'cursor-not-allowed');
             }
         });
 
-        closeModal.addEventListener('click', () => {
-            confirmationModal.classList.add('hidden');
-        });
-
-        sliderThumb.addEventListener('mousedown', e => {
-            isSliding = true;
-            startX = e.clientX;
-        });
-
+        closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
+        sliderThumb.addEventListener('mousedown', e => { isSliding = true; startX = e.clientX });
         document.addEventListener('mousemove', e => {
             if (!isSliding) return;
             const slider = sliderThumb.parentElement;
             const delta = Math.min(Math.max(0, e.clientX - startX), slider.offsetWidth - sliderThumb.offsetWidth);
             sliderThumb.style.left = `${delta}px`;
         });
-
         document.addEventListener('mouseup', async e => {
             if (!isSliding) return;
             isSliding = false;
             const slider = sliderThumb.parentElement;
-            const threshold = slider.offsetWidth - sliderThumb.offsetWidth - 10;
-            const finalLeft = parseInt(sliderThumb.style.left);
-
-            if (finalLeft >= threshold) {
+            if (parseInt(sliderThumb.style.left) >= slider.offsetWidth - sliderThumb.offsetWidth - 10) {
                 sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
                 confirmationModal.classList.add('hidden');
-                if (!selectedTier || selectedCost === 0 || !selectedDuration) return;
-                console.log({ selectedTier, selectedDuration, selectedCost });
                 const res = await fetch('/api/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ tier: selectedTier, duration: selectedDuration, cost: selectedCost })
                 });
                 const json = await res.json();
-                if (json.success) {
-                    location.reload();
-                } else {
-                    console.error('Subscription failed:', json);
-                    alert(`Subscription failed: ${json.error || 'Unknown error'}`);
-                }
-            } else {
-                sliderThumb.style.left = '0';
-            }
+                if (json.success) location.reload();
+                else alert(`Subscription failed: ${json.error || 'Unknown error'}`);
+            } else sliderThumb.style.left = '0';
         });
     });
 </script>
-
-
-
-</body>
-</html>
-
-
 </body>
 </html>
