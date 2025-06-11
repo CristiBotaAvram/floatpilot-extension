@@ -42,7 +42,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const summaryRes = await fetch(
                 `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamID64}`
             );
-            const summaryJson = await summaryRes.json();
+
+            const raw = await summaryRes.text();
+            let summaryJson;
+            try {
+                summaryJson = JSON.parse(raw);
+            } catch (jsonErr) {
+                console.error('Invalid Steam JSON:', raw);
+                throw jsonErr;
+            }
 
             const player = summaryJson.response.players?.[0];
             const avatarUrl: string | undefined = player?.avatarfull;
@@ -78,8 +86,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             );
 
             res.setHeader('Set-Cookie', [
-                `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=None`
+                `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`
             ]);
+
             res.writeHead(302, { Location: '/' });
             return res.end();
         } catch (fetchErr) {
