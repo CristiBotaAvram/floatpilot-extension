@@ -59,7 +59,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (!existingUser && !selectError) {
                 const insertResult = await supabase
                     .from('users')
-                    .insert({ steam_id: steamID64, ff_balance: 0 })
+                    .insert({ steam_id: steamID64 })
                     .select()
                     .single();
 
@@ -71,13 +71,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 userData = insertResult.data;
             }
 
-
-
-            const tier = userData.tier || 'Cadet';
-            const ff_balance = userData.ff_balance || 0;
-
             const token = jwt.sign(
-                { steamID64, avatarUrl, displayName, tier, ff_balance },
+                { steamID64, avatarUrl, displayName },
                 process.env.JWT_SECRET!,
                 { expiresIn: '7d' }
             );
