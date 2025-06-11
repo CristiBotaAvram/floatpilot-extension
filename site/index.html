@@ -176,22 +176,60 @@
 
         setupDropdown();
 
-        fetch('/api/me').then(r => r.json()).then(data => {
-            if (!data.loggedIn) return;
-            currentFF = data.ff_balance || 0;
-            ffBalance.textContent = `${currentFF} FF`;
-            if (data.tier === 'Pro' && data.subscriptionExpiresAt) {
-                const remaining = Math.max(0, new Date(data.subscriptionExpiresAt) - Date.now());
-                const hrs = Math.floor(remaining / 3600000);
-                const mins = Math.floor((remaining % 3600000) / 60000);
-                const text = `Active for ${hrs}h ${mins}m`;
-                const msg = document.createElement('p');
-                msg.className = 'text-xs text-gray-400 mt-2';
-                msg.textContent = text;
-                document.getElementById('subscribeRow-Pro').appendChild(msg);
-                document.getElementById('subscribeTrigger-Pro').classList.add('opacity-40', 'cursor-not-allowed');
-            }
-        });
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    document.getElementById('userMenu')?.classList.remove('hidden');
+                    document.getElementById('avatarImg').src = data.avatarUrl;
+                    document.getElementById('steamName').textContent = data.displayName;
+                    document.getElementById('steamID').textContent = data.steamID64;
+                    currentFF = data.ff_balance || 0;
+                    ffBalance.textContent = `${currentFF} FF`;
+
+                    const tier = data.tier || 'Cadet';
+                    const tierBadge = document.getElementById('tierBadge');
+                    tierBadge.textContent = tier;
+                    tierBadge.style.backgroundColor = tier === 'Commander' ? '#FFD700' : tier === 'Co-Pilot' ? '#C0C0C0' : '#CD7F32';
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+
+                    if (tier !== 'Cadet') {
+                        const cadetBtn = document.getElementById('tier-Cadet');
+                        if (cadetBtn) cadetBtn.remove();
+                    }
+
+                    if (data.subscriptionExpiresAt) {
+                        const expire = new Date(data.subscriptionExpiresAt);
+                        const remaining = Math.max(0, expire - Date.now());
+                        const hrs = Math.floor(remaining / (1000 * 60 * 60));
+                        const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                        const info = `Active for ${hrs}h ${mins}m`;
+
+                        const planContainer = document.querySelector(`#subscribeRow-${tier}`);
+                        if (planContainer) {
+                            const display = document.createElement('p');
+                            display.className = 'text-xs text-gray-400 mt-2';
+                            display.textContent = info;
+                            planContainer.appendChild(display);
+                        }
+
+                        ['Co-Pilot', 'Commander'].forEach(t => {
+                            if (t !== tier) {
+                                const trigger = document.getElementById(`subscribeTrigger-${t}`);
+                                if (trigger) {
+                                    trigger.classList.add('opacity-40', 'cursor-not-allowed');
+                                    trigger.classList.remove('group-hover:opacity-90', 'hover:opacity-90');
+                                    // Prevent any click from propagating
+                                    trigger.addEventListener('click', e => e.preventDefault());
+                                    trigger.addEventListener('mousedown', e => e.stopPropagation());
+                                }
+                            }
+                        });
+                    }
+                }
+            });
 
         closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
         sliderThumb.addEventListener('mousedown', e => { isSliding = true; startX = e.clientX });
