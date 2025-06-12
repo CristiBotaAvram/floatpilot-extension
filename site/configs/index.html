@@ -89,7 +89,7 @@
                     document.getElementById('avatarImg').src = data.avatarUrl;
                     document.getElementById('steamName').textContent = data.displayName;
                     document.getElementById('steamID').textContent = data.steamID64;
-                    ffBalance.textContent = ${data.ff_balance || 0} FF;
+                    ffBalance.textContent = `${data.ff_balance || 0} FF`;
 
                     const tier = data.tier || 'Free';
                     let tierColor = '#848884';
