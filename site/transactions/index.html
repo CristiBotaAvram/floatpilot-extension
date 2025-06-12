@@ -125,10 +125,9 @@
                     document.getElementById('steamID').textContent = data.steamID64;
                     ffBalance.textContent = `${data.ff_balance || 0} FF`;
 
-                    const tier = data.tier || 'Cadet';
-                    let tierColor = '#CD7F32';
-                    if (tier === 'Commander') tierColor = '#FFD700';
-                    else if (tier === 'Co-Pilot') tierColor = '#C0C0C0';
+                    const tier = data.tier || 'Free';
+                    let tierColor = '#848884';
+                    if (tier === 'Pro') tierColor = '#0068ff';
 
                     const tierBadge = document.getElementById('tierBadge');
                     tierBadge.textContent = tier;
