@@ -113,7 +113,7 @@
                             <span id="selectedDuration-Pro">1 hour</span>
                         </button>
                     </div>
-                    <span id="costDisplay-Pro" class="ml-4 text-white text-lg">50 FF</span>
+                    <span id="costDisplay-Pro" class="ml-4 text-white font-bold text-lg">50 FF</span>
                 </div>
                 <ul id="dropdownMenu-Pro" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
                     <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 hour" data-cost="50">1 hour</li>
@@ -217,6 +217,7 @@
                     msg.className = 'text-xs text-gray-400 mt-2';
                     msg.textContent = `Active for ${hrs}h ${mins}m`;
                     document.getElementById('subscribeRow-Pro').appendChild(msg);
+                    document.getElementById('tier-Free')?.classList.add('hidden');
                 }
             });
 
