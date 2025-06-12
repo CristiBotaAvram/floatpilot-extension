@@ -147,16 +147,6 @@
         const tierBadge    = document.getElementById('tierBadge');
         let isSliding = false, startX = 0;
 
-        const tier = data.tier || 'Free';
-        let tierColor = '#848884';
-        if (tier === 'Pro') tierColor = '#0068ff';
-        tierBadge.textContent = tier;
-        tierBadge.style.backgroundColor = tierColor;
-        tierBadge.style.color = '#000';
-        tierBadge.style.fontWeight = 'bold';
-        tierBadge.style.webkitTextStroke = '0px';
-        tierBadge.style.textShadow = 'none';
-
         const setupDropdown = () => {
             const toggle = document.getElementById(`dropdownToggle-Pro`);
             const menu = document.getElementById(`dropdownMenu-Pro`);
@@ -192,6 +182,15 @@
             .then(data => {
                 /* NEW HEADER HANDLING  ⬇︎ */
                 if (data.loggedIn) {
+                    const tier = data.tier || 'Free';
+                    let tierColor = '#848884';
+                    if (tier === 'Pro') tierColor = '#0068ff';
+                    tierBadge.textContent = tier;
+                    tierBadge.style.backgroundColor = tierColor;
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+                    tierBadge.style.webkitTextStroke = '0px';
+                    tierBadge.style.textShadow = 'none';
                     // swap header buttons
                     document.getElementById('loginHeaderBtn')?.classList.add('hidden');
                     document.getElementById('userMenu')?.classList.remove('hidden');
