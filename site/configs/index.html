@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FloatPilot Configs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0f0f0f] text-white font-sans">
+<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
+    <div class="flex items-center space-x-4">
+        <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <h1 class="text-2xl font-signature">FloatPilot</h1>
+        <nav class="flex space-x-0 ml-6 text-lg">
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>
+            <a href="#" class="px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
+        </nav>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <!-- GitHub icon without circle -->
+        <a href="https://github.com/your-repo" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
+            <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
+        </a>
+        <!-- X / Twitter icon without circle -->
+        <a href="https://x.com/your-handle" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
+            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
+        </a>
+
+        <!-- Not logged in -->
+        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+        <!-- Logged in -->
+        <div id="userMenu" class="hidden relative">
+            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
+                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
+                <div class="flex items-center gap-2">
+                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="ffBalance" class="text-white font-semibold">100 FF</span>
+                </div>
+            </button>
+            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
+                <div class="px-4 py-2 border-b border-white">
+                    <p id="steamName" class="font-semibold">Steam name</p>
+                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
+                </div>
+                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-normal hover:font-bold hover:bg-white transition-ease duration-500">Transactions</a>
+                <a href="#" class="block px-4 py-2 font-normal hover:text-black font-normal hover:font-bold hover:bg-white transition-ease duration-500">Configs</a>
+                <form method="POST" action="/api/logout">
+                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 text-[#ff0000] hover:bg-[#ff0000] hover:font-bold hover:text-[#000000] transition-ease duration-500">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="px-6 py-8">
+    <h2 class="text-2xl font-bold mb-4">Browse Public Configs</h2>
+
+    <div class="flex justify-between items-center mb-6">
+        <input type="text" placeholder="Search configs..." class="bg-[#1f1f1f] text-white px-4 py-2 rounded w-full max-w-md border border-[#333]" id="searchInput">
+        <select id="sortSelect" class="ml-4 px-4 py-2 bg-[#1f1f1f] text-white border border-[#333] rounded">
+            <option value="newest">Newest</option>
+            <option value="popular">Most Popular</option>
+            <option value="price_low">Price: Low to High</option>
+            <option value="price_high">Price: High to Low</option>
+        </select>
+    </div>
+
+    <div id="configGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Config cards will be injected here by JS -->
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ffBalance = document.getElementById('ffBalance');
+
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    document.getElementById('userMenu')?.classList.remove('hidden');
+                    document.getElementById('avatarImg').src = data.avatarUrl;
+                    document.getElementById('steamName').textContent = data.displayName;
+                    document.getElementById('steamID').textContent = data.steamID64;
+                    ffBalance.textContent = ${data.ff_balance || 0} FF;
+
+                    const tier = data.tier || 'Free';
+                    let tierColor = '#848884';
+                    if (tier === 'Pro') tierColor = '#0068ff';
+
+                    const tierBadge = document.getElementById('tierBadge');
+                    tierBadge.textContent = tier;
+                    tierBadge.style.backgroundColor = tierColor;
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+                } else {
+                    document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
+                    document.getElementById('userMenu')?.classList.add('hidden');
+                }
+            });
+
+        document.getElementById('userMenu')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            document.getElementById('userDropdown')?.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.getElementById('userMenu');
+            if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+</script>
+</body>
+</html>
