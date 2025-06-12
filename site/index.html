@@ -144,7 +144,18 @@
         const confirmationText = document.getElementById('confirmationText');
         const sliderThumb = document.getElementById('sliderThumb');
         const closeModal = document.getElementById('closeModal');
+        const tierBadge    = document.getElementById('tierBadge');
         let isSliding = false, startX = 0;
+
+        const tier = data.tier || 'Free';
+        let tierColor = '#848884';
+        if (tier === 'Pro') tierColor = '#0068ff';
+        tierBadge.textContent = tier;
+        tierBadge.style.backgroundColor = tierColor;
+        tierBadge.style.color = '#000';
+        tierBadge.style.fontWeight = 'bold';
+        tierBadge.style.webkitTextStroke = '0px';
+        tierBadge.style.textShadow = 'none';
 
         const setupDropdown = () => {
             const toggle = document.getElementById(`dropdownToggle-Pro`);
