@@ -100,15 +100,17 @@
 
             for (const config of filtered) {
                 const card = document.createElement('div');
-                card.className = 'bg-[#1a1a1a] p-4 rounded shadow hover:shadow-lg transition';
+                card.className = 'bg-[#181818] p-6 rounded-2xl shadow-md flex flex-col justify-between relative';
 
                 card.innerHTML = `
-        <h3 class="text-xl font-bold mb-1">${config.name}</h3>
-        <p class="text-sm text-gray-400 mb-2">by ${config.creator_steam_id}</p>
-        <p class="text-sm mb-3">${config.description || 'No description.'}</p>
-        <div class="flex justify-between items-center">
-          <span class="text-green-400 font-semibold">${config.ff_price} FF</span>
-          <span class="text-xs text-gray-500">${config.purchase_count} sold</span>
+        <div>
+          <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
+          <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
+          <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
+          <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
+        </div>
+        <div class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold bg-[#00ff75] rounded-xl text-sm">
+          ${config.ff_price} FF
         </div>
       `;
 

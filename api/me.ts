@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let displayName = row?.display_name ?? steamID64;
     let avatarUrl = row?.avatar_url ?? '';
     const lastFetchedAt = row?.last_fetched_at ? new Date(row.last_fetched_at) : null;
-    const shouldRefresh = !lastFetchedAt || (Date.now() - lastFetchedAt.getTime()) > 30 * 24 * 60 * 60 * 1000;
+    const shouldRefresh = !lastFetchedAt || (Date.now() - lastFetchedAt.getTime()) > 3 * 365 * 24 * 60 * 60 * 1000;
 
     if (!row) {
         try {
