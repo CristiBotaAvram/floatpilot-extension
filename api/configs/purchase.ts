@@ -100,22 +100,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { error: sellerLedgerInsertError } = await supabase
         .from('ff_ledger')
-        .insert({
+        .insert([{
             steam_id: sellerSteamID,
-            type: 'sale',
-            amount: cost,
-            reference: config_id
-        });
+            amount: Math.floor(cost * 0.7),
+            type: 'config_sale',
+            reference: config_id,
+            created_at: nowIso
+        }]);
 
     const { error: sellerTransactionError } = await supabase
         .from('transactions')
         .insert({
             steam_id: sellerSteamID,
-            type: 'sale',
-            amount: cost,
+            type: 'config_sale',
             ff_before: seller_balance,
-            ff_after: seller_balance + cost,
-            created_at: new Date().toISOString()
+            ff_after: seller_balance + Math.floor(cost * 0.7),
+            created_at: nowIso
         });
 
     if (sellerLedgerInsertError || sellerTransactionError) {
