@@ -77,7 +77,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             type: 'config_purchase',
             ff_before: ff_balance,
             ff_after: ff_balance - cost,
-            amount: -cost,
             created_at: nowIso
         }]);
 
