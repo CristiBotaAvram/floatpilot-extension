@@ -18,6 +18,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!steamID || !config_id || typeof cost !== 'number') {
         return res.status(400).json({ error: 'Missing required fields' });
     }
+    const now = new Date();
+    const nowIso = now.toISOString();
 
     // Calculate user's FF balance from ff_ledger
     const { data: userLedgerRows, error: userLedgerError } = await supabase
@@ -62,20 +64,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .from('ff_ledger')
         .insert({
             steam_id: steamID,
-            type: 'purchase',
             amount: -cost,
-            reference: config_id
+            type: 'purchase',
+            reference: config_id,
+            created_at: nowIso
         });
 
     const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
             steam_id: steamID,
-            type: 'purchase',
-            amount: -cost,
+            type: 'config_purchase',
             ff_before: ff_balance,
             ff_after: ff_balance - cost,
-            created_at: new Date().toISOString()
+            amount: -cost,
+            created_at: nowIso
         });
 
     if (ledgerInsertError || transactionError) {

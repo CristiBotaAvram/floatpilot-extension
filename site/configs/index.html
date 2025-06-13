@@ -148,6 +148,7 @@
                     currentConfigPrice = config.ff_price;
                     confirmationText.textContent = `Slide to confirm purchase of \"${config.name}\" for ${config.ff_price} FF.`;
                     confirmationModal.classList.remove('hidden');
+                    sliderThumb.style.left = '0';
                 });
             }
         }
