@@ -62,24 +62,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Insert FF ledger and transaction for buyer
     const { error: ledgerInsertError } = await supabase
         .from('ff_ledger')
-        .insert({
+        .insert([{
             steam_id: steamID,
             amount: -cost,
             type: 'purchase',
             reference: config_id,
             created_at: nowIso
-        });
+        }]);
 
     const { error: transactionError } = await supabase
         .from('transactions')
-        .insert({
+        .insert([{
             steam_id: steamID,
             type: 'config_purchase',
             ff_before: ff_balance,
             ff_after: ff_balance - cost,
             amount: -cost,
             created_at: nowIso
-        });
+        }]);
 
     if (ledgerInsertError || transactionError) {
         console.error('Ledger/Transaction error:', ledgerInsertError || transactionError);
