@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { getSteamID64 } from '../_utils/session.js'
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -12,7 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { config_id, cost } = req.body;
-    const steamID = req.headers['x-steamid'] as string;
+    const steamID = getSteamID64(req);
 
     if (!steamID || !config_id || typeof cost !== 'number') {
         return res.status(400).json({ error: 'Missing required fields' });

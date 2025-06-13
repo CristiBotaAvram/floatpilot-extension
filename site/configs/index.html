@@ -228,19 +228,35 @@
             if (!isSliding) return;
             isSliding = false;
             const slider = sliderThumb.parentElement;
-            if (parseInt(sliderThumb.style.left) >= slider.offsetWidth - sliderThumb.offsetWidth - 10) {
-                sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
-                confirmationModal.classList.add('hidden');
-                const res = await fetch('/api/subscribe', {
+
+            const completedSlide = parseInt(sliderThumb.style.left) >= slider.offsetWidth - sliderThumb.offsetWidth - 10;
+            if (!completedSlide) {
+                sliderThumb.style.left = '0';
+                return;
+            }
+
+            sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
+            confirmationModal.classList.add('hidden');
+
+            if (currentPurchase === 'config') {
+                const res = await fetch('/api/configs/purchase', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier: selectedTier, duration: selectedDuration, cost: selectedCost })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        config_id: currentConfigId,
+                        cost: currentConfigPrice
+                    })
                 });
+
                 const json = await res.json();
-                if (json.success) location.reload();
-                else alert(`Subscription failed: ${json.error || 'Unknown error'}`);
-            } else sliderThumb.style.left = '0';
-        });
+                if (json.success) {
+                    location.reload(); // or mark config as purchased
+                } else {
+                    alert(`Purchase failed: ${json.error || 'Unknown error'}`);
+                }
+            }
     });
 </script>
 </body>
