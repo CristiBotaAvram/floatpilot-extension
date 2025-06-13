@@ -6,6 +6,20 @@
     <title>FloatPilot Configs</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
+        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#003326] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
+                ➜
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Header -->
 <body class="bg-[#0f0f0f] text-white font-sans">
 <header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
     <div class="flex items-center space-x-4">
@@ -76,12 +90,21 @@
     </div>
 </main>
 <script>
+    let currentPurchase = null;
+    let currentConfigId = null;
+    let currentConfigPrice = 0;
+
     document.addEventListener('DOMContentLoaded', async () => {
         const configGrid = document.getElementById('configGrid');
         const sortSelect = document.getElementById('sortSelect');
         const searchInput = document.getElementById('searchInput');
+        const confirmationText = document.getElementById('confirmationText');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const sliderThumb = document.getElementById('sliderThumb');
+        const closeModal = document.getElementById('closeModal');
 
         let configs = [];
+        let userSteamID = null;
 
         async function fetchConfigs() {
             try {
@@ -102,19 +125,30 @@
                 const card = document.createElement('div');
                 card.className = 'bg-[#181818] p-6 rounded-2xl shadow-md flex flex-col justify-between relative';
 
+                const buttonId = `buy-${config.id}`;
+
                 card.innerHTML = `
-        <div>
-          <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
-          <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
-          <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
-          <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
-        </div>
-        <div class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold bg-[#00ff75] rounded-xl text-sm">
-          ${config.ff_price} FF
-        </div>
-      `;
+                    <div>
+                      <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
+                      <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
+                      <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
+                      <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
+                    </div>
+                    <button id="${buttonId}" class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold bg-[#00ff75] rounded-xl text-sm">
+                      ${config.ff_price} FF
+                    </button>
+                `;
 
                 configGrid.appendChild(card);
+
+                const buyButton = card.querySelector(`#${buttonId}`);
+                buyButton.addEventListener('click', () => {
+                    currentPurchase = 'config';
+                    currentConfigId = config.id;
+                    currentConfigPrice = config.ff_price;
+                    confirmationText.textContent = `Slide to confirm purchase of \"${config.name}\" for ${config.ff_price} FF.`;
+                    confirmationModal.classList.remove('hidden');
+                });
             }
         }
 
@@ -181,6 +215,31 @@
             if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) {
                 dropdown.classList.add('hidden');
             }
+        });
+        closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
+        sliderThumb.addEventListener('mousedown', e => { isSliding = true; startX = e.clientX });
+        document.addEventListener('mousemove', e => {
+            if (!isSliding) return;
+            const slider = sliderThumb.parentElement;
+            const delta = Math.min(Math.max(0, e.clientX - startX), slider.offsetWidth - sliderThumb.offsetWidth);
+            sliderThumb.style.left = `${delta}px`;
+        });
+        document.addEventListener('mouseup', async e => {
+            if (!isSliding) return;
+            isSliding = false;
+            const slider = sliderThumb.parentElement;
+            if (parseInt(sliderThumb.style.left) >= slider.offsetWidth - sliderThumb.offsetWidth - 10) {
+                sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
+                confirmationModal.classList.add('hidden');
+                const res = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tier: selectedTier, duration: selectedDuration, cost: selectedCost })
+                });
+                const json = await res.json();
+                if (json.success) location.reload();
+                else alert(`Subscription failed: ${json.error || 'Unknown error'}`);
+            } else sliderThumb.style.left = '0';
         });
     });
 </script>
