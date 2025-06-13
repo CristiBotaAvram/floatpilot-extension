@@ -123,5 +123,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: 'Failed to credit seller' });
     }
 
+    // Increment config's purchase_count
+    const { error: updateConfigError } = await supabase.rpc('increment_config_purchase_count', {
+        config_id_param: config_id
+    });
+
+
+    if (updateConfigError) {
+        console.error('Failed to increment purchase_count:', updateConfigError);
+        return res.status(500).json({ error: 'Purchase completed but failed to update purchase count' });
+    }
+
     return res.status(200).json({ success: true });
 }
