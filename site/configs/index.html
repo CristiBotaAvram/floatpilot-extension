@@ -93,6 +93,9 @@
     let currentPurchase = null;
     let currentConfigId = null;
     let currentConfigPrice = 0;
+    let purchasedConfigIds = [];
+    let isSliding = false;
+    let startX = 0;
 
     document.addEventListener('DOMContentLoaded', async () => {
         const configGrid = document.getElementById('configGrid');
@@ -108,12 +111,20 @@
 
         async function fetchConfigs() {
             try {
-                const response = await fetch('/api/configs');
-                const data = await response.json();
-                configs = data;
+                const [configsRes, purchasesRes] = await Promise.all([
+                    fetch('/api/configs'),
+                    fetch('/api/configs/purchased')
+                ]);
+
+                const configData = await configsRes.json();
+                const purchaseData = await purchasesRes.json();
+
+                configs = configData;
+                purchasedConfigIds = purchaseData.map(p => p.config_id);
+
                 renderConfigs();
             } catch (err) {
-                console.error('Failed to fetch configs:', err);
+                console.error('Failed to fetch configs or purchases:', err);
             }
         }
 
@@ -122,34 +133,38 @@
             const filtered = filterAndSort(configs);
 
             for (const config of filtered) {
+                const isOwned = purchasedConfigIds.includes(config.id);
+
                 const card = document.createElement('div');
                 card.className = 'bg-[#181818] p-6 rounded-2xl shadow-md flex flex-col justify-between relative';
 
                 const buttonId = `buy-${config.id}`;
 
                 card.innerHTML = `
-                    <div>
-                      <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
-                      <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
-                      <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
-                      <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
-                    </div>
-                    <button id="${buttonId}" class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold bg-[#00ff75] rounded-xl text-sm">
-                      ${config.ff_price} FF
-                    </button>
-                `;
+          <div>
+            <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
+            <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
+            <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
+            <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
+          </div>
+          <div id="${buttonId}" class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold rounded-xl text-sm ${isOwned ? 'bg-[#888]' : 'bg-[#00ff75] cursor-pointer'}">
+            ${isOwned ? 'Owned' : `${config.ff_price} FF`}
+          </div>
+        `;
 
                 configGrid.appendChild(card);
 
-                const buyButton = card.querySelector(`#${buttonId}`);
-                buyButton.addEventListener('click', () => {
-                    currentPurchase = 'config';
-                    currentConfigId = config.id;
-                    currentConfigPrice = config.ff_price;
-                    confirmationText.textContent = `Slide to confirm purchase of \"${config.name}\" for ${config.ff_price} FF.`;
-                    confirmationModal.classList.remove('hidden');
-                    sliderThumb.style.left = '0';
-                });
+                if (!isOwned) {
+                    const buyButton = card.querySelector(`#${buttonId}`);
+                    buyButton.addEventListener('click', () => {
+                        currentPurchase = 'config';
+                        currentConfigId = config.id;
+                        currentConfigPrice = config.ff_price;
+                        confirmationText.textContent = `Slide to confirm purchase of \"${config.name}\" for ${config.ff_price} FF.`;
+                        confirmationModal.classList.remove('hidden');
+                        sliderThumb.style.left = '0';
+                    });
+                }
             }
         }
 
@@ -171,6 +186,7 @@
 
         sortSelect.addEventListener('change', renderConfigs);
         searchInput.addEventListener('input', renderConfigs);
+        closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
 
         await fetchConfigs();
     });
@@ -254,7 +270,8 @@
 
                 const json = await res.json();
                 if (json.success) {
-                    location.reload(); // or mark config as purchased
+                    purchasedConfigIds.push(currentConfigId);
+                    renderConfigs();
                 } else {
                     alert(`Purchase failed: ${json.error || 'Unknown error'}`);
                 }
