@@ -74,6 +74,11 @@
 <!-- Main Content -->
 <main class="px-6 py-8">
     <h2 class="text-2xl font-bold mb-4">Browse Public Configs</h2>
+    <div class="mb-4 flex justify-end">
+        <a href="/configs/upload" class="bg-[#999999] hover:bg-[#00ff75] text-black font-bold py-2 px-4 rounded transition-ease duration-500">
+            Upload
+        </a>
+    </div>
 
     <div class="flex justify-between items-center mb-6">
         <input type="text" placeholder="Search configs..." class="bg-[#1f1f1f] text-white px-4 py-2 rounded w-full max-w-md border border-[#333]" id="searchInput">
@@ -84,6 +89,8 @@
             <option value="price_high">Price: High to Low</option>
         </select>
     </div>
+
+
 
     <div id="configGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Config cards will be injected here by JS -->
