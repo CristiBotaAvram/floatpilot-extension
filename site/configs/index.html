@@ -194,13 +194,7 @@
         closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
 
         await fetchConfigs();
-    });
-    document.addEventListener('DOMContentLoaded', () => {
         const ffBalance = document.getElementById('ffBalance');
-        const confirmationText = document.getElementById('confirmationText');
-        const confirmationModal = document.getElementById('confirmationModal');
-        const sliderThumb = document.getElementById('sliderThumb');
-        const closeModal = document.getElementById('closeModal');
         fetch('/api/me')
             .then(r => r.json())
             .then(data => {
