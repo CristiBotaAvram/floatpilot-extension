@@ -70,7 +70,9 @@
         </div>
     </div>
 </header>
-<div id="ownedGrid"></div>
+<div id="ownedGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Config cards will be injected here by JS -->
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ffBalance = document.getElementById('ffBalance');
@@ -120,7 +122,6 @@
         function setSteamIDAndFetchConfigs() {
         fetch('/api/me').then(r => r.json()).then(data => {
             window.loggedInSteamID = data.steamID64;
-            console.log('SteamID set:', window.loggedInSteamID);
             fetchOwnedConfigs();
         });
     }
@@ -136,7 +137,6 @@
         headers: { 'x-steamid': window.loggedInSteamID }
     });
         const purchaseData = await purchasesRes.json();
-        console.log('Purchase data:', purchaseData);
         const ownedIds = Array.isArray(purchaseData) ? purchaseData.map(p => p.config_id) : [];
         if (!ownedIds.length) {
         ownedGrid.innerHTML = '<p class="text-gray-400 p-4">You do not own any configs yet.</p>';
@@ -144,7 +144,6 @@
     }
         const configsRes = await fetch('/api/configs?ids=' + ownedIds.join(','));
         const configs = await configsRes.json();
-        console.log('Configs:', configs);
         renderOwnedConfigs(configs);
     } catch (err) {
         console.error('Failed to fetch owned configs:', err);
