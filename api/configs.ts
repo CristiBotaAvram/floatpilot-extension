@@ -10,10 +10,22 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { data, error } = await supabase
+    // Support ?ids=... (comma-separated)
+    const idsParam = req.query.ids;
+    let query = supabase
         .from('configs')
         .select('id, name, description, creator_steam_id, ff_price, purchase_count, created_at')
         .order('created_at', { ascending: false });
+
+    if (idsParam) {
+        // idsParam may be a string or an array (but for us it will be a string)
+        const idsArray = Array.isArray(idsParam)
+            ? idsParam.flatMap(val => val.split(',').map(s => s.trim()))
+            : idsParam.split(',').map(s => s.trim());
+        query = query.in('id', idsArray);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.error('Supabase error:', error);

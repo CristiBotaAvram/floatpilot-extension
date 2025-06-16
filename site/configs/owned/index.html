@@ -70,6 +70,7 @@
         </div>
     </div>
 </header>
+<div id="ownedGrid"></div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ffBalance = document.getElementById('ffBalance');
@@ -113,9 +114,9 @@
             }
         });
     });
-</script>
-<script>
+
     document.addEventListener('DOMContentLoaded', async () => {
+        fetch('/api/me').then(r => r.json()).then(data => {window.loggedInSteamID = data.steamID64;});
         const ownedGrid = document.getElementById('ownedGrid');
 
         // Make sure the user is logged in and SteamID is available
