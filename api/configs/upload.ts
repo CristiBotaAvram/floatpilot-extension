@@ -39,9 +39,9 @@ export default async function handler(req, res) {
     if (countErr) {
         return res.status(500).json({ error: 'Failed to count configs' });
     }
-
+    const tier = req.headers['x-tier'];
     // Restriction: only Pro users can upload more than 0 configs
-    if (user.tier !== 'Pro' && count >= 1) {
+    if (tier !== 'Pro' && count >= 1) {
         return res.status(403).json({ error: 'Only Pro users can upload more than one config.' });
     }
 

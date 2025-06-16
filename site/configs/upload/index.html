@@ -83,11 +83,13 @@
 </main>
 <script>
     let steamID = null;
+    let userTier = null;
     fetch('/api/me')
         .then(r => r.json())
         .then(data => {
             if (data.loggedIn) {
                 steamID = data.steamID64;
+                userTier = data.tier || 'Free';
             }
         });
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
@@ -101,7 +103,8 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-steamid': steamID // Pass SteamID in headers
+                'x-steamid': steamID, // Pass SteamID in headers
+                'x-tier': userTier
             },
             body: JSON.stringify({ name, description, ff_price: price, code })
         });
