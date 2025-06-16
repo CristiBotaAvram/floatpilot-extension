@@ -114,3 +114,65 @@
         });
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const ownedGrid = document.getElementById('ownedGrid');
+
+        // Make sure the user is logged in and SteamID is available
+        function getSteamID() {
+            return window.loggedInSteamID;
+        }
+
+        async function fetchOwnedConfigs() {
+            try {
+                // 1. Fetch all purchases for this user
+                const purchasesRes = await fetch('/api/configs/purchased', {
+                    headers: { 'x-steamid': getSteamID() }
+                });
+                const purchaseData = await purchasesRes.json();
+                const ownedIds = purchaseData.map(p => p.config_id);
+
+                if (!ownedIds.length) {
+                    ownedGrid.innerHTML = '<p class="text-gray-400 p-4">You do not own any configs yet.</p>';
+                    return;
+                }
+
+                // 2. Fetch details for owned configs
+                // (Batching all IDs in one call - you may need a custom API for this if /api/configs doesn't support filtering)
+                const configsRes = await fetch('/api/configs?ids=' + ownedIds.join(','));
+                const configs = await configsRes.json();
+
+                renderOwnedConfigs(configs);
+            } catch (err) {
+                console.error('Failed to fetch owned configs:', err);
+                ownedGrid.innerHTML = '<p class="text-red-500 p-4">Failed to load owned configs.</p>';
+            }
+        }
+
+        function renderOwnedConfigs(configs) {
+            ownedGrid.innerHTML = '';
+            for (const config of configs) {
+                const card = document.createElement('div');
+                card.className = 'bg-[#181818] p-6 rounded-2xl shadow-md flex flex-col justify-between relative';
+                card.innerHTML = `
+        <div>
+          <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
+          <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
+          <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
+          <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
+        </div>
+        <div class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold rounded-xl text-sm bg-[#888]">Owned</div>
+      `;
+                ownedGrid.appendChild(card);
+            }
+        }
+
+        // Ensure you set window.loggedInSteamID after login before calling this
+        if (getSteamID()) {
+            await fetchOwnedConfigs();
+        } else {
+            // If SteamID is not set yet, wait for login then call fetchOwnedConfigs
+            // Or you can hook this into your login logic!
+        }
+    });
+</script>
