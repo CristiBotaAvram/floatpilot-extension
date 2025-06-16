@@ -128,7 +128,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         config_id_param: config_id
     });
 
-
     if (updateConfigError) {
         console.error('Failed to increment purchase_count:', updateConfigError);
         return res.status(500).json({ error: 'Purchase completed but failed to update purchase count' });
