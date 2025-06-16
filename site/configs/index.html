@@ -193,7 +193,7 @@
         searchInput.addEventListener('input', renderConfigs);
         closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
 
-        await fetchConfigs();
+
         const ffBalance = document.getElementById('ffBalance');
         fetch('/api/me')
             .then(r => r.json())
@@ -221,6 +221,7 @@
                 }
 
                 window.loggedInSteamID = data.steamID64;
+                fetchConfigs();
             });
 
         document.getElementById('userMenu')?.addEventListener('click', (event) => {
