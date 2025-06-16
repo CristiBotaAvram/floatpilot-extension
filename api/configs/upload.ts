@@ -85,14 +85,12 @@ export default async function handler(req, res) {
     const { data: insertedConfig, error: insertErr } = await supabase
         .from('configs')
         .insert({
-            name,
-            description,
+            name: name,
+            description: description,
             code: encryptedCode,
-            ff_price,
+            ff_price: ff_price,
             creator_steam_id: steamID
-        })
-        .select()
-        .single();
+        });
 
     if (insertErr || !insertedConfig) {
         console.error('Upload failed:', insertErr);
