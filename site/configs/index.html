@@ -113,7 +113,12 @@
             try {
                 const [configsRes, purchasesRes] = await Promise.all([
                     fetch('/api/configs'),
-                    fetch('/api/configs/purchased')
+                    fetch('/api/configs/purchased', {
+                        headers: {
+                            'x-steamid': window.loggedInSteamID
+                        }
+                    })
+
                 ]);
 
                 const configData = await configsRes.json();
@@ -220,6 +225,8 @@
                     document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
                     document.getElementById('userMenu')?.classList.add('hidden');
                 }
+
+                window.loggedInSteamID = data.steamID64;
             });
 
         document.getElementById('userMenu')?.addEventListener('click', (event) => {
