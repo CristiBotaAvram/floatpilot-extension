@@ -144,7 +144,7 @@ function ensureStyle() {
     if (document.getElementById('price-diff-style')) return
     const style = document.createElement('style')
     style.id = 'price-diff-style'
-    style.textContent = `.price-diff-box{margin-top:4px;padding:2px 6px;font-size:12px;font-weight:600;color:#fff;border-radius:6px;display:inline-block;text-align:center}`
+    style.textContent = `.price-diff-box{margin-top:4px;padding:2px 6px;font-size:12px;font-weight:500;color:#fff;border-radius:6px;display:inline-block;text-align:center}`
     document.head.appendChild(style)
 }
 

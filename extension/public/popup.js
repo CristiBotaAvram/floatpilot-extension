@@ -15,10 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         badgeEl.textContent = 'Guest';
     }
 
-    function getOverlayByText(text) {
-        return Array.from(document.querySelectorAll('.locked-overlay')).find(el => el.textContent.includes(text));
-    }
-
     function bindSettings(steamID64, tier) {
         const storageKey = `floatpilot_settings_${steamID64}`;
 
@@ -45,7 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const newSettings = { ...storedSettings, [key]: nowChecked };
                         chrome.storage.local.set({ [storageKey]: newSettings });
 
-                        // ✅ Sync showPriceDiff when cheapestToggle is toggled
                         if (key === 'cheapestToggle') {
                             chrome.storage.sync.set({ showPriceDiff: nowChecked });
                         }
@@ -73,20 +68,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        if (tier === 'Co-Pilot' || tier === 'Commander') {
-            const coPilotOverlay = getOverlayByText('Co-Pilot');
-            if (coPilotOverlay) coPilotOverlay.remove();
-            document.querySelectorAll('[data-key="itemEstimation"], [data-key="profitTarget"], [data-key="listingCardHighlight"], [data-key="manipulationWarning"]').forEach(el => {
+        if (tier === 'Pro') {
+            const overlay = document.querySelector('.locked-overlay');
+            if (overlay) overlay.remove();
+            document.querySelectorAll('.setting.locked').forEach(el => {
                 el.classList.remove('locked');
             });
-        }
 
-        if (tier === 'Commander') {
-            const commanderOverlay = getOverlayByText('Commander');
-            if (commanderOverlay) commanderOverlay.remove();
-            document.querySelectorAll('[data-key="removeAffiliate"], [data-key="editStickers"], [data-key="estimateMethod"], [data-key="rarePatterns"], [data-key="flippability"]').forEach(el => {
-                el.classList.remove('locked');
-            });
+            planEl.style.backgroundColor = '#0068ff'; // Green badge for Pro
+            badgeEl.style.backgroundColor = '#0068ff';
+            planEl.textContent = 'Pro';
+            badgeEl.textContent = 'Pro';
+        } else {
+            planEl.style.backgroundColor = '#808080';
+            badgeEl.style.backgroundColor = '#808080';
+            planEl.textContent = 'Free';
+            badgeEl.textContent = 'Free';
         }
     }
 
@@ -134,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.body.addEventListener('click', e => {
         if (e.target.matches('.upgrade-btn')) {
-            chrome.tabs.create({ url: 'https://floatpilot.store/manage-subscription' });
+            chrome.tabs.create({ url: 'https://floatpilot.store/' });
         }
     });
 });
