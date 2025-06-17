@@ -102,7 +102,7 @@ export default async function handler(req, res) {
 
     // Mark the config as owned by creator
     const { error: purchaseErr } = await supabase.from('config_purchases').insert({
-        steam_id: steamID,
+        buyer_steam_id: steamID,
         config_id: insertedConfig.id
     });
 

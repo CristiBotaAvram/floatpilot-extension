@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     let query = supabase
         .from('configs')
-        .select('id, name, description, creator_steam_id, ff_price, purchase_count, created_at');
+        .select('id, name, description, creator_steam_id, ff_price, purchase_count, created_at, is_private');
 
     // If IDs are passed → fetch by ID (regardless of privacy)
     if (idsParam) {
