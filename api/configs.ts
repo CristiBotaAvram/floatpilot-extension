@@ -15,7 +15,9 @@ export default async function handler(req, res) {
     let query = supabase
         .from('configs')
         .select('id, name, description, creator_steam_id, ff_price, purchase_count, created_at')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .eq('is_private', false);
+
 
     if (idsParam) {
         // idsParam may be a string or an array (but for us it will be a string)

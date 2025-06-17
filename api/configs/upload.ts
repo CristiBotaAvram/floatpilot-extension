@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     const crypto = await import('crypto');
-    const { name, description, ff_price, code } = req.body;
+    const { name, description, ff_price, code , is_private } = req.body;
     if (!name || !ff_price || !code) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -89,7 +89,8 @@ export default async function handler(req, res) {
             description: description,
             encrypted_code: encryptedCode,
             ff_price: ff_price,
-            creator_steam_id: steamID
+            creator_steam_id: steamID,
+            is_private: is_private
         })
         .select()
         .single();

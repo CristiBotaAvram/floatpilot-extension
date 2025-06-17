@@ -117,58 +117,93 @@
         });
     });
 </script>
-    <script>
-        // --- DEBUG PATCH ---
-        function setSteamIDAndFetchConfigs() {
-        fetch('/api/me').then(r => r.json()).then(data => {
-            window.loggedInSteamID = data.steamID64;
-            fetchOwnedConfigs();
-        });
+<script>
+    function setSteamIDAndFetchConfigs() {
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(data => {
+                window.loggedInSteamID = data.steamID64;
+                fetchOwnedConfigs();
+            });
     }
 
-        async function fetchOwnedConfigs() {
+    async function fetchOwnedConfigs() {
         const ownedGrid = document.getElementById('ownedGrid');
         if (!window.loggedInSteamID) {
-        ownedGrid.innerHTML = '<p class="text-gray-400 p-4">Please log in to see your owned configs.</p>';
-        return;
-    }
+            ownedGrid.innerHTML = '<p class="text-gray-400 p-4">Please log in to see your owned configs.</p>';
+            return;
+        }
         try {
-        const purchasesRes = await fetch('/api/configs/purchased', {
-        headers: { 'x-steamid': window.loggedInSteamID }
-    });
-        const purchaseData = await purchasesRes.json();
-        const ownedIds = Array.isArray(purchaseData) ? purchaseData.map(p => p.config_id) : [];
-        if (!ownedIds.length) {
-        ownedGrid.innerHTML = '<p class="text-gray-400 p-4">You do not own any configs yet.</p>';
-        return;
-    }
-        const configsRes = await fetch('/api/configs?ids=' + ownedIds.join(','));
-        const configs = await configsRes.json();
-        renderOwnedConfigs(configs);
-    } catch (err) {
-        console.error('Failed to fetch owned configs:', err);
-        ownedGrid.innerHTML = '<p class="text-red-500 p-4">Failed to load owned configs.</p>';
-    }
+            const purchasesRes = await fetch('/api/configs/purchased', {
+                headers: { 'x-steamid': window.loggedInSteamID }
+            });
+            const purchaseData = await purchasesRes.json();
+            const ownedIds = Array.isArray(purchaseData) ? purchaseData.map(p => p.config_id) : [];
+
+            if (!ownedIds.length) {
+                ownedGrid.innerHTML = '<p class="text-gray-400 p-4">You do not own any configs yet.</p>';
+                return;
+            }
+
+            const configsRes = await fetch('/api/configs?ids=' + ownedIds.join(','));
+            const configs = await configsRes.json();
+
+            renderOwnedConfigs(configs, window.loggedInSteamID);
+        } catch (err) {
+            console.error('Failed to fetch owned configs:', err);
+            ownedGrid.innerHTML = '<p class="text-red-500 p-4">Failed to load owned configs.</p>';
+        }
     }
 
-        function renderOwnedConfigs(configs) {
+    function renderOwnedConfigs(configs, steamID) {
         const ownedGrid = document.getElementById('ownedGrid');
         ownedGrid.innerHTML = '';
+
         for (const config of configs) {
-        const card = document.createElement('div');
-        card.className = 'bg-[#181818] p-6 rounded-2xl shadow-md flex flex-col justify-between relative';
-        card.innerHTML = `
-        <div>
-          <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
-          <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
-          <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
-          <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
-        </div>
-        <div class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold rounded-xl text-sm bg-[#888]">Owned</div>
-      `;
-        ownedGrid.appendChild(card);
-    }
+            const card = document.createElement('div');
+            card.className = 'bg-[#181818] p-6 rounded-2xl shadow-md flex flex-col justify-between relative';
+
+            let deleteButtonHTML = '';
+            if (config.creator_steam_id === steamID) {
+                deleteButtonHTML = `
+                    <button class="absolute top-4 right-4 bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700"
+                        onclick="deleteConfig('${config.id}')">Delete</button>
+                `;
+            }
+
+            card.innerHTML = `
+                ${deleteButtonHTML}
+                <div>
+                  <h3 class="text-2xl font-extrabold mb-1">${config.name}</h3>
+                  <p class="text-sm text-gray-400 mb-3">by ${config.creator_steam_id}</p>
+                  <p class="text-base text-white mb-4">${config.description || 'No description.'}</p>
+                  <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
+                </div>
+                <div class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold rounded-xl text-sm bg-[#888]">Owned</div>
+            `;
+            ownedGrid.appendChild(card);
+        }
     }
 
-        document.addEventListener('DOMContentLoaded', setSteamIDAndFetchConfigs);
+    async function deleteConfig(configId) {
+        const confirmed = confirm('Are you sure you want to delete this config?');
+        if (!confirmed) return;
+
+        const res = await fetch('/api/configs/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ config_id: configId })
+        });
+
+        const json = await res.json();
+        if (json.success) {
+            alert('Config deleted.');
+            fetchOwnedConfigs();
+        } else {
+            alert('Delete failed: ' + (json.error || 'Unknown error'));
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', setSteamIDAndFetchConfigs);
 </script>
+
