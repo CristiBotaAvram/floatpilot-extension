@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const badgeEl = document.getElementById('footerTier');
     const loginBtn = document.getElementById('loginBtn');
     const settingsEls = document.querySelectorAll('.setting');
+    const configSelectorSetting = document.getElementById('configSelectorSetting');
+    const configDropdown = document.getElementById('configDropdown');
 
     function setFallbackUI() {
         avatarEl.src = 'default-avatar.png';
@@ -18,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function bindSettings(steamID64, tier) {
         const storageKey = `floatpilot_settings_${steamID64}`;
 
-        chrome.storage.local.get(storageKey, (result) => {
+        chrome.storage.local.get(storageKey, async (result) => {
             const storedSettings = result[storageKey] || {};
 
             settingsEls.forEach(el => {
@@ -32,7 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const checked = !!storedSettings[key];
                     checkbox.classList.toggle('checked', checked);
 
-                    el.addEventListener('click', () => {
+                    if (key === 'itemEstimation' && configSelectorSetting) {
+                        configSelectorSetting.style.display = checked ? 'flex' : 'none';
+                    }
+
+                    el.addEventListener('click', async () => {
                         if (numberInput && numberInput === document.activeElement) return;
 
                         const nowChecked = !checkbox.classList.contains('checked');
@@ -43,6 +49,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         if (key === 'cheapestToggle') {
                             chrome.storage.sync.set({ showPriceDiff: nowChecked });
+                        }
+
+                        if (key === 'itemEstimation' && configSelectorSetting) {
+                            configSelectorSetting.style.display = nowChecked ? 'flex' : 'none';
+
+                            if (nowChecked) {
+                                try {
+                                    const purchasedRes = await fetch('https://floatpilot.store/api/configs/purchased', {
+                                        headers: { 'x-steamid': steamID64 }
+                                    });
+                                    const purchased = await purchasedRes.json();
+                                    const ids = purchased.map(p => p.config_id).join(',');
+
+                                    const detailsRes = await fetch(`https://floatpilot.store/api/configs?ids=${ids}`);
+                                    const configs = await detailsRes.json();
+
+                                    configDropdown.innerHTML = '';
+                                    configs.forEach(cfg => {
+                                        const opt = document.createElement('option');
+                                        opt.value = cfg.id;
+                                        opt.textContent = cfg.name;
+                                        configDropdown.appendChild(opt);
+                                    });
+
+                                    configDropdown.addEventListener('change', () => {
+                                        const selectedConfigId = configDropdown.value;
+                                        const updatedSettings = { ...storedSettings, selectedConfigId };
+                                        chrome.storage.local.set({ [storageKey]: updatedSettings });
+                                    });
+                                } catch (error) {
+                                    console.error('Failed to load configs:', error);
+                                }
+                            }
                         }
                     });
                 }
@@ -75,13 +114,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 el.classList.remove('locked');
             });
 
-            planEl.style.backgroundColor = '#0068ff'; // Green badge for Pro
+            planEl.style.backgroundColor = '#0068ff';
             badgeEl.style.backgroundColor = '#0068ff';
             planEl.textContent = 'Pro';
             badgeEl.textContent = 'Pro';
         } else {
             planEl.style.backgroundColor = '#808080';
-            badgeEl.style.backgroundColor = '#808080';
+            badgeEl.style.backgroundColor = '#334155';
             planEl.textContent = 'Free';
             badgeEl.textContent = 'Free';
         }
@@ -99,12 +138,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         avatarEl.src = data.avatarUrl;
         usernameEl.textContent = data.displayName;
-        planEl.textContent = data.tier;
-        badgeEl.textContent = data.tier;
-
-        chrome.storage.local.set({ floatpilot_user: data });
 
         bindSettings(data.steamID64, data.tier);
+        chrome.storage.local.set({ floatpilot_user: data });
 
     } catch (err) {
         console.warn('[FloatPilot] API fetch failed, fallback to cache', err);
@@ -114,8 +150,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log('[FloatPilot] Loaded user from cache');
                 avatarEl.src = floatpilot_user.avatarUrl;
                 usernameEl.textContent = floatpilot_user.displayName;
-                planEl.textContent = floatpilot_user.tier;
-                badgeEl.textContent = floatpilot_user.tier;
                 bindSettings(floatpilot_user.steamID64, floatpilot_user.tier);
             } else {
                 console.warn('[FloatPilot] No user info found');
