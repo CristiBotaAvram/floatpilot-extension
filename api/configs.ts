@@ -1,30 +1,32 @@
 import { createClient } from '@supabase/supabase-js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Only if secured behind server!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Support ?ids=... (comma-separated)
     const idsParam = req.query.ids;
+
     let query = supabase
         .from('configs')
-        .select('id, name, description, creator_steam_id, ff_price, purchase_count, created_at')
-        .order('created_at', { ascending: false })
-        .eq('is_private', false);
+        .select('id, name, description, creator_steam_id, ff_price, purchase_count, created_at');
 
-
+    // If IDs are passed → fetch by ID (regardless of privacy)
     if (idsParam) {
-        // idsParam may be a string or an array (but for us it will be a string)
         const idsArray = Array.isArray(idsParam)
             ? idsParam.flatMap(val => val.split(',').map(s => s.trim()))
             : idsParam.split(',').map(s => s.trim());
+
         query = query.in('id', idsArray);
+    } else {
+        // If no IDs → only return public configs
+        query = query.eq('is_private', false).order('created_at', { ascending: false });
     }
 
     const { data, error } = await query;
