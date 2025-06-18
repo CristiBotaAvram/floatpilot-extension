@@ -21,8 +21,11 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const ivHex = encrypted.slice(0, 32); // First 16 bytes (32 hex chars)
-        const dataHex = encrypted.slice(32); // Remainder
+        const [ivHex, dataHex] = encrypted.split(':');
+
+        if (!ivHex || !dataHex) {
+            return res.status(400).json({ error: 'Invalid encrypted format' });
+        }
 
         const iv = Buffer.from(ivHex, 'hex');
         const encryptedData = Buffer.from(dataHex, 'hex');
