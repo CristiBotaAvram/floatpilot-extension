@@ -23,6 +23,7 @@ export default defineConfig({
                 'content-scripts/skinportContent': resolve(__dirname, 'src/content-scripts/skinportContent.ts'),
                 'content-scripts/searchFilter': resolve(__dirname, 'src/content-scripts/searchFilter.ts'),
                 'content-scripts/priceDiff': resolve(__dirname, 'src/content-scripts/priceDiff.ts'),
+                'content-scripts/listingEstimation': resolve(__dirname, 'src/content-scripts/listingEstimation.ts'),
             },
 
             /* -------------------------------------------------- */
@@ -44,6 +45,8 @@ export default defineConfig({
                             return 'src/content-scripts/injectStyle.js';
                         case 'content-scripts/priceDiff':
                             return 'src/content-scripts/priceDiff.js';
+                        case 'content-scripts/listingEstimation':
+                            return 'src/content-scripts/listingEstimation.js';
 
                         /* ---- background worker ---- */
                         case 'background/sw':
