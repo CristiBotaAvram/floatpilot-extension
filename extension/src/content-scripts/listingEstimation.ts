@@ -23,15 +23,18 @@ const observer = new MutationObserver(() => {
         const phase = phaseMatch ? ` (${phaseMatch[1]})` : "";
         const fullName = `${nameEl} ${condition}${phase}`.trim();
 
-        console.log("Full item name:", fullName);
 
-        const config = await get<Record<string, unknown>>("selectedConfig");
-        console.log("Loaded config from storage:", config);
+        const user = await get<{ steamID64: string }>("floatpilot_user");
+        const settingsKey = `floatpilot_settings_${user?.steamID64}`;
+        const settings = await get<Record<string, unknown>>(settingsKey);
+        const config = settings?.selectedConfig as Record<string, unknown> | undefined;
         const encryptedCode = typeof config?.encrypted_code === "string" ? config.encrypted_code : undefined;
+
         if (!encryptedCode) {
             console.log("No config or code found.", config);
             return;
         }
+
 
         let decryptedCode: string;
         try {

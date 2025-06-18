@@ -1,42 +1,43 @@
-// /api/decrypt-config.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import crypto from 'crypto';
+import crypto from "crypto";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-// Key must be 32 bytes (hex string of 64 characters for AES-256)
-const key = Buffer.from(process.env.CONFIG_ENCRYPTION_KEY!, 'hex');
+const key = process.env.CONFIG_ENCRYPTION_KEY!;
+const allowedOrigin = "chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh";
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-
-    if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // Handle CORS preflight request
+    if (req.method === "OPTIONS") {
+        res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+        res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
         return res.status(200).end();
     }
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { encrypted } = req.body;
-    if (!encrypted || typeof encrypted !== 'string') {
-        return res.status(400).json({ error: 'Missing or invalid encrypted payload' });
-    }
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
 
     try {
-        const [ivHex, dataHex] = encrypted.split(':');
+        const { encrypted } = req.body as { encrypted: string };
 
-        if (!ivHex || !dataHex) {
-            return res.status(400).json({ error: 'Invalid encrypted format' });
+        if (!encrypted || !encrypted.includes(":")) {
+            return res.status(400).json({ error: "Missing or invalid payload." });
         }
 
-        const iv = Buffer.from(ivHex, 'hex');
-        const encryptedData = Buffer.from(dataHex, 'hex');
+        const [ivHex, encryptedHex] = encrypted.split(":");
+        const iv = Buffer.from(ivHex, "hex");
+        const encryptedBuffer = Buffer.from(encryptedHex, "hex");
 
-        const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-        let decrypted = decipher.update(encryptedData);
+        const decipher = crypto.createDecipheriv(
+            "aes-256-cbc",
+            Buffer.from(key, "hex"),
+            iv
+        );
+
+        let decrypted = decipher.update(encryptedBuffer);
         decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-        return res.status(200).json({ code: decrypted.toString('utf8') });
+        return res.status(200).json({ code: decrypted.toString("utf8") });
     } catch (err) {
-        console.error('[decrypt-config] Failed to decrypt:', err);
-        return res.status(500).json({ error: 'Failed to decrypt config' });
+        console.error("[decrypt-config] Failed to decrypt:", err);
+        return res.status(500).json({ error: "Failed to decrypt" });
     }
 }
