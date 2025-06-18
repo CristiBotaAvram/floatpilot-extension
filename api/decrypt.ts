@@ -1,28 +1,32 @@
-// /api/encrypt.ts
+// /api/decrypt.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 
-// 32-byte hex key (AES-256)
+// Key must be 32 bytes (hex string of 64 characters for AES-256)
 const key = Buffer.from(process.env.CONFIG_ENCRYPTION_KEY!, 'hex');
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { code } = req.body;
-    if (!code || typeof code !== 'string') {
-        return res.status(400).json({ error: 'Missing or invalid code' });
+    const { encrypted } = req.body;
+    if (!encrypted || typeof encrypted !== 'string') {
+        return res.status(400).json({ error: 'Missing or invalid encrypted payload' });
     }
 
     try {
-        const iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-        let encrypted = cipher.update(code, 'utf8');
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
+        const ivHex = encrypted.slice(0, 32); // First 16 bytes (32 hex chars)
+        const dataHex = encrypted.slice(32); // Remainder
 
-        const result = Buffer.concat([iv, encrypted]).toString('hex');
-        return res.status(200).json({ encrypted: result });
+        const iv = Buffer.from(ivHex, 'hex');
+        const encryptedData = Buffer.from(dataHex, 'hex');
+
+        const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+        let decrypted = decipher.update(encryptedData);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+        return res.status(200).json({ code: decrypted.toString('utf8') });
     } catch (err) {
-        console.error('[encrypt-config] Failed to encrypt:', err);
-        return res.status(500).json({ error: 'Failed to encrypt config' });
+        console.error('[decrypt-config] Failed to decrypt:', err);
+        return res.status(500).json({ error: 'Failed to decrypt config' });
     }
 }
