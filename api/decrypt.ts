@@ -5,11 +5,13 @@ const key = process.env.CONFIG_ENCRYPTION_KEY!;
 const allowedOrigin = "chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    // Set common CORS headers
     res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    res.setHeader("Access-Control-Max-Age", "86400"); // Cache preflight
+    res.setHeader("Access-Control-Allow-Credentials", "true");
 
+    // Handle CORS preflight request
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
