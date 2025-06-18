@@ -1,11 +1,18 @@
-// /api/decrypt.ts
+// /api/decrypt-config.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
 
 // Key must be 32 bytes (hex string of 64 characters for AES-256)
-const key = Buffer.from(process.env.CONFIG_ENCRYPTION_KEY!, 'hex');
+const key = Buffer.from(process.env.CONFIG_DECRYPT_KEY!, 'hex');
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        return res.status(200).end();
+    }
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     const { encrypted } = req.body;
