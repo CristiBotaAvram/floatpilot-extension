@@ -5,15 +5,14 @@ const key = process.env.CONFIG_ENCRYPTION_KEY!;
 const allowedOrigin = "chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Handle CORS preflight request
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Max-Age", "86400"); // Cache preflight
+
     if (req.method === "OPTIONS") {
-        res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-        res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
         return res.status(200).end();
     }
-
-    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
 
     try {
         const { encrypted } = req.body as { encrypted: string };
