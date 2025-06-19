@@ -6,22 +6,33 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Set CORS headers for Chrome extension
-    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
+const allowedOrigin = 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh';
 
-    // Handle preflight request
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    const origin = req.headers.origin;
+
+    // Handle CORS preflight
     if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+        if (origin === allowedOrigin) {
+            res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
+            return res.status(200).end();
+        } else {
+            return res.status(403).json({ error: 'Origin not allowed' });
+        }
     }
 
-    const steamID = req.headers['x-steamid'] as string;
+    if (origin !== allowedOrigin) {
+        return res.status(403).json({ error: 'Origin not allowed' });
+    }
 
+    // Set CORS headers for actual request
+    res.setHeader('Access-Control-Allow-Origin', origin);
+
+    const steamID = req.headers['x-steamid'] as string;
     if (!steamID) {
-        return res.status(401).json({ error: 'Unauthorized: Missing Steam ID' });
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const { data, error } = await supabase
@@ -30,8 +41,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .eq('buyer_steam_id', steamID);
 
     if (error) {
-        return res.status(500).json({ error: 'Failed to fetch purchased configs', details: error.message });
+        return res.status(500).json({ error: 'Failed to fetch purchased configs' });
     }
 
-    return res.status(200).json(data);
+    res.status(200).json(data);
 }
