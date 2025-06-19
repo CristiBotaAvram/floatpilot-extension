@@ -4,12 +4,12 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 const key = process.env.CONFIG_ENCRYPTION_KEY!;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Set common CORS headers
-    res.setHeader('Access-Control-Allow-Origin', 'https://csfloat.com');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Set CORS headers for all origins
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Handle CORS preflight request
+    // Handle CORS preflight
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
