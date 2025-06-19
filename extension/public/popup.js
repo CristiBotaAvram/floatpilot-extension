@@ -115,7 +115,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 try {
                                     console.log('[FloatPilot] Fetching purchased configs...');
                                     const purchasedRes = await fetch('https://floatpilot.store/api/configs/purchased', {
-                                        headers: { 'x-steamid': steamID64 }
+                                        method: 'GET',
+                                        headers: { 'x-steamid': steamID64 },
+                                        credentials: 'include'
                                     });
                                     const purchased = await purchasedRes.json();
                                     const ids = purchased.map(p => p.config_id).join(',');

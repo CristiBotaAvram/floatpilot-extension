@@ -1,26 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+const EXT_ORIGIN = 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh';
+
 const supabase = createClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Open CORS headers for all origins
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Always set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', EXT_ORIGIN);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
 
-    // Handle preflight request
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    // Preflight request
+    if (req.method === 'OPTIONS') return res.status(200).end();
 
     const steamID = req.headers['x-steamid'] as string;
-    if (!steamID) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
+    if (!steamID) return res.status(401).json({ error: 'Unauthorized' });
 
     const { data, error } = await supabase
         .from('config_purchases')
