@@ -14,11 +14,10 @@ async function ensureOffscreen(): Promise<void> {
         await chrome.offscreen.createDocument({
             url: OFFSCREEN_URL,
             reasons: [OFFSCREEN_REASON],
-            justification: 'Fetch CSFloat listings with first-party cookies',
+            justification: 'Decrypt config code securely via extension context',
         });
         offscreenReady = true;
     } catch (err: unknown) {
-        // already exists → benign
         if (err instanceof Error && err.message.includes('already exists')) {
             offscreenReady = true;
         } else {
@@ -28,15 +27,17 @@ async function ensureOffscreen(): Promise<void> {
 }
 
 // --- message plumbing -------------------------------------------------------
-interface FetchRequest {
-    cmd: 'fetchListing';
-    name: string;
+interface DecryptConfigRequest {
+    cmd: 'decryptConfig';
+    encrypted: string;
 }
+
 interface SWToOffscreen {
     target: 'offscreen';
     id: string;
-    name: string;
+    encrypted: string;
 }
+
 interface OffscreenReply {
     from: 'offscreen';
     id: string;
@@ -51,21 +52,24 @@ type PendingResolver = {
 const pending = new Map<string, PendingResolver>();
 
 // ← responses from off-screen
-chrome.runtime.onMessage.addListener((msg: OffscreenReply) => {
+type Listener = Parameters<typeof chrome.runtime.onMessage.addListener>[0];
+const handleOffscreenReply: Listener = (msg) => {
     if (msg?.from !== 'offscreen') return;
 
-    const { id, payload, error } = msg;
+    const { id, payload, error } = msg as OffscreenReply;
     const waiter = pending.get(id);
     if (!waiter) return;
 
     pending.delete(id);
     error ? waiter.reject(error) : waiter.resolve(payload);
-});
+};
+
+chrome.runtime.onMessage.addListener(handleOffscreenReply);
 
 // ↪ requests from content-scripts
 chrome.runtime.onMessage.addListener(
-    (msg: FetchRequest, _sender, sendResponse) => {
-        if (msg?.cmd !== 'fetchListing') return;
+    (msg: DecryptConfigRequest, _sender, sendResponse) => {
+        if (msg?.cmd !== 'decryptConfig') return;
 
         (async () => {
             try {
@@ -73,11 +77,8 @@ chrome.runtime.onMessage.addListener(
 
                 const id = crypto.randomUUID();
 
-                // create promise before sending
                 const reply = new Promise((resolve, reject) => {
                     pending.set(id, { resolve, reject });
-
-                    // safety timeout
                     setTimeout(() => {
                         if (pending.has(id)) {
                             pending.delete(id);
@@ -86,11 +87,10 @@ chrome.runtime.onMessage.addListener(
                     }, 15_000);
                 });
 
-                // hand off to off-screen document
                 chrome.runtime.sendMessage(<SWToOffscreen>{
                     target: 'offscreen',
                     id,
-                    name: msg.name,
+                    encrypted: msg.encrypted,
                 });
 
                 const payload = await reply;
@@ -100,6 +100,6 @@ chrome.runtime.onMessage.addListener(
             }
         })();
 
-        return true; // keep the channel open (async)
+        return true;
     }
 );

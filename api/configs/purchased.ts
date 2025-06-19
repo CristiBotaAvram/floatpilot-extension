@@ -7,8 +7,9 @@ const supabase = createClient(
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Set CORS headers for Chrome extension
+    res.setHeader('Access-Control-Allow-Origin', 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
 
@@ -20,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const steamID = req.headers['x-steamid'] as string;
 
     if (!steamID) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: 'Unauthorized: Missing Steam ID' });
     }
 
     const { data, error } = await supabase
@@ -29,8 +30,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .eq('buyer_steam_id', steamID);
 
     if (error) {
-        return res.status(500).json({ error: 'Failed to fetch purchased configs' });
+        return res.status(500).json({ error: 'Failed to fetch purchased configs', details: error.message });
     }
 
-    res.status(200).json(data);
+    return res.status(200).json(data);
 }
