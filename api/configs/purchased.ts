@@ -6,29 +6,16 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const allowedOrigin = 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh';
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const origin = req.headers.origin;
+    // Open CORS headers for all origins
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', '*');
 
-    // Handle CORS preflight
+    // Handle preflight request
     if (req.method === 'OPTIONS') {
-        if (origin === allowedOrigin) {
-            res.setHeader('Access-Control-Allow-Origin', origin);
-            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
-            return res.status(200).end();
-        } else {
-            return res.status(403).json({ error: 'Origin not allowed' });
-        }
+        return res.status(200).end();
     }
-
-    if (origin !== allowedOrigin) {
-        return res.status(403).json({ error: 'Origin not allowed' });
-    }
-
-    // Set CORS headers for actual request
-    res.setHeader('Access-Control-Allow-Origin', origin);
 
     const steamID = req.headers['x-steamid'] as string;
     if (!steamID) {
