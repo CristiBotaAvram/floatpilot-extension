@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
     root: __dirname,
-    plugins: [react()],
+    plugins: [
+        react(),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'src/offscreen/offscreen.html',
+                    dest: 'offscreen'
+                }
+            ]
+        })],
     build: {
         outDir: '../dist',
         emptyOutDir: false,
@@ -15,6 +25,7 @@ export default defineConfig({
             input: {
                 // Popup UI (React)
                 popup: resolve(__dirname, 'public/popup.html'),
+                offscreen: resolve(__dirname, 'public/offscreen.html'),
 
                 /* ------------  Content‑scripts  ------------ */
                 'content-scripts/searchContent': resolve(__dirname, 'src/content-scripts/searchContent.ts'),
@@ -24,6 +35,10 @@ export default defineConfig({
                 'content-scripts/searchFilter': resolve(__dirname, 'src/content-scripts/searchFilter.ts'),
                 'content-scripts/priceDiff': resolve(__dirname, 'src/content-scripts/priceDiff.ts'),
                 'content-scripts/listingEstimation': resolve(__dirname, 'src/content-scripts/listingEstimation.ts'),
+
+                /* ------------  Background + Offscreen  ------------ */
+                'background/sw': resolve(__dirname, 'src/background/sw.ts'),
+                'offscreen/offscreen': resolve(__dirname, 'src/offscreen/offscreen.ts'), // <- Offscreen added here
             },
 
             /* -------------------------------------------------- */
@@ -47,11 +62,17 @@ export default defineConfig({
                             return 'src/content-scripts/priceDiff.js';
                         case 'content-scripts/listingEstimation':
                             return 'src/content-scripts/listingEstimation.js';
+                        case 'offscreen':
+                            return 'offscreen.html';
+
 
                         /* ---- background worker ---- */
                         case 'background/sw':
                             return 'src/background/sw.js';
 
+                        /* ---- offscreen ---- */
+                        case 'offscreen/offscreen':
+                            return 'offscreen/offscreen.js';
 
                         /* ---- fallback ---- */
                         default:

@@ -1,9 +1,19 @@
-const get = <T = unknown>(key: string): Promise<T | undefined> => {
-    return new Promise((resolve) => {
-        chrome.storage.local.get([key], (result) => {
-            resolve(result[key]);
+const decryptConfigCode = async (encryptedCode: string): Promise<string | null> => {
+    try {
+        const res = await fetch("https://floatpilot.store/api/decrypt", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ encrypted: encryptedCode })
         });
-    });
+
+        const { payload } = await res.json();
+        if (typeof payload === "string") return payload;
+    } catch (err) {
+        console.error("Decrypt failed:", err);
+    }
+    return null;
 };
 
 const observer = new MutationObserver(() => {
@@ -23,70 +33,61 @@ const observer = new MutationObserver(() => {
         const phase = phaseMatch ? ` (${phaseMatch[1]})` : "";
         const fullName = `${nameEl} ${condition}${phase}`.trim();
 
+        console.log("Full item name:", fullName);
 
-        const user = await get<{ steamID64: string }>("floatpilot_user");
-        const settingsKey = `floatpilot_settings_${user?.steamID64}`;
-        const settings = await get<Record<string, unknown>>(settingsKey);
-        const config = settings?.selectedConfig as Record<string, unknown> | undefined;
-        const encryptedCode = typeof config?.encrypted_code === "string" ? config.encrypted_code : undefined;
+        chrome.storage.local.get(null, async (all) => {
+            console.log("Full chrome.storage.local:", all);
 
-        if (!encryptedCode) {
-            console.log("No config or code found.", config);
-            return;
-        }
+            const steamID = all["floatpilot_user"]?.steamID64;
+            if (!steamID) return;
 
+            const settings = all[`floatpilot_settings_${steamID}`];
+            const selectedConfig = settings?.selectedConfig;
+            const encryptedCode = selectedConfig?.encrypted_code;
 
-        let decryptedCode: string;
-        try {
-            const decryptRes = await fetch("https://floatpilot.store/api/decrypt", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ encrypted: encryptedCode })
-            });
-            const data = await decryptRes.json();
-            decryptedCode = data.code;
-            console.log("Decrypted code:", decryptedCode.slice(0, 100), "...");
-        } catch (err) {
-            console.error("Failed to fetch/decrypt config code:", err);
-            return;
-        }
-
-        let estimationFn: (listings: unknown[], item: Record<string, unknown>) => number | null;
-        try {
-            estimationFn = new Function("listings", "item", decryptedCode) as (listings: unknown[], item: Record<string, unknown>) => number | null;
-        } catch (err) {
-            console.error("Failed to compile estimation function:", err);
-            return;
-        }
-
-        try {
-            const response = await fetch(`https://floatpilot.store/api/sales?name=${encodeURIComponent(fullName)}`);
-            const sales = await response.json();
-
-            console.log("Fetched sales:", sales);
-
-            const estimatedPrice = estimationFn(sales, { float_value: floatValue });
-
-            console.log("Estimated price:", estimatedPrice);
-
-            if (estimatedPrice) {
-                const priceEl = card.querySelector(".price");
-                if (priceEl) {
-                    const tag = document.createElement("div");
-                    tag.textContent = `Est. $${estimatedPrice.toFixed(2)}`;
-                    tag.style.color = "#64EC42";
-                    tag.style.fontWeight = "bold";
-                    tag.style.fontSize = "0.9em";
-                    priceEl.appendChild(tag);
-                }
+            if (!encryptedCode) {
+                console.log("No config or code found.", selectedConfig);
+                return;
             }
-        } catch (err) {
-            console.error("Estimation failed:", err);
-        }
 
-        (card as HTMLElement).dataset.estimated = "true";
+            const decryptedCode = await decryptConfigCode(encryptedCode);
+            if (!decryptedCode) return;
+
+            let estimationFn: (listings: unknown[], item: Record<string, unknown>) => number | null;
+            try {
+                estimationFn = new Function("listings", "item", decryptedCode) as (listings: unknown[], item: Record<string, unknown>) => number | null;
+            } catch (err) {
+                console.error("Failed to compile estimation function:", err);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://floatpilot.store/api/sales?name=${encodeURIComponent(fullName)}`);
+                const sales = await response.json();
+
+                console.log("Fetched sales:", sales);
+
+                const estimatedPrice = estimationFn(sales, { float_value: floatValue });
+
+                console.log("Estimated price:", estimatedPrice);
+
+                if (estimatedPrice) {
+                    const priceEl = card.querySelector(".price");
+                    if (priceEl) {
+                        const tag = document.createElement("div");
+                        tag.textContent = `Est. $${estimatedPrice.toFixed(2)}`;
+                        tag.style.color = "#64EC42";
+                        tag.style.fontWeight = "bold";
+                        tag.style.fontSize = "0.9em";
+                        priceEl.appendChild(tag);
+                    }
+                }
+            } catch (err) {
+                console.error("Estimation failed:", err);
+            }
+
+            (card as HTMLElement).dataset.estimated = "true";
+        });
     });
 });
 

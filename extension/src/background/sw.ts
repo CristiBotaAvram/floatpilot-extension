@@ -1,5 +1,5 @@
 // sw.ts – MV3 service worker (typed, lint-clean)
-
+console.log("[SW] Loaded")
 // --- constants --------------------------------------------------------------
 const OFFSCREEN_URL = chrome.runtime.getURL('offscreen/offscreen.html');
 const OFFSCREEN_REASON = chrome.offscreen.Reason.IFRAME_SCRIPTING;
@@ -21,6 +21,7 @@ async function ensureOffscreen(): Promise<void> {
         if (err instanceof Error && err.message.includes('already exists')) {
             offscreenReady = true;
         } else {
+            console.error('Failed to create offscreen document:', err);
             throw err;
         }
     }
@@ -49,12 +50,12 @@ type PendingResolver = {
     resolve: (value: unknown) => void;
     reject: (reason?: unknown) => void;
 };
+
 const pending = new Map<string, PendingResolver>();
 
 // ← responses from off-screen
-type Listener = Parameters<typeof chrome.runtime.onMessage.addListener>[0];
-const handleOffscreenReply: Listener = (msg) => {
-    if (msg?.from !== 'offscreen') return;
+chrome.runtime.onMessage.addListener((msg) => {
+    if ((msg as OffscreenReply)?.from !== 'offscreen') return;
 
     const { id, payload, error } = msg as OffscreenReply;
     const waiter = pending.get(id);
@@ -62,44 +63,41 @@ const handleOffscreenReply: Listener = (msg) => {
 
     pending.delete(id);
     error ? waiter.reject(error) : waiter.resolve(payload);
-};
-
-chrome.runtime.onMessage.addListener(handleOffscreenReply);
+});
 
 // ↪ requests from content-scripts
-chrome.runtime.onMessage.addListener(
-    (msg: DecryptConfigRequest, _sender, sendResponse) => {
-        if (msg?.cmd !== 'decryptConfig') return;
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if ((msg as DecryptConfigRequest)?.cmd !== 'decryptConfig') return;
 
-        (async () => {
-            try {
-                await ensureOffscreen();
+    (async () => {
+        try {
+            await ensureOffscreen();
 
-                const id = crypto.randomUUID();
+            const id = crypto.randomUUID();
 
-                const reply = new Promise((resolve, reject) => {
-                    pending.set(id, { resolve, reject });
-                    setTimeout(() => {
-                        if (pending.has(id)) {
-                            pending.delete(id);
-                            reject(new Error('Off-screen timeout'));
-                        }
-                    }, 15_000);
-                });
+            const reply = new Promise((resolve, reject) => {
+                pending.set(id, { resolve, reject });
+                setTimeout(() => {
+                    if (pending.has(id)) {
+                        pending.delete(id);
+                        reject(new Error('Off-screen timeout'));
+                    }
+                }, 15000);
+            });
 
-                chrome.runtime.sendMessage(<SWToOffscreen>{
-                    target: 'offscreen',
-                    id,
-                    encrypted: msg.encrypted,
-                });
+            chrome.runtime.sendMessage({
+                target: 'offscreen',
+                id,
+                encrypted: msg.encrypted,
+            } satisfies SWToOffscreen);
 
-                const payload = await reply;
-                sendResponse({ ok: true, payload });
-            } catch (e) {
-                sendResponse({ ok: false, error: `${e}` });
-            }
-        })();
+            const payload = await reply;
+            sendResponse({ ok: true, payload });
+        } catch (e) {
+            console.error('DecryptConfig handler failed:', e);
+            sendResponse({ ok: false, error: `${e}` });
+        }
+    })();
 
-        return true;
-    }
-);
+    return true; // signal async
+});

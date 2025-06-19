@@ -48,11 +48,18 @@
     },
     {
       "matches": ["*://csfloat.com/search*"],
-      "js": ["src/content-scripts/injectStyle.js", "src/content-scripts/searchFilter.js"],
+      "js": [
+        "src/content-scripts/injectStyle.js",
+        "src/content-scripts/searchFilter.js"
+      ],
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://csfloat.com/*", "https://skinport.com/*", "https://steamcommunity.com/*"],
+      "matches": [
+        "https://csfloat.com/*",
+        "https://skinport.com/*",
+        "https://steamcommunity.com/*"
+      ],
       "js": ["src/content-scripts/listingFetcher.js"],
       "run_at": "document_idle",
       "all_frames": false
@@ -64,7 +71,8 @@
       "resources": [
         "icons/icon16.png",
         "icons/icon48.png",
-        "icons/icon128.png"
+        "icons/icon128.png",
+        "offscreen/offscreen.html"
       ],
       "matches": ["<all_urls>"]
     }
