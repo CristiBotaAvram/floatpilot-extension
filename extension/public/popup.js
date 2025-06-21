@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const ids = purchased.map(p => p.config_id).join(',');
                     console.log('[FloatPilot] Purchased config IDs (on load):', ids);
 
-                    const detailsRes = await fetch(`https://floatpilot.store/api/configs?ids=${ids}`);
+                    const detailsRes = await fetch(`https://www.floatpilot.store/api/configs?ids=${ids}`);
                     const configs = await detailsRes.json();
                     console.log('[FloatPilot] Config details (on load):', configs);
 
