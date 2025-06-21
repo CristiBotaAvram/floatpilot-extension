@@ -1,3 +1,17 @@
+const decryptConfigCode = async (encryptedCode: string): Promise<string | null> => {
+    try {
+        const res = await new Promise<{ ok: boolean; payload?: string; error?: string }>((resolve) => {
+            chrome.runtime.sendMessage({ cmd: "decryptConfig", encrypted: encryptedCode }, resolve);
+        });
+
+        if (res.ok && typeof res.payload === "string") return res.payload;
+        console.error("Decrypt error:", res.error);
+    } catch (err) {
+        console.error("Decrypt failed:", err);
+    }
+    return null;
+};
+
 const observer = new MutationObserver(() => {
     document.querySelectorAll("item-card").forEach(async (card) => {
         if ((card as HTMLElement).dataset.estimated) return; // skip if already processed
@@ -20,11 +34,20 @@ const observer = new MutationObserver(() => {
         chrome.storage.local.get(null, async (all) => {
             console.log("Full chrome.storage.local:", all);
 
-            const decryptedCode = all.decryptedEstimationCode;
-            if (!decryptedCode) {
-                console.log("No decrypted code found");
+            const steamID = all["floatpilot_user"]?.steamID64;
+            if (!steamID) return;
+
+            const settings = all[`floatpilot_settings_${steamID}`];
+            const selectedConfig = settings?.selectedConfig;
+            const encryptedCode = selectedConfig?.encrypted_code;
+
+            if (!encryptedCode) {
+                console.log("No config or code found.", selectedConfig);
                 return;
             }
+
+            const decryptedCode = await decryptConfigCode(encryptedCode);
+            if (!decryptedCode) return;
 
             let estimationFn: (listings: unknown[], item: Record<string, unknown>) => number | null;
             try {

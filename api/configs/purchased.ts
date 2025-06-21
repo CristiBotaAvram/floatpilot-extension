@@ -1,8 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const EXT_ORIGIN = 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh';
-
 const supabase = createClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -10,10 +8,25 @@ const supabase = createClient(
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Always set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', EXT_ORIGIN);
+    const allowedOrigins = [
+        'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh',
+        'https://csfloat.com',
+        'https://www.csfloat.com', // some users have www
+        'https://floatpilot.store'
+    ];
+
+    const origin = req.headers.origin;
+
+    if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', 'null'); // or omit for stricter behavior
+    }
+
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
+
 
     // Preflight request
     if (req.method === 'OPTIONS') return res.status(200).end();
