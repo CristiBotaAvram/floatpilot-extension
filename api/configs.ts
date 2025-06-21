@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const EXT_ORIGIN = 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh';
+const allowedOrigins = [
+    'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh',
+    'https://floatpilot.store',
+    'https://www.floatpilot.store'
+];
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -9,10 +13,12 @@ const supabase = createClient(
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // ✅ CORS headers
-    res.setHeader('Access-Control-Allow-Origin', EXT_ORIGIN);
+    const origin = req.headers.origin || '';
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
 
     if (req.method === 'OPTIONS') return res.status(200).end(); // ✅ Preflight
