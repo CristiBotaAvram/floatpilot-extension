@@ -1,11 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const allowedOrigins = [
-    'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh',
-    'https://floatpilot.store',
-    'https://www.floatpilot.store'
-];
+const EXT_ORIGIN = 'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh';
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -13,17 +9,13 @@ const supabase = createClient(
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const origin = req.headers.origin || '';
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
+    // ✅ CORS headers
+    res.setHeader('Access-Control-Allow-Origin', EXT_ORIGIN);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-steamid');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end(); // ✅ Preflight
 
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
