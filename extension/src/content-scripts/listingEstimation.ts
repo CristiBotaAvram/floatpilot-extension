@@ -1,26 +1,39 @@
-const decryptConfigCode = async (encryptedCode: string): Promise<string | null> => {
+const decryptConfigCode = async (encryptedCode: string, configId: string): Promise<string | null> => {
+    const cacheKey = `decrypted_config_${configId}`;
+    const cached = await new Promise<string | null>((resolve) => {
+        chrome.storage.local.get(cacheKey, (result) => resolve(result[cacheKey] || null));
+    });
+    if (cached) return cached;
+
     try {
-        const res = await new Promise<{ ok: boolean; payload?: string; error?: string }>((resolve) => {
-            chrome.runtime.sendMessage({ cmd: "decryptConfig", encrypted: encryptedCode }, resolve);
+        const res = await fetch("https://www.floatpilot.store/api/decrypt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ encrypted: encryptedCode })
         });
 
-        if (res.ok && typeof res.payload === "string") return res.payload;
-        console.error("Decrypt error:", res.error);
+        const json = await res.json();
+        const decrypted = json.payload || json.code;
+        if (!res.ok || !decrypted) throw new Error(json?.error || "Missing payload");
+
+        await new Promise<void>((resolve) => {
+            chrome.storage.local.set({ [cacheKey]: decrypted }, () => resolve());
+        });
+
+        return decrypted;
     } catch (err) {
         console.error("Decrypt failed:", err);
+        return null;
     }
-    return null;
 };
 
 const observer = new MutationObserver(() => {
     document.querySelectorAll("item-card").forEach(async (card) => {
-        if ((card as HTMLElement).dataset.estimated) return; // skip if already processed
+        if ((card as HTMLElement).dataset.estimated) return;
 
         const nameEl = card.querySelector(".item-name")?.textContent?.trim();
         const wearEl = card.querySelector(".wear")?.textContent?.trim();
         const floatValue = parseFloat(wearEl ?? "");
-
-        console.log("Processing card:", { nameEl, wearEl, floatValue });
 
         if (!nameEl || isNaN(floatValue)) return;
 
@@ -29,8 +42,6 @@ const observer = new MutationObserver(() => {
         const phase = phaseMatch ? ` (${phaseMatch[1]})` : "";
         const fullName = `${nameEl} ${condition}${phase}`.trim();
 
-        console.log("Full item name:", fullName);
-
         chrome.storage.local.get(null, async (all) => {
             const steamID = all["floatpilot_user"]?.steamID64;
             if (!steamID) return;
@@ -38,32 +49,36 @@ const observer = new MutationObserver(() => {
             const settings = all[`floatpilot_settings_${steamID}`];
             const selectedConfig = settings?.selectedConfig;
             const encryptedCode = selectedConfig?.encrypted_code;
+            const configId = selectedConfig?.id;
 
-            if (!encryptedCode) {
-                console.log("No config or code found.", selectedConfig);
-                return;
-            }
+            if (!encryptedCode || !configId) return;
 
-            const decryptedCode = await decryptConfigCode(encryptedCode);
+            const decryptedCode = await decryptConfigCode(encryptedCode, configId);
             if (!decryptedCode) return;
 
-            let estimationFn: (listings: unknown[], item: Record<string, unknown>) => number | null;
-            try {
-                estimationFn = new Function("listings", "item", decryptedCode) as (listings: unknown[], item: Record<string, unknown>) => number | null;
-            } catch (err) {
-                console.error("Failed to compile estimation function:", err);
-                return;
-            }
+            const item = { float_value: floatValue };
 
             try {
-                const response = await fetch(`https://www.floatpilot.store/api/sales?name=${encodeURIComponent(fullName)}`);
-                const sales = await response.json();
+                const batchPayload = [
+                    {
+                        code: decryptedCode,
+                        item,
+                        listings: [] // Placeholder, will be replaced by fetched sales data
+                    }
+                ];
 
-                console.log("Fetched sales:", sales);
+                const salesRes = await fetch(`https://www.floatpilot.store/api/sales?name=${encodeURIComponent(fullName)}`);
+                const sales = await salesRes.json();
+                batchPayload[0].listings = sales;
 
-                const estimatedPrice = estimationFn(sales, { float_value: floatValue });
+                const estimationRes = await fetch("https://www.floatpilot.store/api/estimation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ listingsArray: batchPayload })
+                });
 
-                console.log("Estimated price:", estimatedPrice);
+                const result = await estimationRes.json();
+                const estimatedPrice = result?.prices?.[0];
 
                 if (estimatedPrice) {
                     const priceEl = card.querySelector(".price");
@@ -77,7 +92,7 @@ const observer = new MutationObserver(() => {
                     }
                 }
             } catch (err) {
-                console.error("Estimation failed:", err);
+                console.error("Batch estimation failed:", err);
             }
 
             (card as HTMLElement).dataset.estimated = "true";
