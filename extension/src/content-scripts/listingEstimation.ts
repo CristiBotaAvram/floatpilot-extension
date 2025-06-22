@@ -32,8 +32,6 @@ const observer = new MutationObserver(() => {
         console.log("Full item name:", fullName);
 
         chrome.storage.local.get(null, async (all) => {
-            console.log("Full chrome.storage.local:", all);
-
             const steamID = all["floatpilot_user"]?.steamID64;
             if (!steamID) return;
 
@@ -58,7 +56,7 @@ const observer = new MutationObserver(() => {
             }
 
             try {
-                const response = await fetch(`https://floatpilot.store/api/sales?name=${encodeURIComponent(fullName)}`);
+                const response = await fetch(`https://www.floatpilot.store/api/sales?name=${encodeURIComponent(fullName)}`);
                 const sales = await response.json();
 
                 console.log("Fetched sales:", sales);

@@ -10,6 +10,18 @@ const supabase = createClient(
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+
+    res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Credentials", "false");
+
+    // Handle CORS preflight
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
+
     const steamID64 = getSteamID64(req);
     if (!steamID64) {
         return res.status(200).json({ loggedIn: false });
