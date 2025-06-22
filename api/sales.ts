@@ -28,8 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .from('csfloat_sales')
         .select('float_value, sale_price, sale_date, fade_percent, playside_blue, backside_blue, stickers')
         .eq('market_hash_name', name)
-        .order('sale_date', { ascending: false })
-        .limit(100);
+        .order('sale_date', { ascending: false });
 
     if (error) {
         console.error('[API] Supabase error:', error.message);
