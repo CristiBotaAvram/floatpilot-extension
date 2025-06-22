@@ -21,8 +21,12 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const results = listingsArray.map(({ listings, item, code }, index) => {
             try {
-                const estimationFn = new Function("listings", "item", code);
+                const estimationFn = new Function("listings", "item", `
+  ${code}
+  return typeof run === 'function' ? run(listings, item) : null;
+`);
                 return estimationFn(listings, item);
+
             } catch (innerErr) {
                 return `error_in_run_${index}: ${innerErr.message}`;
             }
