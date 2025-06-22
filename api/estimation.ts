@@ -19,14 +19,18 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const results = listingsArray.map(({ listings, item, code }) => {
-            const estimationFn = new Function("listings", "item", code);
-            return estimationFn(listings, item);
+        const results = listingsArray.map(({ listings, item, code }, index) => {
+            try {
+                const estimationFn = new Function("listings", "item", code);
+                return estimationFn(listings, item);
+            } catch (innerErr) {
+                return `error_in_run_${index}: ${innerErr.message}`;
+            }
         });
 
         return res.status(200).json({ prices: results });
     } catch (err: any) {
         console.error("Estimation batch failed:", err);
-        return res.status(500).json({ error: "Estimation execution failed" });
+        return res.status(500).json({ error: "Estimation execution failed", details: err.message });
     }
 }

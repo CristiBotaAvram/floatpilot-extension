@@ -40,7 +40,7 @@ const observer = new MutationObserver(() => {
         const condition = card.querySelector(".subtext")?.textContent?.split("(")[0]?.trim();
         const phaseMatch = card.querySelector(".subtext")?.textContent?.match(/\((.*?)\)/);
         const phase = phaseMatch ? ` (${phaseMatch[1]})` : "";
-        const fullName = `${nameEl} ${condition}${phase}`.trim();
+        const fullName = `${nameEl} (${condition})${phase}`.trim();
 
         chrome.storage.local.get(null, async (all) => {
             const steamID = all["floatpilot_user"]?.steamID64;
