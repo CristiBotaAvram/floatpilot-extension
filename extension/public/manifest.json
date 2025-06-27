@@ -9,13 +9,11 @@
     "tabs",
     "scripting",
     "activeTab",
-    "https://api.exchangerate.host/*",
     "https://floatpilot.store/"
   ],
 
   "host_permissions": [
     "https://csfloat.com/*",
-    "https://skinport.com/*",
     "https://api.exchangerate.host/*",
     "https://floatpilot.store/"
   ],
@@ -26,9 +24,15 @@
   },
 
   "content_scripts": [
+
     {
-      "matches": ["https://skinport.com/*"],
-      "js": ["src/content-scripts/skinportContent.js"],
+      "matches": ["*://csfloat.com/*"],
+      "js": ["inject-loader.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://csfloat.com/*"],
+      "js": ["src/content-scripts/profitEvaluator.js"],
       "run_at": "document_idle"
     },
     {
@@ -72,7 +76,8 @@
         "icons/icon16.png",
         "icons/icon48.png",
         "icons/icon128.png",
-        "offscreen/offscreen.html"
+        "offscreen/offscreen.html",
+        "injected/fetch-intercept.js"
       ],
       "matches": ["<all_urls>"]
     }

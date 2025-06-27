@@ -1,3 +1,5 @@
+
+(() => {
 const decryptConfigCode = async (encryptedCode: string, configId: string): Promise<string | null> => {
     const cacheKey = `decrypted_config_${configId}`;
     const cached = await new Promise<string | null>((resolve) => {
@@ -27,49 +29,121 @@ const decryptConfigCode = async (encryptedCode: string, configId: string): Promi
     }
 };
 
+const listingDataCache: Record<string, any> = {};
+const salesQueue: Record<string, Promise<any[] | null>> = {};
+
+interface CSFloatListingEntry {
+    id: string;
+    item?: {
+        float_value: number;
+        fade_percent?: number | null;
+        playside_blue?: number | null;
+        stickers?: any[] | null;
+        market_hash_name: string;
+    };
+}
+
+window.addEventListener("message", (event) => {
+    if (event.source !== window || !event.data?.type || event.data.type !== "CSFLOAT_LISTINGS") return;
+    const listings = event.data.payload;
+    if (Array.isArray(listings)) {
+        listings.forEach((entry: CSFloatListingEntry) => {
+            const float = entry.item?.float_value;
+            if (typeof float === "number") {
+                listingDataCache[float] = entry.item;
+            }
+        });
+        console.log("[INJECTED FETCH] Cached listings:", listingDataCache);
+    }
+});
+
+const getCachedSales = async (marketName: string): Promise<any[] | null> => {
+    if (await salesQueue[marketName]) return salesQueue[marketName];
+
+    const task = new Promise<any[] | null>(async (resolve) => {
+        const cacheKey = `sales_cache_${marketName}`;
+        const timestampKey = `${cacheKey}_timestamp`;
+        const now = Date.now();
+
+        const { [cacheKey]: cachedSales, [timestampKey]: cachedTime } = await new Promise<any>((resolve) => {
+            chrome.storage.local.get([cacheKey, timestampKey], (result) => resolve(result));
+        });
+
+        if (cachedSales && cachedTime && now - cachedTime < 60 * 60 * 1000) {
+            resolve(cachedSales);
+            delete salesQueue[marketName];
+            return;
+        }
+
+        try {
+            const salesRes = await fetch(`https://www.floatpilot.store/api/sales?name=${encodeURIComponent(marketName)}`);
+            const sales = await salesRes.json();
+
+            await new Promise<void>((res) => {
+                chrome.storage.local.set({
+                    [cacheKey]: sales,
+                    [timestampKey]: now
+                }, () => res());
+            });
+
+            resolve(sales);
+        } catch (err) {
+            console.error("Failed to fetch or cache sales:", err);
+            resolve(null);
+        } finally {
+            delete salesQueue[marketName];
+        }
+    });
+
+    salesQueue[marketName] = task;
+    return task;
+};
+
 const observer = new MutationObserver(() => {
     document.querySelectorAll("item-card").forEach(async (card) => {
         if ((card as HTMLElement).dataset.estimated) return;
 
-        const nameEl = card.querySelector(".item-name")?.textContent?.trim();
-        const wearEl = card.querySelector(".wear")?.textContent?.trim();
-        const floatValue = parseFloat(wearEl ?? "");
-
-        if (!nameEl || isNaN(floatValue)) return;
-
-        const condition = card.querySelector(".subtext")?.textContent?.split("(")[0]?.trim();
-        const phaseMatch = card.querySelector(".subtext")?.textContent?.match(/\((.*?)\)/);
-        const phase = phaseMatch ? ` (${phaseMatch[1]})` : "";
-        const fullName = `${nameEl} (${condition})${phase}`.trim();
-
         chrome.storage.local.get(null, async (all) => {
             const steamID = all["floatpilot_user"]?.steamID64;
-            if (!steamID) return;
-
             const settings = all[`floatpilot_settings_${steamID}`];
             const selectedConfig = settings?.selectedConfig;
-            const encryptedCode = selectedConfig?.encrypted_code;
-            const configId = selectedConfig?.id;
+            const enabled = settings?.itemEstimation;
 
+            if (!enabled || !selectedConfig) return;
+
+            const encryptedCode = selectedConfig.encrypted_code;
+            const configId = selectedConfig.id;
             if (!encryptedCode || !configId) return;
 
             const decryptedCode = await decryptConfigCode(encryptedCode, configId);
             if (!decryptedCode) return;
 
-            const item = { float_value: floatValue };
+            const dataAttr = card.getAttribute("data-csfloat-data");
+            const itemData = dataAttr ? JSON.parse(dataAttr) : null;
+
+            if (!itemData) return;
+
+            const item = {
+                float_value: itemData.item.float_value,
+                fade_percent: itemData.item.fade_percent,
+                playside_blue: itemData.item.playside_blue,
+                stickers: JSON.stringify(itemData.item.stickers || [])
+            };
+            if (itemData.item.phase) {
+                itemData.item.market_hash_name = `${itemData.item.market_hash_name} | ${itemData.item.phase}`;
+            }
 
             try {
+                const sales = await getCachedSales(itemData.item.market_hash_name);
+                if (!sales) return;
+
                 const batchPayload = [
                     {
                         code: decryptedCode,
                         item,
-                        listings: [] // Placeholder, will be replaced by fetched sales data
+                        listings: sales
                     }
                 ];
-
-                const salesRes = await fetch(`https://www.floatpilot.store/api/sales?name=${encodeURIComponent(fullName)}`);
-                const sales = await salesRes.json();
-                batchPayload[0].listings = sales;
 
                 const estimationRes = await fetch("https://www.floatpilot.store/api/estimation", {
                     method: "POST",
@@ -78,21 +152,22 @@ const observer = new MutationObserver(() => {
                 });
 
                 const result = await estimationRes.json();
-                const estimatedPrice = result?.prices?.[0];
+                const estimatedPrice = result?.prices?.[0] / 100;
 
                 if (estimatedPrice) {
                     const priceEl = card.querySelector(".price");
-                    if (priceEl) {
+                    if (priceEl && !priceEl.querySelector(".estimation-tag")) {
                         const tag = document.createElement("div");
-                        tag.textContent = `Est. $${estimatedPrice.toFixed(2)}`;
+                        tag.className = "estimation-tag";
+                        tag.textContent = `~$${estimatedPrice.toFixed(2)}`;
                         tag.style.color = "#64EC42";
-                        tag.style.fontWeight = "bold";
+                        tag.style.fontWeight = "normal";
                         tag.style.fontSize = "0.9em";
                         priceEl.appendChild(tag);
                     }
                 }
             } catch (err) {
-                console.error("Batch estimation failed:", err);
+                console.error("Estimation error:", err);
             }
 
             (card as HTMLElement).dataset.estimated = "true";
@@ -101,3 +176,4 @@ const observer = new MutationObserver(() => {
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
+})();

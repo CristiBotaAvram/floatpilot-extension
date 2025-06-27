@@ -35,10 +35,14 @@ export default defineConfig({
                 'content-scripts/searchFilter': resolve(__dirname, 'src/content-scripts/searchFilter.ts'),
                 'content-scripts/priceDiff': resolve(__dirname, 'src/content-scripts/priceDiff.ts'),
                 'content-scripts/listingEstimation': resolve(__dirname, 'src/content-scripts/listingEstimation.ts'),
+                'content-scripts/profitEvaluator': resolve(__dirname, 'src/content-scripts/profitEvaluator.ts'),
 
                 /* ------------  Background + Offscreen  ------------ */
                 'background/sw': resolve(__dirname, 'src/background/sw.ts'),
                 'offscreen/offscreen': resolve(__dirname, 'src/offscreen/offscreen.ts'), // <- Offscreen added here
+
+                'injected/fetch-intercept.js': resolve(__dirname, 'injected/fetch-intercept.js'),
+                'inject-loader.js': resolve(__dirname, 'inject-loader.js'),
             },
 
             /* -------------------------------------------------- */
@@ -62,6 +66,12 @@ export default defineConfig({
                             return 'src/content-scripts/priceDiff.js';
                         case 'content-scripts/listingEstimation':
                             return 'src/content-scripts/listingEstimation.js';
+                        case 'content-scripts/profitEvaluator':
+                            return 'src/content-scripts/profitEvaluator.js';
+                        case 'injected/fetch-intercept.js':
+                            return 'injected/fetch-intercept.js';
+                        case 'inject-loader.js':
+                            return 'inject-loader.js';
                         case 'offscreen':
                             return 'offscreen.html';
 

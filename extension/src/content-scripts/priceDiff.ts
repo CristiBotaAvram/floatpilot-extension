@@ -2,7 +2,7 @@
 // Caching with persistent storage, in‑flight request queue
 // Adds profit badge to every listing once (skins + misc items)
 // -----------------------------------------------------------
-
+(() => {
 interface CacheEntry {
     price: number | null
     timestamp: number
@@ -156,3 +156,4 @@ chrome.storage.sync.get('showPriceDiff', (res: { showPriceDiff?: boolean }) => {
     scan()
     new MutationObserver(scan).observe(document.body, { childList: true, subtree: true })
 })
+})();
