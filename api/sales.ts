@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { compressToUTF16 } from 'lz-string';
+import LZString from 'lz-string';
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: 'Failed to fetch sales' });
     }
 
-    const compressed = compressToUTF16(JSON.stringify(data));
+    const compressed = LZString.compressToUTF16(JSON.stringify(data));
 
     return res.status(200).json({ compressed });
 }
