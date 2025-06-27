@@ -1,9 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import { compressToUTF16 } from 'lz-string';
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // or anon if read-only is enough
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -12,14 +13,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     res.setHeader("Access-Control-Allow-Credentials", "true");
 
-    // Handle CORS preflight
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
 
-
     const { name } = req.query;
-
     if (!name || typeof name !== 'string') {
         return res.status(400).json({ error: 'Missing or invalid name param' });
     }
@@ -36,5 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: 'Failed to fetch sales' });
     }
 
-    return res.status(200).json(data);
+    const compressed = compressToUTF16(JSON.stringify(data));
+
+    return res.status(200).json({ compressed });
 }
