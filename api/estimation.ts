@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { decompressFromUTF16 } from 'lz-string';
+import LZString from 'lz-string';
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
@@ -11,7 +11,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).end();
     }
 
-    const listingsArray = req.body.listingsArray; // Array of { item, listings (compressed), code }
+    const listingsArray = req.body.listingsArray;
 
     if (!Array.isArray(listingsArray)) {
         return res.status(400).json({ error: "Expected listingsArray in body" });
@@ -20,13 +20,11 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const results = listingsArray.map(({ listings, item, code }, index) => {
             try {
-                // ✅ Decompress if listings is an object with a .compressed key
                 if (listings && typeof listings === "object" && 'compressed' in listings) {
-                    const decompressed = decompressFromUTF16(listings.compressed);
+                    const decompressed = LZString.decompressFromUTF16(listings.compressed);
                     listings = decompressed ? JSON.parse(decompressed) : [];
                 }
 
-                // 🧠 Create and run the dynamic estimation function
                 const estimationFn = new Function("listings", "item", `
                     ${code}
                     return typeof run === 'function' ? run(listings, item) : null;
