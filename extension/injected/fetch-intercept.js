@@ -3,6 +3,47 @@
     const originalFetch = window.fetch;
     const tolerance = 0.00001;
 
+    function cleanEntry(entry) {
+        delete entry.seller;
+        if (entry.item) {
+            delete entry.item.asset_id;
+            delete entry.item.icon_url;
+            delete entry.item.d_param;
+            delete entry.item.inspect_link;
+            delete entry.item.cs2_screenshot_id;
+            delete entry.item.cs2_screenshot_at;
+            delete entry.item.is_commodity;
+            delete entry.item.type;
+            delete entry.item.rarity_name;
+            delete entry.item.type_name;
+            delete entry.item.item_name;
+            delete entry.item.wear_name;
+            delete entry.item.description;
+            delete entry.item.collection;
+            delete entry.item.serialized_inspect;
+            delete entry.item.gs_sig;
+
+            if (Array.isArray(entry.item.stickers)) {
+                for (const sticker of entry.item.stickers) {
+                    delete sticker.icon_url;
+                    delete sticker.name;
+                    delete sticker.offset_x;
+                    delete sticker.offset_y;
+                }
+            }
+            if (Array.isArray(entry.item.keychains)) {
+                for (const keychain of entry.item.keychains) {
+                    delete keychain.offset_x;
+                    delete keychain.offset_y;
+                    delete keychain.offset_z;
+                    delete keychain.icon_url;
+                    delete keychain.name;
+                }
+            }
+        }
+        return entry;
+    }
+
     function attachListingsToCards(listings) {
         const cards = document.querySelectorAll("item-card");
         listings?.forEach((entry) => {
@@ -13,8 +54,8 @@
                 const wearText = card.querySelector(".wear")?.textContent?.trim();
                 const cardFloat = wearText ? parseFloat(wearText) : NaN;
                 if (!isNaN(cardFloat) && Math.abs(cardFloat - float) < tolerance) {
-                    card.dataset.csfloatData = JSON.stringify(entry);
-                    //console.log("[Linked Item to Card]", float, entry.item);
+                    const cleaned = cleanEntry({ ...entry });
+                    card.dataset.csfloatData = JSON.stringify(cleaned);
                     break;
                 }
             }
@@ -31,7 +72,6 @@
                 const json = await cloned.json();
                 const listings = json?.data;
                 window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
-                //console.log("[Intercepted Listings via fetch]", listings);
 
                 setTimeout(() => attachListingsToCards(listings), 300);
             } catch (err) {
@@ -51,7 +91,6 @@
                     const json = JSON.parse(this.responseText);
                     const listings = json?.data;
                     window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
-                    //console.log("[Intercepted Listings via XHR]", listings);
 
                     setTimeout(() => attachListingsToCards(listings), 300);
                 }
