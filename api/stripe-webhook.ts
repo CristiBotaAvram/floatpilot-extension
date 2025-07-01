@@ -21,7 +21,8 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sig = req.headers['stripe-signature']!
     const buf = await buffer(req)
-
+    const now = new Date();
+    const nowIso = now.toISOString();
     let event: Stripe.Event
     try {
         event = stripe.webhooks.constructEvent(buf, sig, endpointSecret)
@@ -52,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 amount: Number(ffAmount),
                 type: 'deposit',
                 refrence: 'deposit',
+                created_at: nowIso,
             },
         ])
 
@@ -61,6 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 type: 'deposit',
                 ff_before: oldBalance,
                 ff_after: oldBalance + Number(ffAmount),
+                created_at: nowIso,
             },
         ])
     }
