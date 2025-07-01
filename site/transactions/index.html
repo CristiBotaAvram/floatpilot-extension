@@ -7,27 +7,44 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0f0f0f] text-white font-sans">
+<!-- FF Purchase Modal -->
+<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
+        </div>
+        <div class="flex justify-end gap-4">
+            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#00ff99] font-semibold text-black rounded">Continue</button>
+        </div>
+    </div>
+</div>
+
 <!-- Header -->
 <header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
     <div class="flex items-center space-x-4">
-        <img src="../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
         <h1 class="text-2xl font-signature">FloatPilot</h1>
         <nav class="flex space-x-0 ml-6 text-lg">
-            <a href="/" class="px-3 py-1 rounded font-normal hover:font-bold hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
-            <a href="/pricing" class="px-3 py-1 rounded font-normal hover:font-bold hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-            <a href="/marketplace" class="px-3 py-1 rounded font-normal hover:font-bold hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>
-            <a href="/configs" class="px-3 py-1 rounded font-normal hover:font-bold hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
+            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
+            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
+            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>
+            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
         </nav>
     </div>
 
     <div class="flex items-center space-x-4">
         <!-- GitHub icon without circle -->
         <a href="https://github.com/CristiBotaAvram/floatpilot-extension" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="../icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
+            <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
         <!-- X / Twitter icon without circle -->
         <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
+            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
 
         <!-- Not logged in -->
@@ -40,7 +57,7 @@
                     <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span id="ffBalance" class="text-white font-semibold">100 FF</span>
+                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
                 </div>
             </button>
             <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
@@ -48,15 +65,17 @@
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
                 </div>
-                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-normal hover:font-bold hover:bg-white transition-ease duration-500">Transactions</a>
-                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-normal hover:font-bold hover:bg-white transition-ease duration-500">Configs</a>
+                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#00ff00] transition-ease duration-500">Buy Credits</a>
+                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
+                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
                 <form method="POST" action="/api/logout">
-                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 text-[#ff0000] hover:bg-[#ff0000] hover:font-bold hover:text-[#000000] transition-ease duration-500">Logout</button>
+                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
                 </form>
             </div>
         </div>
     </div>
 </header>
+
 
 <main class="max-w-5xl mx-auto px-4 py-8">
     <h2 class="text-2xl font-semibold mb-6">Your Transactions</h2>
@@ -155,5 +174,52 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const buyFFBtn = document.getElementById('buyFFBtn');
+        const buyFFModal = document.getElementById('buyFFModal');
+        const cancelBtn = document.getElementById('cancelFFPurchase');
+        const confirmBtn = document.getElementById('confirmFFPurchase');
+        const ffOptions = document.querySelectorAll('.ff-option');
+        let selectedAmount = null;
+
+        buyFFBtn?.addEventListener('click', () => {
+            buyFFModal.classList.remove('hidden');
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+            buyFFModal.classList.add('hidden');
+            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            selectedAmount = null;
+        });
+
+        ffOptions.forEach(button => {
+            button.addEventListener('click', () => {
+                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+                button.classList.add('border-[#00ff99]');
+                selectedAmount = parseInt(button.dataset.value);
+            });
+        });
+
+        confirmBtn?.addEventListener('click', async () => {
+            const steamID = document.getElementById('steamID')?.textContent;
+            if (!steamID || !selectedAmount) return alert('Missing Steam ID or Credits amount');
+
+            try {
+                const res = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
+                });
+
+                const { url } = await res.json();
+                if (url) window.location.href = url;
+                else alert('Failed to create Stripe checkout session.');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+    });
+</script>
 </body>
 </html>
