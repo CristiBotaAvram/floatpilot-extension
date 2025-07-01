@@ -26,7 +26,7 @@
 </div>
 
 <!-- FF Purchase Modal -->
-<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
     <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
         <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
         <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
@@ -49,8 +49,8 @@
         <h1 class="text-2xl font-signature">FloatPilot</h1>
         <nav class="flex space-x-0 ml-6 text-lg">
             <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
-            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>
+            <a href="/pricing" class="px-3 py-1 rounded font-semibold hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
+            <a href="/marketplace" class="px-3 py-1 rounded font-bold hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>
             <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
         </nav>
     </div>
@@ -296,14 +296,14 @@
 
         cancelBtn?.addEventListener('click', () => {
             buyFFModal.classList.add('hidden');
-            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]', 'text-black'));
+            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
             selectedAmount = null;
         });
 
         ffOptions.forEach(button => {
             button.addEventListener('click', () => {
-                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]', 'text-black'));
-                button.classList.add('border-[#00ff99]', 'text-black');
+                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+                button.classList.add('border-[#00ff99]');
                 selectedAmount = parseInt(button.dataset.value);
             });
         });

@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     currency: 'usd',
                     unit_amount: priceInUSD * 100, // in cents
                     product_data: {
-                        name: `${ffAmount} FloatFuel`,
+                        name: `${ffAmount} Credits`,
                     },
                 },
                 quantity: 1,
