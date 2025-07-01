@@ -52,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 steam_id: steamId,
                 amount: Number(ffAmount),
                 type: 'deposit',
-                refrence: 'deposit',
+                reference: 'deposit',
                 created_at: nowIso,
             },
         ])
