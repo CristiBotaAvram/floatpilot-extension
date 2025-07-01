@@ -4,45 +4,68 @@ function parseEstimatedValue(el: Element | null): number | null {
     return match ? parseFloat(match[1]) : null;
 }
 
-async function evaluateProfitabilityOnce() {
+async function evaluateProfitability() {
     const userData = await new Promise<any>((resolve) => {
         chrome.storage.local.get(null, resolve);
     });
 
     const steamID = userData["floatpilot_user"]?.steamID64;
     const settings = userData[`floatpilot_settings_${steamID}`];
-    const resaleThreshold = settings?.profitTarget || 10;
+    let resaleThreshold = settings?.profitTarget;
+
+    if (!resaleThreshold) {
+        resaleThreshold = 10;
+    }
 
     document.querySelectorAll("item-card").forEach(card => {
         if ((card as HTMLElement).dataset.profitEvaluated === 'true') return;
+
+        // Remove reference widget
+        const refWidget = card.querySelector(".reference-widget-container");
+        if (refWidget) refWidget.remove();
+
+        // Remove price badge widget
+        const priceBadge = card.querySelector("app-price-icon");
+        if (priceBadge) priceBadge.remove();
 
         const estimationEl = card.querySelector(".estimation-tag");
         const estimatedValue = parseEstimatedValue(estimationEl);
         if (estimatedValue === null) return;
 
         const priceEl = card.querySelector(".price");
-        const priceText = priceEl?.textContent || '';
+        if (!priceEl) return;
+
+        const priceText = priceEl.textContent || '';
         const priceValue = parseFloat(priceText.replace(/[^\d.]/g, ''));
         if (!Number.isFinite(priceValue)) return;
 
-        let color = '#4a1a1a'; // red = not profitable
+        let color = '#4a1a1a'; // default: not profitable
 
-        const directProfitable = estimatedValue * (100 / (100 + resaleThreshold)) >= priceValue;
+        const minPriceToBreakEven = estimatedValue * (100 / (100 + resaleThreshold));
 
+        let directProfitable = priceValue <= minPriceToBreakEven;
         let bargainProfitable = false;
-        try {
-            const dataAttr = card.getAttribute("data-csfloat-data");
-            if (dataAttr) {
+
+        const dataAttr = card.getAttribute("data-csfloat-data");
+        if (dataAttr) {
+            try {
                 const parsed = JSON.parse(dataAttr);
-                const minOfferPrice = parsed?.min_offer_price / 100;
-                bargainProfitable = estimatedValue * (100 / (100 + resaleThreshold)) >= minOfferPrice;
+                const minOfferPriceCents = parsed?.min_offer_price;
+                const minOfferPrice = minOfferPriceCents / 100;
+
+                bargainProfitable = minPriceToBreakEven >= minOfferPrice;
+            } catch (e) {
+                console.warn('[ProfitCheck] Failed to parse data-csfloat-data:', e);
             }
-        } catch (e) {
-            console.warn('[ProfitCheck] Failed to parse data-csfloat-data:', e);
         }
 
-        if (directProfitable) color = '#1e3f1f'; // green
-        else if (bargainProfitable) color = '#807300'; // yellow
+        if (directProfitable) {
+            color = '#1e3f1f'; // green
+            estimationEl!.textContent = `$${priceValue.toFixed(2)} → ~$${estimatedValue.toFixed(2)}`;
+        } else if (bargainProfitable) {
+            color = '#807300'; // yellow
+            estimationEl!.textContent = `~$${minPriceToBreakEven.toFixed(2)} → ~$${estimatedValue.toFixed(2)}`;
+        }
 
         const matCard = card.querySelector("mat-card");
         if (matCard) (matCard as HTMLElement).style.backgroundColor = color;
@@ -54,24 +77,8 @@ async function evaluateProfitabilityOnce() {
     });
 }
 
-// Debounce wrapper
-let timeout: NodeJS.Timeout | null = null;
-function evaluateProfitabilityDebounced() {
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => {
-        evaluateProfitabilityOnce();
-    }, 300);
-}
+// Initial scan
+evaluateProfitability();
 
-// Initial run
-evaluateProfitabilityOnce();
-
-// Smarter MutationObserver
-new MutationObserver((mutations) => {
-    if (mutations.some(m => [...m.addedNodes].some(node => (node as HTMLElement)?.tagName === "ITEM-CARD"))) {
-        evaluateProfitabilityDebounced();
-    }
-}).observe(document.body, {
-    childList: true,
-    subtree: true,
-});
+// Re-scan if new cards appear
+new MutationObserver(evaluateProfitability).observe(document.body, { childList: true, subtree: true });
