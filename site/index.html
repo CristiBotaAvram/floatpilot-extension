@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" sizes="128x128" href="./icons/icon128.png"/>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0f0f0f] text-white font-sans">
+<body class="bg-[#0f0f0f] antialiased text-white font-sans">
 <!-- Confirmation Modal -->
 <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
     <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
@@ -84,9 +84,9 @@
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
                 </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-normal hover:bg-green transition-ease duration-500">Buy Credits</a>
-                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-normal hover:bg-white transition-ease duration-500">Transactions</a>
-                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-normal hover:bg-white transition-ease duration-500">Configs</a>
+                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-normal hover:font-medium hover:bg-[#00ff00] transition-ease duration-500">Buy Credits</a>
+                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-normal hover:font-medium hover:bg-white transition-ease duration-500">Transactions</a>
+                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-normal hover:font-medium hover:bg-white transition-ease duration-500">Configs</a>
                 <form method="POST" action="/api/logout">
                     <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 text-[#ff0000] hover:bg-[#ff0000] hover:font-bold hover:text-[#000000] transition-ease duration-500">Logout</button>
                 </form>

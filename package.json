@@ -16,6 +16,7 @@
     "dotenv": "^16.5.0",
     "jsonwebtoken": "^9.0.2",
     "lz-string": "^1.5.0",
+    "micro": "^10.0.1",
     "openid": "^2.0.13",
     "playwright": "^1.52.0",
     "react": "^19.0.0",
