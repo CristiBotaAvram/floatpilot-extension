@@ -4,7 +4,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const allowedOrigins = [
     'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh',
     'https://floatpilot.store',
-    'https://www.floatpilot.store'
+    'https://www.floatpilot.store',
+    'https://csfloat.com'
 ];
 
 const supabase = createClient(
