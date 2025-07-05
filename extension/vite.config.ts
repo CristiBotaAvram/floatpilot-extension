@@ -28,14 +28,14 @@ export default defineConfig({
                 offscreen: resolve(__dirname, 'public/offscreen.html'),
 
                 /* ------------  Content‑scripts  ------------ */
-                'content-scripts/searchContent': resolve(__dirname, 'src/content-scripts/searchContent.ts'),
                 'content-scripts/itemContent': resolve(__dirname, 'src/content-scripts/itemContent.ts'),
                 'content-scripts/injectStyle': resolve(__dirname, 'src/content-scripts/injectStyle.ts'),
-                'content-scripts/skinportContent': resolve(__dirname, 'src/content-scripts/skinportContent.ts'),
                 'content-scripts/searchFilter': resolve(__dirname, 'src/content-scripts/searchFilter.ts'),
                 'content-scripts/priceDiff': resolve(__dirname, 'src/content-scripts/priceDiff.ts'),
                 'content-scripts/listingEstimation': resolve(__dirname, 'src/content-scripts/listingEstimation.ts'),
                 'content-scripts/profitEvaluator': resolve(__dirname, 'src/content-scripts/profitEvaluator.ts'),
+                'content-scripts/refreshButton': resolve(__dirname, 'src/content-scripts/refreshButton.ts'),
+                'content-scripts/floatHighlighter': resolve(__dirname, 'src/content-scripts/floatHighlighter.ts'),
 
                 /* ------------  Background + Offscreen  ------------ */
                 'background/sw': resolve(__dirname, 'src/background/sw.ts'),
@@ -52,12 +52,8 @@ export default defineConfig({
                 entryFileNames: (chunk) => {
                     switch (chunk.name) {
                         /* ---- content‑scripts ---- */
-                        case 'content-scripts/searchContent':
-                            return 'src/content-scripts/searchContent.js';
                         case 'content-scripts/itemContent':
                             return 'src/content-scripts/itemContent.js';
-                        case 'content-scripts/skinportContent':
-                            return 'src/content-scripts/skinportContent.js';
                         case 'content-scripts/searchFilter':
                             return 'src/content-scripts/searchFilter.js';
                         case 'content-scripts/injectStyle':
@@ -68,6 +64,10 @@ export default defineConfig({
                             return 'src/content-scripts/listingEstimation.js';
                         case 'content-scripts/profitEvaluator':
                             return 'src/content-scripts/profitEvaluator.js';
+                        case 'content-scripts/refreshButton':
+                            return 'src/content-scripts/refreshButton.js';
+                        case 'content-scripts/floatHighlighter':
+                            return 'src/content-scripts/floatHighlighter.js';
                         case 'injected/fetch-intercept.js':
                             return 'injected/fetch-intercept.js';
                         case 'inject-loader.js':

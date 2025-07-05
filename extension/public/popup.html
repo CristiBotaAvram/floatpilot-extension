@@ -132,7 +132,7 @@
         }
 
         .upgrade-btn:hover {
-            background: #00ff75;
+            background: #0068ff;
             color: black;
             transition: ease 0.5s;
         }
@@ -188,7 +188,10 @@
         <div class="setting-text">Turn on/off cheapest listing</div>
         <div class="checkbox"></div>
     </div>
-
+    <div class="setting" data-key="floatHighlight">
+        <div class="setting-text">Highlight extreme floats</div>
+        <div class="checkbox"></div>
+    </div>
     <div class="locked-group">
         <div class="setting locked" data-key="itemEstimation">
             <div class="setting-text">Turn on/off item estimation</div>
@@ -202,26 +205,6 @@
         <div class="setting locked" data-key="profitTarget">
             <div class="setting-text">Desired profit (%)</div>
             <input id="profitInput" class="profit-input" type="number" min="0" max="100" step="1" placeholder="10" />
-        </div>
-        <div class="setting locked" data-key="manipulationWarning">
-            <div class="setting-text">Warning if item is manipulated</div>
-            <div class="checkbox"></div>
-        </div>
-        <div class="setting locked" data-key="removeAffiliate">
-            <div class="setting-text">Remove Auto-Affiliate</div>
-            <div class="checkbox"></div>
-        </div>
-        <div class="setting locked" data-key="editStickers">
-            <div class="setting-text">Edit sticker prices/%</div>
-            <div class="checkbox"></div>
-        </div>
-        <div class="setting locked" data-key="estimateMethod">
-            <div class="setting-text">Edit the way it estimates the value</div>
-            <div class="checkbox"></div>
-        </div>
-        <div class="setting locked" data-key="rarePatterns">
-            <div class="setting-text">Also check for rare patterns</div>
-            <div class="checkbox"></div>
         </div>
         <div class="setting locked" data-key="flippability">
             <div class="setting-text">Flippability Score</div>

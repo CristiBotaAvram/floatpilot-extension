@@ -36,6 +36,16 @@
       "run_at": "document_idle"
     },
     {
+      "matches": ["*://csfloat.com/*"],
+      "js": ["src/content-scripts/refreshButton.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://csfloat.com/*"],
+      "js": ["src/content-scripts/floatHighlighter.js"],
+      "run_at": "document_idle"
+    },
+    {
       "matches": ["https://csfloat.com/*"],
       "js": ["src/content-scripts/listingEstimation.js"],
       "run_at": "document_idle"
@@ -61,7 +71,6 @@
     {
       "matches": [
         "https://csfloat.com/*",
-        "https://skinport.com/*",
         "https://steamcommunity.com/*"
       ],
       "js": ["src/content-scripts/listingFetcher.js"],
