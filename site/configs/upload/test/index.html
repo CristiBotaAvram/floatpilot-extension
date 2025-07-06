@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FloatPilot Configs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
+        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#003326] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
+                ➜
+            </div>
+        </div>
+    </div>
+</div>
+<body class="bg-[#0f0f0f] text-white font-sans">
+
+<!-- FF Purchase Modal -->
+<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
+        </div>
+        <div class="flex justify-end gap-4">
+            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#00ff99] font-semibold text-black rounded">Continue</button>
+        </div>
+    </div>
+</div>
+<!-- Header -->
+<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
+    <div class="flex items-center space-x-4">
+        <img src="../../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <h1 class="text-2xl font-signature">FloatPilot</h1>
+        <nav class="flex space-x-0 ml-6 text-lg">
+            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
+            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
+            <!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
+            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
+        </nav>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <!-- GitHub icon without circle -->
+        <a href="https://github.com/CristiBotaAvram/floatpilot-extension" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
+            <img src="../../../icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
+        </a>
+        <!-- X / Twitter icon without circle -->
+        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
+            <img src="../../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
+        </a>
+
+        <!-- Not logged in -->
+        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+        <!-- Logged in -->
+        <div id="userMenu" class="hidden relative">
+            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
+                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
+                <div class="flex items-center gap-2">
+                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
+                </div>
+            </button>
+            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
+                <div class="px-4 py-2 border-b border-white">
+                    <p id="steamName" class="font-semibold">Steam name</p>
+                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
+                </div>
+                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#00ff00] transition-ease duration-500">Buy Credits</a>
+                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
+                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
+                <form method="POST" action="/api/logout">
+                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+<main id="mainContent" class="p-8 max-w-xl mx-auto hidden">
+    <h2 class="text-2xl font-bold mb-4">Test Your Config</h2>
+    <form id="uploadForm" class="flex flex-col gap-4">
+        <textarea id="configDescription" placeholder="Paste item JSON here..." class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
+        <textarea id="configCode" placeholder="Paste your Config Code here..." required class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
+        <button type="submit" class="bg-[#999999] hover:bg-[#00ff75] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Test Config</button>
+    </form>
+    <p id="uploadStatus" class="mt-4 text-sm text-gray-300"></p>
+    <div id="estimationResult" class="mt-6 text-green-400 font-bold"></div>
+</main>
+<div id="accessDenied" class="p-8 max-w-xl mx-auto text-center hidden">
+    <h2 class="text-2xl font-bold text-red-500">Access Denied</h2>
+    <p class="text-white mt-2">You need <span class="font-bold text-blue-400">Pro tier</span> to use this feature.</p>
+    <a href="/pricing" class="inline-block mt-4 px-6 py-2 bg-blue-500 text-black font-bold rounded hover:bg-blue-400">View Plans</a>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const mainContent = document.getElementById('mainContent');
+        const accessDenied = document.getElementById('accessDenied');
+
+        try {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+
+            if (data?.tier === 'Pro') {
+                mainContent.classList.remove('hidden');
+            } else {
+                accessDenied.classList.remove('hidden');
+            }
+        } catch (err) {
+            accessDenied.classList.remove('hidden');
+        }
+    });
+
+    document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const itemText = document.getElementById('configDescription').value;
+        const configCode = document.getElementById('configCode').value;
+        const statusEl = document.getElementById('uploadStatus');
+        const resultEl = document.getElementById('estimationResult');
+
+        statusEl.textContent = 'Running estimation...';
+        resultEl.textContent = '';
+
+        try {
+            const itemData = JSON.parse(itemText.replaceAll('&quot;', '"'));
+
+            const item = {
+                float_value: itemData.item.float_value,
+                fade_percent: itemData.item.fade_percent,
+                playside_blue: itemData.item.blue_gem?.playside_blue,
+                stickers: JSON.stringify(itemData.item.stickers || [])
+            };
+
+            if (itemData.item.phase) {
+                itemData.item.market_hash_name = `${itemData.item.market_hash_name} | ${itemData.item.phase}`;
+            }
+
+            const batchPayload = [
+                {
+                    code: configCode,
+                    item: {
+                        ...item,
+                        market_hash_name: itemData.item.market_hash_name
+                    }
+                }
+            ];
+
+            const estimationRes = await fetch("https://www.floatpilot.store/api/estimation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ listingsArray: batchPayload })
+            });
+
+            const result = await estimationRes.json();
+            const estimatedPrice = result?.prices?.[0] / 100;
+
+            resultEl.textContent = `Estimated Price: $${estimatedPrice.toFixed(2)}`;
+            statusEl.textContent = 'Estimation complete.';
+        } catch (err) {
+            statusEl.textContent = 'Error during estimation: ' + err.message;
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ffBalance = document.getElementById('ffBalance');
+
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    document.getElementById('userMenu')?.classList.remove('hidden');
+                    document.getElementById('avatarImg').src = data.avatarUrl;
+                    document.getElementById('steamName').textContent = data.displayName;
+                    document.getElementById('steamID').textContent = data.steamID64;
+                    ffBalance.textContent = `${data.ff_balance || 0} Credits`;
+
+                    const tier = data.tier || 'Free';
+                    let tierColor = '#848884';
+                    if (tier === 'Pro') tierColor = '#0068ff';
+
+                    const tierBadge = document.getElementById('tierBadge');
+                    tierBadge.textContent = tier;
+                    tierBadge.style.backgroundColor = tierColor;
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+                } else {
+                    document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
+                    document.getElementById('userMenu')?.classList.add('hidden');
+                }
+            });
+
+        document.getElementById('userMenu')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            document.getElementById('userDropdown')?.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.getElementById('userMenu');
+            if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const buyFFBtn = document.getElementById('buyFFBtn');
+        const buyFFModal = document.getElementById('buyFFModal');
+        const cancelBtn = document.getElementById('cancelFFPurchase');
+        const confirmBtn = document.getElementById('confirmFFPurchase');
+        const ffOptions = document.querySelectorAll('.ff-option');
+        let selectedAmount = null;
+
+        buyFFBtn?.addEventListener('click', () => {
+            buyFFModal.classList.remove('hidden');
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+            buyFFModal.classList.add('hidden');
+            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            selectedAmount = null;
+        });
+
+        ffOptions.forEach(button => {
+            button.addEventListener('click', () => {
+                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+                button.classList.add('border-[#00ff99]');
+                selectedAmount = parseInt(button.dataset.value);
+            });
+        });
+
+        confirmBtn?.addEventListener('click', async () => {
+            const steamID = document.getElementById('steamID')?.textContent;
+            if (!steamID || !selectedAmount) return alert('Missing Steam ID or Credits amount');
+
+            try {
+                const res = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
+                });
+
+                const { url } = await res.json();
+                if (url) window.location.href = url;
+                else alert('Failed to create Stripe checkout session.');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+    });
+</script>
+</body>
+</html>
