@@ -28,7 +28,6 @@ export default defineConfig({
                 offscreen: resolve(__dirname, 'public/offscreen.html'),
 
                 /* ------------  Content‑scripts  ------------ */
-                'content-scripts/itemContent': resolve(__dirname, 'src/content-scripts/itemContent.ts'),
                 'content-scripts/injectStyle': resolve(__dirname, 'src/content-scripts/injectStyle.ts'),
                 'content-scripts/searchFilter': resolve(__dirname, 'src/content-scripts/searchFilter.ts'),
                 'content-scripts/priceDiff': resolve(__dirname, 'src/content-scripts/priceDiff.ts'),
@@ -52,8 +51,6 @@ export default defineConfig({
                 entryFileNames: (chunk) => {
                     switch (chunk.name) {
                         /* ---- content‑scripts ---- */
-                        case 'content-scripts/itemContent':
-                            return 'src/content-scripts/itemContent.js';
                         case 'content-scripts/searchFilter':
                             return 'src/content-scripts/searchFilter.js';
                         case 'content-scripts/injectStyle':

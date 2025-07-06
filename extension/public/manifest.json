@@ -9,7 +9,7 @@
     "tabs",
     "scripting",
     "activeTab",
-    "https://floatpilot.store/"
+    "https://www.floatpilot.store/"
   ],
 
   "host_permissions": [
@@ -48,11 +48,6 @@
     {
       "matches": ["https://csfloat.com/*"],
       "js": ["src/content-scripts/listingEstimation.js"],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": ["https://csfloat.com/item/*"],
-      "js": ["src/content-scripts/itemContent.js"],
       "run_at": "document_idle"
     },
     {

@@ -45,7 +45,7 @@
         <nav class="flex space-x-0 ml-6 text-lg">
             <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
             <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>
+<!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
             <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
         </nav>
     </div>
@@ -178,7 +178,7 @@
             <p class="text-sm text-gray-400 font-bold">${config.purchase_count} sold</p>
           </div>
           <div id="${buttonId}" class="absolute bottom-4 right-4 px-4 py-1 text-black font-bold rounded-xl text-sm ${isOwned ? 'bg-[#888]' : 'bg-[#00ff75] cursor-pointer'}">
-            ${isOwned ? 'Owned' : `${config.ff_price} FF`}
+            ${isOwned ? 'Owned' : `${config.ff_price} Credits`}
           </div>
         `;
 
@@ -190,7 +190,7 @@
                         currentPurchase = 'config';
                         currentConfigId = config.id;
                         currentConfigPrice = config.ff_price;
-                        confirmationText.textContent = `Slide to confirm purchase of \"${config.name}\" for ${config.ff_price} FF.`;
+                        confirmationText.textContent = `Slide to confirm purchase of \"${config.name}\" for ${config.ff_price} Credits.`;
                         confirmationModal.classList.remove('hidden');
                         sliderThumb.style.left = '0';
                     });
@@ -229,7 +229,7 @@
                     document.getElementById('avatarImg').src = data.avatarUrl;
                     document.getElementById('steamName').textContent = data.displayName;
                     document.getElementById('steamID').textContent = data.steamID64;
-                    ffBalance.textContent = `${data.ff_balance || 0} FF`;
+                    ffBalance.textContent = `${data.ff_balance || 0} Credits`;
 
                     const tier = data.tier || 'Free';
                     let tierColor = '#848884';
