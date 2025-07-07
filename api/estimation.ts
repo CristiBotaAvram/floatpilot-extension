@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
+import { NodeVM } from 'vm2';
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -45,11 +46,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     throw new Error("Failed to fetch sales data");
                 }
 
-                const estimationFn = new Function("listings", "item", `
-                    ${code}
-                    return typeof run === 'function' ? run(listings, item) : null;
-                `);
+                const vm = new NodeVM({
+                    console: 'inherit',
+                    sandbox: {},
+                    require: false,
+                    eval: false,
+                    wasm: false,
+                    timeout: 500
+                });
 
+                const wrappedCode = `module.exports = function(listings, item) { ${code}\nreturn typeof run === 'function' ? run(listings, item) : null; }`;
+                const estimationFn = vm.run(wrappedCode);
                 return estimationFn(data, item);
 
             } catch (innerErr: any) {
