@@ -41,7 +41,23 @@
         </div>
     </div>
 </div>
+<!-- Promotional Marquee -->
+<div class="bg-[#ff003e] text-black py-2 overflow-hidden">
+    <div class="whitespace-nowrap animate-[marquee_20s_linear_infinite] flex">
+        <span class="inline-block text-lg font-bold">Launch Bonus! 50% more time on every plan for a limited time!</span>
+    </div>
+</div>
 
+<style>
+    @keyframes marquee {
+        0% {
+            transform: translateX(100%);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+</style>
 <!-- Header -->
 <header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
     <div class="flex items-center space-x-4">
@@ -127,16 +143,16 @@
                     <div class="flex rounded overflow-hidden">
                         <span class="bg-[#0068ff] text-black px-3 py-2 font-bold">Subscribe for</span>
                         <button id="dropdownToggle-Pro" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
-                            <span id="selectedDuration-Pro">1 hour</span>
+                            <span id="selectedDuration-Pro">1.5 hours</span>
                         </button>
                     </div>
                     <span id="costDisplay-Pro" class="ml-4 text-white font-bold text-lg">50 Credits</span>
                 </div>
                 <ul id="dropdownMenu-Pro" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 hour" data-cost="50">1 hour</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 day" data-cost="100">1 day</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 week" data-cost="150">1 week</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1 month" data-cost="400">1 month</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 hours" data-cost="50">1.5 hours</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 days" data-cost="100">1.5 hours</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 weeks" data-cost="150">1.5 hours</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 months" data-cost="400">1.5 hours</li>
                 </ul>
             </div>
         </div>
