@@ -12,8 +12,8 @@
         <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
         <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
         <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#003326] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
                 ➜
             </div>
         </div>
@@ -32,7 +32,7 @@
         </div>
         <div class="flex justify-end gap-4">
             <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#00ff99] font-semibold text-black rounded">Continue</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
         </div>
     </div>
 </div>
@@ -78,7 +78,7 @@
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
                 </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#00ff00] transition-ease duration-500">Buy Credits</a>
+                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
                 <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
                 <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
                 <form method="POST" action="/api/logout">
@@ -91,11 +91,11 @@
 
 <main class="p-8 max-w-xl mx-auto">
     <h2 class="text-2xl font-bold mb-4">Upload New Config</h2>
-    <p class="text-sm text-gray-400 mb-1">Need help writing your config? See the <a href="/configs/upload/docs" target="_blank" class="text-[#00ff75] underline hover:text-[#00cc66]">Documentation</a>.</p>
-    <p class="text-sm text-gray-400 mb-2">Want to test your config before uploading? You can test it <a href="/configs/upload/test" target="_blank" class="text-[#00ff75] underline hover:text-[#00cc66]">here</a>.</p>
+    <p class="text-sm text-gray-400 mb-1">Need help writing your config? See the <a href="/configs/upload/docs" target="_blank" class="text-[#0068ff] underline hover:text-[#00a8ff]">Documentation</a>.</p>
+    <p class="text-sm text-gray-400 mb-2">Want to test your config before uploading? You can test it <a href="/configs/upload/test" target="_blank" class="text-[#0068ff] underline hover:text-[#00a8ff]">here</a>.</p>
     <form id="uploadForm" class="flex flex-col gap-4">
         <label class="flex items-center gap-1 text-sm">
-            <input type="checkbox" id="configPrivate" class="accent-[#00ff75]" />
+            <input type="checkbox" id="configPrivate" class="text-[#0068ff]" />
             Make this config private
         </label>
         <p id=privateWarning" class="text-sm font-semibold text-red-600">! Public configs CANNOT be deleted</p>
@@ -105,7 +105,7 @@
         <p id="youReceiveText" class="text-sm text-gray-400">You will receive: 0 credits</p>
 <!--        <p class="text-sm text-gray-400">There is a 30% fee on each sale</p>-->
         <textarea id="configCode" placeholder="Config Code" required class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
-        <button type="submit" class="bg-[#999999] hover:bg-[#00ff75] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Upload Config</button>
+        <button type="submit" class="bg-[#999999] hover:bg-[#0068ff] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Upload Config</button>
     </form>
     <p id="uploadStatus" class="mt-4 text-sm text-gray-300"></p>
 </main>

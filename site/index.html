@@ -2,28 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>FloatPilot</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon16.png"/>
-    <link rel="icon" type="image/png" sizes="48x48" href="./icons/icon48.png"/>
-    <link rel="icon" type="image/png" sizes="128x128" href="./icons/icon128.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FloatPilot Configs</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0f0f0f] antialiased text-white font-sans">
 <!-- Confirmation Modal -->
 <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
     <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
         <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
         <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
         <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#003326] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
                 ➜
             </div>
         </div>
     </div>
 </div>
+<body class="bg-[#0f0f0f] text-white font-sans">
 
 <!-- FF Purchase Modal -->
 <div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
@@ -37,36 +33,19 @@
         </div>
         <div class="flex justify-end gap-4">
             <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#00ff99] font-semibold text-black rounded">Continue</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
         </div>
     </div>
 </div>
-<!-- Promotional Marquee -->
-<div class="bg-[#ff003e] text-black py-2 overflow-hidden">
-    <div class="whitespace-nowrap animate-[marquee_20s_linear_infinite] flex">
-        <span class="inline-block text-lg font-bold">Launch Bonus! 50% more time on every plan for a limited time!</span>
-    </div>
-</div>
-
-<style>
-    @keyframes marquee {
-        0% {
-            transform: translateX(100%);
-        }
-        100% {
-            transform: translateX(-100%);
-        }
-    }
-</style>
 <!-- Header -->
 <header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
     <div class="flex items-center space-x-4">
-        <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <img src="../../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
         <h1 class="text-2xl font-signature">FloatPilot</h1>
         <nav class="flex space-x-0 ml-6 text-lg">
             <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
             <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-<!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
+            <!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
             <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
         </nav>
     </div>
@@ -74,11 +53,11 @@
     <div class="flex items-center space-x-4">
         <!-- GitHub icon without circle -->
         <a href="https://github.com/CristiBotaAvram/floatpilot-extension" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
+            <img src="../../../icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
         <!-- X / Twitter icon without circle -->
         <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
+            <img src="../../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
 
         <!-- Not logged in -->
@@ -99,7 +78,7 @@
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
                 </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#00ff00] transition-ease duration-500">Buy Credits</a>
+                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
                 <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
                 <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
                 <form method="POST" action="/api/logout">
@@ -109,148 +88,120 @@
         </div>
     </div>
 </header>
-<!-- Main -->
-<main class="w-full px-4 py-8 xl:px-0">
-    <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
-    <div class="grid md:grid-cols-2 gap-6 md:gap-10 xl:gap-20 2xl:gap-32 xl:max-w-5xl xl:mx-auto">
-        <!-- Free Plan -->
-        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#848884] relative w-full xl:min-w-[350px] xl:max-w-[420px]">
-            <div class="absolute text-2xl -top-0 left-0 bg-[#848884] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Free</div>
-            <p class="text-3xl font-bold mb-4 mt-6">0 Credits</p>
-            <ul class="text-sm text-gray-300 mb-4 space-y-1">
-                <li>✔ Basic float analysis</li>
-                <li>✔ View deals on CSFloat & Skinport</li>
-            </ul>
-            <button id="tier-Free" data-tier="Free" class="w-full bg-[#848884] text-black font-bold py-2 rounded cursor-not-allowed" disabled>
-                Current Plan
-            </button>
+<!-- Hero / Feature Section -->
+<main class="px-6 py-12 lg:px-20 max-w-7xl mx-auto">
+    <!-- Big Title -->
+    <h1 class="text-4xl md:text-6xl font-extrabold text-center mb-12 leading-tight">
+        Meet <span class="text-[#0068ff]">FloatPilot</span>
+        <p> your smarter, faster way to trade CS2 skins </p>
+    </h1>
+
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-10">
+        <!-- Copy -->
+        <div class="md:w-5/12 text-lg space-y-4">
+            <p><strong>Instant price intelligence:</strong> FloatPilot’s Estimation Tool overlays live market listings with fair‑value estimates based on recent sales, float, pattern ID, stickers and more.</p>
+            <p><strong>See hidden deals before others:</strong> Color‑coded backgrounds flag listings that are under‑ or over‑valued at a glance. Green means bargain, red means beware.</p>
+            <p><strong>Works right inside CSFloat:</strong> No extra tabs or copy‑paste — just browse, and FloatPilot injects the insights directly into every listing card.</p>
         </div>
 
-        <!-- Pro Plan -->
-        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#0068ff] relative w-full xl:min-w-[350px] xl:max-w-[420px] xl:mx-auto">
-            <div class="absolute text-2xl -top-0 left-0 bg-[#0068ff] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Pro</div>
-            <p class="text-3xl font-bold mb-4 mt-6">Starts at 50 Credits</p>
-            <ul class="text-sm text-gray-300 mb-4 space-y-1">
-                <li>✔ All Free features</li>
-                <li>✔ Auto-deal highlighting</li>
-                <li>✔ Historical float alerts</li>
-                <li>✔ Pattern ID filtering</li>
-                <li>✔ Early deal access (1h)</li>
-                <li>✔ Advanced Configurations</li>
-            </ul>
-            <div class="relative w-full group" id="subscribeRow-Pro">
-                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Pro">
-                    <div class="flex rounded overflow-hidden">
-                        <span class="bg-[#0068ff] text-black px-3 py-2 font-bold">Subscribe for</span>
-                        <button id="dropdownToggle-Pro" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
-                            <span id="selectedDuration-Pro">1.5 hours</span>
-                        </button>
-                    </div>
-                    <span id="costDisplay-Pro" class="ml-4 text-white font-bold text-lg">50 Credits</span>
-                </div>
-                <ul id="dropdownMenu-Pro" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 hours" data-cost="50">1.5 hours</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 days" data-cost="100">1.5 hours</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 weeks" data-cost="150">1.5 hours</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 months" data-cost="400">1.5 hours</li>
-                </ul>
+        <!-- Before / After Images -->
+        <div class="md:w-7/12 w-full relative select-none" id="compareWrapper">
+            <!-- After image (full width) -->
+            <img src="./pictures/homepage1.png" alt="After – FloatPilot enabled" class="w-full h-full object-cover rounded-lg shadow-lg border border-[#0068ff]"/>
+            <!-- Before image, width adjusted via JS -->
+            <div id="beforeImage" class="absolute inset-0 overflow-hidden rounded-lg">
+                <img src="./pictures/homepage2.png" alt="Before – vanilla CSFloat" class="w-full h-full object-cover border-r border-gray-700"/>
             </div>
+            <!-- Slider handle -->
+            <div id="sliderHandle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-black text-xl font-bold shadow-lg cursor-ew-resize">
+                ↔
+            </div>
+            <!-- Labels -->
+            <span class="absolute bottom-3 left-3 bg-white text-black text-xs font-bold px-2 py-1 rounded">Before</span>
+            <span class="absolute bottom-3 right-3 bg-[#0068ff] text-black text-xs font-bold px-2 py-1 rounded">After</span>
         </div>
+
     </div>
 </main>
 
 <!-- Footer -->
-<footer class="text-center text-gray-500 text-sm mt-12 mb-4">
+<footer class="text-center text-gray-500 text-sm py-8 ">
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
-
-<!-- JavaScript functionality for merged Pro tier -->
 <script>
+    // Simple before/after slider logic (no image resizing — we clip instead)
     document.addEventListener('DOMContentLoaded', () => {
-        let selectedTier = null;
-        let selectedCost = 0;
-        let selectedDuration = '';
-        let currentFF = 0;
+        const wrapper = document.getElementById('compareWrapper');
+        const beforeOverlay  = document.getElementById('beforeImage');
+        const handle  = document.getElementById('sliderHandle');
+        if (!wrapper || !beforeOverlay || !handle) return;
 
-        const ffBalance = document.getElementById('ffBalance');
-        const confirmationModal = document.getElementById('confirmationModal');
-        const confirmationText = document.getElementById('confirmationText');
-        const sliderThumb = document.getElementById('sliderThumb');
-        const closeModal = document.getElementById('closeModal');
-        const tierBadge    = document.getElementById('tierBadge');
-        let isSliding = false, startX = 0;
-
-        const setupDropdown = () => {
-            const toggle = document.getElementById(`dropdownToggle-Pro`);
-            const menu = document.getElementById(`dropdownMenu-Pro`);
-            const selectedText = document.getElementById(`selectedDuration-Pro`);
-            const costDisplay = document.getElementById(`costDisplay-Pro`);
-
-            toggle.addEventListener('click', () => menu.classList.toggle('hidden'));
-            menu.querySelectorAll('li').forEach(option => {
-                option.addEventListener('click', () => {
-                    selectedText.textContent = option.dataset.duration;
-                    costDisplay.textContent = `${option.dataset.cost} Credit`;
-                    menu.classList.add('hidden');
-                });
-            });
-
-            document.getElementById('subscribeTrigger-Pro').addEventListener('click', (e) => {
-                if (e.target === toggle || toggle.contains(e.target)) return;
-                if (e.currentTarget.classList.contains('opacity-40')) return;
-                selectedTier = 'Pro';
-                selectedDuration = selectedText.textContent.trim();
-                selectedCost = parseInt(costDisplay.textContent);
-                if (currentFF < selectedCost) return alert(`You need ${selectedCost} Credits.`);
-                confirmationText.textContent = `Slide to confirm your Pro subscription for ${selectedCost} Credits.`;
-                sliderThumb.style.left = '0';
-                confirmationModal.classList.remove('hidden');
-            });
+        const setPosition = (xRatio = 0.5) => {
+            const rect = wrapper.getBoundingClientRect();
+            const pos = rect.width * xRatio;
+            handle.style.left = pos + 'px';
+            const right = rect.width - pos;
+            beforeOverlay.style.clipPath = `inset(0 ${right}px 0 0)`;
         };
 
-        setupDropdown();
+        // Initialize to exact center after everything loads
+        const init = () => setPosition(0.5);
+        window.addEventListener('load', init);
+        window.addEventListener('resize', init);
+
+        let dragging = false;
+        const start = (e) => {
+            dragging = true;
+            move(e);
+        };
+
+        const move = (e) => {
+            if (!dragging) return;
+            const rect = wrapper.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            if (clientX == null) return;
+            const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+            setPosition(ratio);
+        };
+
+        const end = () => { dragging = false; };
+
+        handle.addEventListener('mousedown', start);
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', end);
+
+        handle.addEventListener('touchstart', start, { passive: true });
+        window.addEventListener('touchmove', move, { passive: true });
+        window.addEventListener('touchend', end);
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ffBalance = document.getElementById('ffBalance');
 
         fetch('/api/me')
             .then(r => r.json())
             .then(data => {
-                /* NEW HEADER HANDLING  ⬇︎ */
                 if (data.loggedIn) {
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    document.getElementById('userMenu')?.classList.remove('hidden');
+                    document.getElementById('avatarImg').src = data.avatarUrl;
+                    document.getElementById('steamName').textContent = data.displayName;
+                    document.getElementById('steamID').textContent = data.steamID64;
+                    ffBalance.textContent = `${data.ff_balance || 0} Credits`;
+
                     const tier = data.tier || 'Free';
                     let tierColor = '#848884';
                     if (tier === 'Pro') tierColor = '#0068ff';
+
+                    const tierBadge = document.getElementById('tierBadge');
                     tierBadge.textContent = tier;
                     tierBadge.style.backgroundColor = tierColor;
                     tierBadge.style.color = '#000';
                     tierBadge.style.fontWeight = 'bold';
-                    tierBadge.style.webkitTextStroke = '0px';
-                    tierBadge.style.textShadow = 'none';
-                    // swap header buttons
-                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
-                    document.getElementById('userMenu')?.classList.remove('hidden');
-
-                    // fill header info
-                    document.getElementById('avatarImg').src = data.avatarUrl || '';
-                    document.getElementById('steamName').textContent = data.displayName || '';
-                    document.getElementById('steamID').textContent = data.steamID64 || '';
-                    currentFF = data.ff_balance || 0;
-                    document.getElementById('ffBalance').textContent = `${currentFF} Credits`;
                 } else {
-                    // ensure logout state
                     document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
                     document.getElementById('userMenu')?.classList.add('hidden');
-                    return;                // stop; user not logged in
-                }
-                /* — existing Pro-plan code continues here — */
-
-                if (data.tier === 'Pro' && data.subscriptionExpiresAt) {
-                    const remaining = Math.max(0, new Date(data.subscriptionExpiresAt) - Date.now());
-                    const hrs  = Math.floor(remaining / 3_600_000);
-                    const mins = Math.floor((remaining % 3_600_000) / 60_000);
-                    const msg  = document.createElement('p');
-                    msg.className = 'text-xs text-gray-400 mt-2';
-                    msg.textContent = `Active for ${hrs}h ${mins}m`;
-                    document.getElementById('subscribeRow-Pro').appendChild(msg);
-                    document.getElementById('tier-Free')?.classList.add('hidden');
                 }
             });
 
@@ -266,35 +217,8 @@
                 dropdown.classList.add('hidden');
             }
         });
-
-        closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
-        sliderThumb.addEventListener('mousedown', e => { isSliding = true; startX = e.clientX });
-        document.addEventListener('mousemove', e => {
-            if (!isSliding) return;
-            const slider = sliderThumb.parentElement;
-            const delta = Math.min(Math.max(0, e.clientX - startX), slider.offsetWidth - sliderThumb.offsetWidth);
-            sliderThumb.style.left = `${delta}px`;
-        });
-        document.addEventListener('mouseup', async e => {
-            if (!isSliding) return;
-            isSliding = false;
-            const slider = sliderThumb.parentElement;
-            if (parseInt(sliderThumb.style.left) >= slider.offsetWidth - sliderThumb.offsetWidth - 10) {
-                sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
-                confirmationModal.classList.add('hidden');
-                const res = await fetch('/api/subscribe', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier: selectedTier, duration: selectedDuration, cost: selectedCost })
-                });
-                const json = await res.json();
-                if (json.success) location.reload();
-                else alert(`Subscription failed: ${json.error || 'Unknown error'}`);
-            } else sliderThumb.style.left = '0';
-        });
     });
 </script>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const buyFFBtn = document.getElementById('buyFFBtn');
@@ -342,7 +266,5 @@
         });
     });
 </script>
-
-
 </body>
 </html>

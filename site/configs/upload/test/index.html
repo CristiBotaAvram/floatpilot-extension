@@ -16,8 +16,8 @@
         <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
         <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
         <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#003326] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#00ff99] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
                 ➜
             </div>
         </div>
@@ -37,7 +37,7 @@
         </div>
         <div class="flex justify-end gap-4">
             <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#00ff99] font-semibold text-black rounded">Continue</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
         </div>
     </div>
 </div>
@@ -82,7 +82,7 @@
                     <p id="steamName" class="font-semibold">Steam name</p>
                     <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
                 </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#00ff00] transition-ease duration-500">Buy Credits</a>
+                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
                 <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
                 <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
                 <form method="POST" action="/api/logout">
@@ -96,11 +96,11 @@
     <h2 class="text-2xl font-bold mb-4">Test Your Config</h2>
     <form id="uploadForm" class="flex flex-col gap-4">
         <div class="relative w-full">
-            <button id="jsonHelpBtn" type="button" class="absolute top-2 right-2 text-sm font-bold text-[#00ff75] hover:underline z-10">?</button>
+            <button id="jsonHelpBtn" type="button" class="absolute top-2 right-2 text-sm font-bold text-[#848484] hover:text-white z-10">?</button>
             <textarea id="configDescription" placeholder="Paste item JSON here..." class="p-3 rounded bg-[#1a1a1a] text-white w-full" rows="6"></textarea>
         </div>
         <textarea id="configCode" placeholder="Paste your Config Code here..." required class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
-        <button type="submit" class="bg-[#999999] hover:bg-[#00ff75] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Test Config</button>
+        <button type="submit" class="bg-[#999999] hover:bg-[#0068ff] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Test Config</button>
     </form>
     <p id="uploadStatus" class="mt-4 text-sm text-gray-300"></p>
     <div id="estimationResult" class="mt-6 text-green-400 font-bold"></div>

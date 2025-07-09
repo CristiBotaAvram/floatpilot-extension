@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>FloatPilot</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/icon16.png"/>
+    <link rel="icon" type="image/png" sizes="48x48" href="../icons/icon48.png"/>
+    <link rel="icon" type="image/png" sizes="128x128" href="../icons/icon128.png"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0f0f0f] antialiased text-white font-sans">
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
+        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
+                ➜
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FF Purchase Modal -->
+<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
+            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
+        </div>
+        <div class="flex justify-end gap-4">
+            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
+        </div>
+    </div>
+</div>
+<!-- Promotional Marquee -->
+<div class="bg-[#0068ff] text-black py-2 overflow-hidden">
+    <div class="flex w-max animate-[marquee_20s_linear_infinite]">
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
+    </div>
+</div>
+</div>
+
+<style>
+    @keyframes marquee {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+</style>
+<!-- Header -->
+<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
+    <div class="flex items-center space-x-4">
+        <img src="../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <h1 class="text-2xl font-signature">FloatPilot</h1>
+        <nav class="flex space-x-0 ml-6 text-lg">
+            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
+            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
+            <!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
+            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
+        </nav>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <!-- GitHub icon without circle -->
+        <a href="https://github.com/CristiBotaAvram/floatpilot-extension" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
+            <img src="../icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
+        </a>
+        <!-- X / Twitter icon without circle -->
+        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
+            <img src="../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
+        </a>
+
+        <!-- Not logged in -->
+        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+        <!-- Logged in -->
+        <div id="userMenu" class="hidden relative">
+            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
+                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
+                <div class="flex items-center gap-2">
+                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
+                </div>
+            </button>
+            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
+                <div class="px-4 py-2 border-b border-white">
+                    <p id="steamName" class="font-semibold">Steam name</p>
+                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
+                </div>
+                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
+                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
+                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
+                <form method="POST" action="/api/logout">
+                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Main -->
+<main class="w-full px-4 py-8 xl:px-0">
+    <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
+    <div class="grid md:grid-cols-2 gap-6 md:gap-10 xl:gap-20 2xl:gap-32 xl:max-w-5xl xl:mx-auto">
+        <!-- Free Plan -->
+        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#848884] relative w-full xl:min-w-[350px] xl:max-w-[420px]">
+            <div class="absolute text-2xl -top-0 left-0 bg-[#848884] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Free</div>
+            <p class="text-3xl font-bold mb-4 mt-6">0 Credits</p>
+            <ul class="text-sm text-gray-300 mb-4 space-y-1">
+                <li>✔ Compare listings to cheapest alternative</li>
+                <li>✔ Highlight special floats</li>
+                <li>✔ Remove top rated listings</li>
+            </ul>
+            <button id="tier-Free" data-tier="Free" class="w-full bg-[#848884] text-black font-bold py-2 rounded cursor-not-allowed" disabled>
+                Current Plan
+            </button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#0068ff] relative w-full xl:min-w-[350px] xl:max-w-[420px] xl:mx-auto">
+            <div class="absolute text-2xl -top-0 left-0 bg-[#0068ff] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Pro</div>
+            <p class="text-3xl font-bold mb-4 mt-6">Starts at 50 Credits</p>
+            <ul class="text-sm text-gray-300 mb-4 space-y-1">
+                <li>✔ Includes all Free features</li>
+                <li>✔ Advanced Price Estimation Tools:</li>
+                <li style="padding-left: 20px;">• Set custom profit margins</li>
+                <li style="padding-left: 20px;">• Use and apply custom configs</li>
+                <li style="padding-left: 20px;">• Highlight listings based on your customisation</li>
+                <li>✔ Create and sell configs</li>
+            </ul>
+            <div class="relative w-full group" id="subscribeRow-Pro">
+                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Pro">
+                    <div class="flex rounded overflow-hidden">
+                        <span class="bg-[#0068ff] text-black px-3 py-2 font-bold">Subscribe for</span>
+                        <button id="dropdownToggle-Pro" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
+                            <span id="selectedDuration-Pro">1.5 hours</span>
+                        </button>
+                    </div>
+                    <span id="costDisplay-Pro" class="ml-4 text-white font-bold text-lg">50 Credits</span>
+                </div>
+                <ul id="dropdownMenu-Pro" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 hours" data-cost="50">1.5 hours</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 days" data-cost="100">1.5 hours</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 weeks" data-cost="150">1.5 hours</li>
+                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 months" data-cost="400">1.5 hours</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="text-center text-gray-500 text-sm mt-12 mb-4">
+    &copy; 2025 FloatPilot. All rights reserved.
+</footer>
+
+<!-- JavaScript functionality for merged Pro tier -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let selectedTier = null;
+        let selectedCost = 0;
+        let selectedDuration = '';
+        let currentFF = 0;
+
+        const ffBalance = document.getElementById('ffBalance');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmationText = document.getElementById('confirmationText');
+        const sliderThumb = document.getElementById('sliderThumb');
+        const closeModal = document.getElementById('closeModal');
+        const tierBadge    = document.getElementById('tierBadge');
+        let isSliding = false, startX = 0;
+
+        const setupDropdown = () => {
+            const toggle = document.getElementById(`dropdownToggle-Pro`);
+            const menu = document.getElementById(`dropdownMenu-Pro`);
+            const selectedText = document.getElementById(`selectedDuration-Pro`);
+            const costDisplay = document.getElementById(`costDisplay-Pro`);
+
+            toggle.addEventListener('click', () => menu.classList.toggle('hidden'));
+            menu.querySelectorAll('li').forEach(option => {
+                option.addEventListener('click', () => {
+                    selectedText.textContent = option.dataset.duration;
+                    costDisplay.textContent = `${option.dataset.cost} Credit`;
+                    menu.classList.add('hidden');
+                });
+            });
+
+            document.getElementById('subscribeTrigger-Pro').addEventListener('click', (e) => {
+                if (e.target === toggle || toggle.contains(e.target)) return;
+                if (e.currentTarget.classList.contains('opacity-40')) return;
+                selectedTier = 'Pro';
+                selectedDuration = selectedText.textContent.trim();
+                selectedCost = parseInt(costDisplay.textContent);
+                if (currentFF < selectedCost) return alert(`You need ${selectedCost} Credits.`);
+                confirmationText.textContent = `Slide to confirm your Pro subscription for ${selectedCost} Credits.`;
+                sliderThumb.style.left = '0';
+                confirmationModal.classList.remove('hidden');
+            });
+        };
+
+        setupDropdown();
+
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(data => {
+                /* NEW HEADER HANDLING  ⬇︎ */
+                if (data.loggedIn) {
+                    const tier = data.tier || 'Free';
+                    let tierColor = '#848884';
+                    if (tier === 'Pro') tierColor = '#0068ff';
+                    tierBadge.textContent = tier;
+                    tierBadge.style.backgroundColor = tierColor;
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+                    tierBadge.style.webkitTextStroke = '0px';
+                    tierBadge.style.textShadow = 'none';
+                    // swap header buttons
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    document.getElementById('userMenu')?.classList.remove('hidden');
+
+                    // fill header info
+                    document.getElementById('avatarImg').src = data.avatarUrl || '';
+                    document.getElementById('steamName').textContent = data.displayName || '';
+                    document.getElementById('steamID').textContent = data.steamID64 || '';
+                    currentFF = data.ff_balance || 0;
+                    document.getElementById('ffBalance').textContent = `${currentFF} Credits`;
+                } else {
+                    // ensure logout state
+                    document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
+                    document.getElementById('userMenu')?.classList.add('hidden');
+                    return;                // stop; user not logged in
+                }
+                /* — existing Pro-plan code continues here — */
+
+                if (data.tier === 'Pro' && data.subscriptionExpiresAt) {
+                    const remaining = Math.max(0, new Date(data.subscriptionExpiresAt) - Date.now());
+                    const hrs  = Math.floor(remaining / 3_600_000);
+                    const mins = Math.floor((remaining % 3_600_000) / 60_000);
+                    const msg  = document.createElement('p');
+                    msg.className = 'text-xs text-gray-400 mt-2';
+                    msg.textContent = `Active for ${hrs}h ${mins}m`;
+                    document.getElementById('subscribeRow-Pro').appendChild(msg);
+                    document.getElementById('tier-Free')?.classList.add('hidden');
+                }
+            });
+
+        document.getElementById('userMenu')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            document.getElementById('userDropdown')?.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.getElementById('userMenu');
+            if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        closeModal.addEventListener('click', () => confirmationModal.classList.add('hidden'));
+        sliderThumb.addEventListener('mousedown', e => { isSliding = true; startX = e.clientX });
+        document.addEventListener('mousemove', e => {
+            if (!isSliding) return;
+            const slider = sliderThumb.parentElement;
+            const delta = Math.min(Math.max(0, e.clientX - startX), slider.offsetWidth - sliderThumb.offsetWidth);
+            sliderThumb.style.left = `${delta}px`;
+        });
+        document.addEventListener('mouseup', async e => {
+            if (!isSliding) return;
+            isSliding = false;
+            const slider = sliderThumb.parentElement;
+            if (parseInt(sliderThumb.style.left) >= slider.offsetWidth - sliderThumb.offsetWidth - 10) {
+                sliderThumb.style.left = `${slider.offsetWidth - sliderThumb.offsetWidth}px`;
+                confirmationModal.classList.add('hidden');
+                const res = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tier: selectedTier, duration: selectedDuration, cost: selectedCost })
+                });
+                const json = await res.json();
+                if (json.success) location.reload();
+                else alert(`Subscription failed: ${json.error || 'Unknown error'}`);
+            } else sliderThumb.style.left = '0';
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const buyFFBtn = document.getElementById('buyFFBtn');
+        const buyFFModal = document.getElementById('buyFFModal');
+        const cancelBtn = document.getElementById('cancelFFPurchase');
+        const confirmBtn = document.getElementById('confirmFFPurchase');
+        const ffOptions = document.querySelectorAll('.ff-option');
+        let selectedAmount = null;
+
+        buyFFBtn?.addEventListener('click', () => {
+            buyFFModal.classList.remove('hidden');
+        });
+
+        cancelBtn?.addEventListener('click', () => {
+            buyFFModal.classList.add('hidden');
+            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            selectedAmount = null;
+        });
+
+        ffOptions.forEach(button => {
+            button.addEventListener('click', () => {
+                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+                button.classList.add('border-[#00ff99]');
+                selectedAmount = parseInt(button.dataset.value);
+            });
+        });
+
+        confirmBtn?.addEventListener('click', async () => {
+            const steamID = document.getElementById('steamID')?.textContent;
+            if (!steamID || !selectedAmount) return alert('Missing Steam ID or Credits amount');
+
+            try {
+                const res = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
+                });
+
+                const { url } = await res.json();
+                if (url) window.location.href = url;
+                else alert('Failed to create Stripe checkout session.');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+    });
+</script>
+
+
+</body>
+</html>
