@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FloatPilot Configs</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
 <!-- Confirmation Modal -->
 <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
@@ -88,15 +92,55 @@
         </div>
     </div>
 </header>
-<main id="mainContent" class="p-8 max-w-xl mx-auto hidden">
+<main id="mainContent" class="p-8 max-w-xl mx-auto">
     <h2 class="text-2xl font-bold mb-4">Test Your Config</h2>
     <form id="uploadForm" class="flex flex-col gap-4">
-        <textarea id="configDescription" placeholder="Paste item JSON here..." class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
+        <div class="relative w-full">
+            <button id="jsonHelpBtn" type="button" class="absolute top-2 right-2 text-sm font-bold text-[#00ff75] hover:underline z-10">?</button>
+            <textarea id="configDescription" placeholder="Paste item JSON here..." class="p-3 rounded bg-[#1a1a1a] text-white w-full" rows="6"></textarea>
+        </div>
         <textarea id="configCode" placeholder="Paste your Config Code here..." required class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
         <button type="submit" class="bg-[#999999] hover:bg-[#00ff75] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Test Config</button>
     </form>
     <p id="uploadStatus" class="mt-4 text-sm text-gray-300"></p>
     <div id="estimationResult" class="mt-6 text-green-400 font-bold"></div>
+    <div id="jsonHelpModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 overflow-hidden">
+        <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-lg relative max-h-[90vh] overflow-y-scroll scrollbar-hide">
+            <button id="closeJsonHelp" class="absolute top-2 right-2 text-white text-xl font-bold">✕</button>
+            <h3 class="text-xl font-bold mb-4">How to Get Item JSON</h3>
+            <ol class="text-gray-300 list-decimal list-inside space-y-3 text-sm">
+                <li>Go to the <strong>CSFloat</strong> page with the item you want.</li>
+                <li>Right-click on the item listing and choose <strong>Inspect</strong>.</li>
+                <img src="../../../pictures/floatpilot1.png" alt="Step 1: Right click Inspect" class="rounded-lg w-full border border-gray-600"/>
+                <li>Find the HTML element containing <code>data-csfloat-data</code>.</li>
+                <img src="../../../pictures/floatpilot2.png" alt="Step 2: Locate data-csfloat-data" class="rounded-lg w-full border border-gray-600"/>
+                <li>Double-click the value inside that attribute and copy it fully.</li>
+                <img src="../../../pictures/floatpilot3.png" alt="Step 3: Copy the content" class="rounded-lg w-full border border-gray-600"/>
+                <li>Paste the result in the box, this is your item JSON.</li>
+                <img src="../../../pictures/floatpilot4.png" alt="Step 4: Paste it in the box" class="rounded-lg w-full border border-gray-600"/>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('jsonHelpBtn')?.addEventListener('click', () => {
+            document.getElementById('jsonHelpModal')?.classList.remove('hidden');
+        });
+        document.getElementById('closeJsonHelp')?.addEventListener('click', () => {
+            document.getElementById('jsonHelpModal')?.classList.add('hidden');
+        });
+
+        // Close modal when clicking outside the content
+        const jsonHelpModal = document.getElementById('jsonHelpModal');
+        const modalContent = jsonHelpModal?.querySelector('div[class="bg-[#1f1f1f]"]');
+
+        jsonHelpModal?.addEventListener('click', (e) => {
+            if (e.target === jsonHelpModal) {
+                jsonHelpModal.classList.add('hidden');
+            }
+        });
+    </script>
+
 </main>
 <div id="accessDenied" class="p-8 max-w-xl mx-auto text-center hidden">
     <h2 class="text-2xl font-bold text-red-500">Access Denied</h2>
@@ -105,23 +149,23 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        const mainContent = document.getElementById('mainContent');
-        const accessDenied = document.getElementById('accessDenied');
-
-        try {
-            const res = await fetch('/api/me');
-            const data = await res.json();
-
-            if (data?.tier === 'Pro') {
-                mainContent.classList.remove('hidden');
-            } else {
-                accessDenied.classList.remove('hidden');
-            }
-        } catch (err) {
-            accessDenied.classList.remove('hidden');
-        }
-    });
+    // document.addEventListener('DOMContentLoaded', async () => {
+    //     const mainContent = document.getElementById('mainContent');
+    //     const accessDenied = document.getElementById('accessDenied');
+    //
+    //     try {
+    //         const res = await fetch('/api/me');
+    //         const data = await res.json();
+    //
+    //         if (data?.tier === 'Pro') {
+    //             mainContent.classList.remove('hidden');
+    //         } else {
+    //             accessDenied.classList.remove('hidden');
+    //         }
+    //     } catch (err) {
+    //         accessDenied.classList.remove('hidden');
+    //     }
+    // });
 
     document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
