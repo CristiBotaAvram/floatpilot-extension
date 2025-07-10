@@ -80,8 +80,8 @@
 
         const item = {
             float_value: itemData.item.float_value,
-            fade_percent: itemData.item.fade_percent,
-            playside_blue: itemData.item.blue_gem.playside_blue,
+            fade_percent: itemData.item.fade?.percentage,
+            playside_blue: itemData.item.blue_gem?.playside_blue,
             stickers: JSON.stringify(itemData.item.stickers || [])
         };
 

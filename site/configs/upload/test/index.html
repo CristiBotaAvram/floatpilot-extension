@@ -92,7 +92,7 @@
         </div>
     </div>
 </header>
-<main id="mainContent" class="p-8 max-w-xl mx-auto">
+<main id="mainContent" class="p-8 max-w-xl mx-auto hidden">
     <h2 class="text-2xl font-bold mb-4">Test Your Config</h2>
     <form id="uploadForm" class="flex flex-col gap-4">
         <div class="relative w-full">
@@ -149,23 +149,23 @@
 </div>
 
 <script>
-    // document.addEventListener('DOMContentLoaded', async () => {
-    //     const mainContent = document.getElementById('mainContent');
-    //     const accessDenied = document.getElementById('accessDenied');
-    //
-    //     try {
-    //         const res = await fetch('/api/me');
-    //         const data = await res.json();
-    //
-    //         if (data?.tier === 'Pro') {
-    //             mainContent.classList.remove('hidden');
-    //         } else {
-    //             accessDenied.classList.remove('hidden');
-    //         }
-    //     } catch (err) {
-    //         accessDenied.classList.remove('hidden');
-    //     }
-    // });
+    document.addEventListener('DOMContentLoaded', async () => {
+        const mainContent = document.getElementById('mainContent');
+        const accessDenied = document.getElementById('accessDenied');
+
+        try {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+
+            if (data?.tier === 'Pro') {
+                mainContent.classList.remove('hidden');
+            } else {
+                accessDenied.classList.remove('hidden');
+            }
+        } catch (err) {
+            accessDenied.classList.remove('hidden');
+        }
+    });
 
     document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -183,7 +183,7 @@
 
             const item = {
                 float_value: itemData.item.float_value,
-                fade_percent: itemData.item.fade_percent,
+                fade_percent: itemData.item.fade?.percentage,
                 playside_blue: itemData.item.blue_gem?.playside_blue,
                 stickers: JSON.stringify(itemData.item.stickers || [])
             };
