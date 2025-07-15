@@ -1,22 +1,13 @@
-function logMemory(label: string) {
-    const used = process.memoryUsage();
-    console.log(`[Memory] ${label}: Heap=${(used.heapUsed / 1024 / 1024).toFixed(2)} MB, RSS=${(used.rss / 1024 / 1024).toFixed(2)} MB, External=${(used.external / 1024 / 1024).toFixed(2)} MB, Buffers=${(used.arrayBuffers / 1024 / 1024).toFixed(2)} MB`);
-}
-logMemory("Before import0");
-logMemory("Before import1");
+import type {VercelRequest, VercelResponse} from '@vercel/node';
 import {createClient} from '@supabase/supabase-js';
-logMemory("Before import2");
 import {NodeVM} from 'vm2';
-logMemory("Before import3");
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export default async function handler(req: any, res: any) {
-    const handlerStart = process.hrtime.bigint();
-
+export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -36,14 +27,9 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({error: "Expected listingsArray in body"});
     }
 
-    logMemory("Before estimation batch");
-
     try {
         const results = await Promise.all(listingsArray.map(async ({item, configId}, index) => {
             try {
-                const start = process.hrtime.bigint();
-                logMemory(`Item ${index} - Start`);
-
                 if (!item?.market_hash_name || typeof item.market_hash_name !== 'string') {
                     throw new Error("Missing or invalid item.market_hash_name");
                 }
@@ -53,8 +39,6 @@ export default async function handler(req: any, res: any) {
                     .select('encrypted_code')
                     .eq('id', configId)
                     .single();
-
-                logMemory(`Item ${index} - After config fetch`);
 
                 if (configError || !configData) {
                     throw new Error("Failed to retrieve config code");
@@ -68,8 +52,6 @@ export default async function handler(req: any, res: any) {
                     .eq('market_hash_name', item.market_hash_name)
                     .eq('stickers', '"[]"')
                     .order('sale_date', {ascending: false});
-
-                logMemory(`Item ${index} - After sales fetch (${data?.length || 0} rows)`);
 
                 if (error) {
                     console.error(`[API] Supabase error for item ${item.market_hash_name}:`, error.message);
@@ -85,32 +67,14 @@ export default async function handler(req: any, res: any) {
                     timeout: 500
                 });
 
-                logMemory(`Item ${index} - After VM created`);
-
                 const wrappedCode = `module.exports = function(listings, item) { ${code}\nreturn typeof run === 'function' ? run(listings, item) : null; }`;
                 const estimationFn = vm.run(wrappedCode);
+                return estimationFn(data, item);
 
-                logMemory(`Item ${index} - After code injected`);
-
-                const result = estimationFn(data, item);
-
-                logMemory(`Item ${index} - After estimation`);
-
-                const end = process.hrtime.bigint();
-                const ms = Number(end - start) / 1_000_000;
-                console.log(`[Time] Item ${index} - Estimation took ${ms.toFixed(2)} ms`);
-
-                return result;
             } catch (innerErr: any) {
                 return `error_in_run_${index}: ${innerErr.message}`;
             }
         }));
-
-        logMemory("After all estimations");
-
-        const handlerEnd = process.hrtime.bigint();
-        const totalMs = Number(handlerEnd - handlerStart) / 1_000_000;
-        console.log(`[Time] Total estimation handler took ${totalMs.toFixed(2)} ms`);
 
         return res.status(200).json({prices: results});
     } catch (err: any) {
