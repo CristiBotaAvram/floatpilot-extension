@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/estimation.ts": {
+      "memory": 256
+    }
+  }
+}
