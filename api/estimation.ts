@@ -1,6 +1,6 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
-import { NodeVM } from 'vm2';
+import type {VercelRequest, VercelResponse} from '@vercel/node';
+import {createClient} from '@supabase/supabase-js';
+import {NodeVM} from 'vm2';
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -18,28 +18,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method Not Allowed" });
+        return res.status(405).json({error: "Method Not Allowed"});
     }
 
     const listingsArray = req.body.listingsArray;
 
     if (!Array.isArray(listingsArray)) {
-        return res.status(400).json({ error: "Expected listingsArray in body" });
+        return res.status(400).json({error: "Expected listingsArray in body"});
     }
 
     try {
-        const results = await Promise.all(listingsArray.map(async ({ item, code }, index) => {
+        const results = await Promise.all(listingsArray.map(async ({item, configId}, index) => {
             try {
                 if (!item?.market_hash_name || typeof item.market_hash_name !== 'string') {
                     throw new Error("Missing or invalid item.market_hash_name");
                 }
 
-                const { data, error } = await supabase
+                const { data: configData, error: configError } = await supabase
+                    .from('configs')
+                    .select('encrypted_code')
+                    .eq('id', configId)
+                    .single();
+
+                if (configError || !configData) {
+                    throw new Error("Failed to retrieve config code");
+                }
+
+                const code = configData.encrypted_code;
+
+                const {data, error} = await supabase
                     .from('csfloat_sales')
                     .select('float_value, sale_price, sale_date, fade_percent, playside_blue, backside_blue, stickers')
                     .eq('market_hash_name', item.market_hash_name)
                     .eq('stickers', '"[]"')
-                    .order('sale_date', { ascending: false });
+                    .order('sale_date', {ascending: false});
 
                 if (error) {
                     console.error(`[API] Supabase error for item ${item.market_hash_name}:`, error.message);
@@ -64,9 +76,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         }));
 
-        return res.status(200).json({ prices: results });
+        return res.status(200).json({prices: results});
     } catch (err: any) {
         console.error("Estimation batch failed:", err);
-        return res.status(500).json({ error: "Estimation execution failed", details: err.message });
+        return res.status(500).json({error: "Estimation execution failed", details: err.message});
     }
 }

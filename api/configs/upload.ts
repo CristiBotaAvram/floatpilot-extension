@@ -76,18 +76,18 @@ export default async function handler(req, res) {
     }
 
     // Insert the config and return the inserted row
-    const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY!;
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptionKey, 'hex'), iv);
-    let encrypted = cipher.update(code, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    const encryptedCode = iv.toString('hex') + ':' + encrypted
+    // const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY!;
+    // const iv = crypto.randomBytes(16);
+    // const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptionKey, 'hex'), iv);
+    // let encrypted = cipher.update(code, 'utf8', 'hex');
+    // encrypted += cipher.final('hex');
+    // const encryptedCode = iv.toString('hex') + ':' + encrypted
     const { data: insertedConfig, error: insertErr } = await supabase
         .from('configs')
         .insert({
             name: name,
             description: description,
-            encrypted_code: encryptedCode,
+            encrypted_code: code,
             ff_price: ff_price,
             creator_steam_id: steamID,
             is_private: is_private

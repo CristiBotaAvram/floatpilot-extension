@@ -1,32 +1,32 @@
 (() => {
-    const decryptConfigCode = async (encryptedCode: string, configId: string): Promise<string | null> => {
-        const cacheKey = `decrypted_config_${configId}`;
-        const cached = await new Promise<string | null>((resolve) => {
-            chrome.storage.local.get(cacheKey, (result) => resolve(result[cacheKey] || null));
-        });
-        if (cached) return cached;
-
-        try {
-            const res = await fetch("https://www.floatpilot.store/api/decrypt", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ encrypted: encryptedCode })
-            });
-
-            const json = await res.json();
-            const decrypted = json.payload || json.code;
-            if (!res.ok || !decrypted) throw new Error(json?.error || "Missing payload");
-
-            await new Promise<void>((resolve) => {
-                chrome.storage.local.set({ [cacheKey]: decrypted }, () => resolve());
-            });
-
-            return decrypted;
-        } catch (err) {
-            console.error("Decrypt failed:", err);
-            return null;
-        }
-    };
+    // const decryptConfigCode = async (encryptedCode: string, configId: string): Promise<string | null> => {
+    //     const cacheKey = `decrypted_config_${configId}`;
+    //     const cached = await new Promise<string | null>((resolve) => {
+    //         chrome.storage.local.get(cacheKey, (result) => resolve(result[cacheKey] || null));
+    //     });
+    //     if (cached) return cached;
+    //
+    //     try {
+    //         const res = await fetch("https://www.floatpilot.store/api/decrypt", {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify({ encrypted: encryptedCode })
+    //         });
+    //
+    //         const json = await res.json();
+    //         const decrypted = json.payload || json.code;
+    //         if (!res.ok || !decrypted) throw new Error(json?.error || "Missing payload");
+    //
+    //         await new Promise<void>((resolve) => {
+    //             chrome.storage.local.set({ [cacheKey]: decrypted }, () => resolve());
+    //         });
+    //
+    //         return decrypted;
+    //     } catch (err) {
+    //         console.error("Decrypt failed:", err);
+    //         return null;
+    //     }
+    // };
 
     const listingDataCache: Record<number, any> = {};
 
@@ -65,18 +65,12 @@
             return;
         }
 
-        const encryptedCode: string = selectedConfig.encrypted_code;
         const configId: string = selectedConfig.id;
-        if (!encryptedCode || !configId) {
+        if (!configId) {
             htmlCard.dataset.estimationStatus = "invalid";
             return;
         }
 
-        const decryptedCode = await decryptConfigCode(encryptedCode, configId);
-        if (!decryptedCode) {
-            htmlCard.dataset.estimationStatus = "failed_decrypt";
-            return;
-        }
 
         const item = {
             float_value: itemData.item.float_value,
@@ -92,7 +86,7 @@
         try {
             const batchPayload = [
                 {
-                    code: decryptedCode,
+                    configId: configId,
                     item: {
                         ...item,
                         market_hash_name: itemData.item.market_hash_name

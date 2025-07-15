@@ -1,41 +1,6 @@
 // popup.js
 
-
-// popup.js
-
-async function decryptConfig(encrypted, configId) {
-    const cacheKey = `decrypted_config_${configId}`;
-    const cached = await new Promise(resolve => {
-        chrome.storage.local.get(cacheKey, result => resolve(result[cacheKey]));
-    });
-    if (cached) return cached;
-
-    const res = await fetch('https://www.floatpilot.store/api/decrypt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ encrypted })
-    });
-
-    let json;
-    try {
-        json = await res.json();
-        console.log('[Decrypt] Raw response JSON:', json);
-    } catch (err) {
-        throw new Error('[Decrypt] Failed to parse JSON');
-    }
-
-    const decrypted = json.payload || json.code;
-    if (!res.ok || !decrypted) {
-        throw new Error(`[Decrypt] ${json?.error || 'Missing payload in response'}`);
-    }
-
-    await new Promise(resolve => {
-        chrome.storage.local.set({ [cacheKey]: decrypted });
-    });
-    return decrypted;
-}
-
-
+// Removed decryptConfig function — no longer needed
 
 document.addEventListener('DOMContentLoaded', async () => {
     const avatarEl = document.getElementById('avatar');
@@ -53,6 +18,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         planEl.textContent = '';
         badgeEl.textContent = 'Guest';
     }
+    function cacheSelectedConfigIfMissing(configs, storedSettings, storageKey) {
+        const storedId = storedSettings.selectedConfigId;
+        const selectedOption = configDropdown.value;
+        const selectedConfig = configs.find(cfg => cfg.id === selectedOption);
+
+        if (!storedId && selectedConfig) {
+            const updated = { ...storedSettings, selectedConfigId: selectedOption, selectedConfig };
+            chrome.storage.local.set({ [storageKey]: updated });
+            console.log('[FloatPilot] Auto-cached selected config:', selectedConfig);
+        }
+    }
 
     function bindSettings(steamID64, tier) {
         const storageKey = `floatpilot_settings_${steamID64}`;
@@ -60,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         chrome.storage.local.get(storageKey, async (result) => {
             const storedSettings = result[storageKey] || {};
-            // 🩹 Fix: If itemEstimation is already enabled, immediately fetch configs
             if (storedSettings.itemEstimation) {
                 configSelectorSetting.style.display = 'flex';
                 try {
@@ -72,11 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     const purchased = await purchasedRes.json();
                     const ids = purchased.map(p => p.config_id).join(',');
-                    console.log('[FloatPilot] Purchased config IDs (on load):', ids);
 
                     const detailsRes = await fetch(`https://www.floatpilot.store/api/configs?ids=${ids}`);
                     const configs = await detailsRes.json();
-                    console.log('[FloatPilot] Config details (on load):', configs);
 
                     configDropdown.innerHTML = '';
                     configs.forEach(cfg => {
@@ -89,33 +62,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const storedId = storedSettings.selectedConfigId;
                     if (storedId) {
                         configDropdown.value = storedId;
-                        const selectedConfig = configs.find(cfg => cfg.id === storedId);
-                        if (selectedConfig) {
-                            const decrypted = await decryptConfig(selectedConfig.encrypted_code, selectedConfig.id);
-                            const current = await new Promise(resolve => {
-                                chrome.storage.local.get(storageKey, result => resolve(result[storageKey] || {}));
-                            });
-                            const updated = {
-                                ...current,
-                                itemEstimation: true, // 🔥 force re-apply
-                                selectedConfigId: storedId,
-                                selectedConfig,
-                                decryptedCode: decrypted
-                            };
-                            await chrome.storage.local.set({ [storageKey]: updated });
-
-                        }
                     }
+                    cacheSelectedConfigIfMissing(configs, storedSettings, storageKey);
 
                     configDropdown.addEventListener('change', async () => {
                         const selectedConfigId = configDropdown.value;
                         const selectedConfig = configs.find(cfg => cfg.id === selectedConfigId);
-                        const decrypted = await decryptConfig(selectedConfig.encrypted_code, selectedConfig.id);
                         chrome.storage.local.get(storageKey, result => {
                             const prev = result[storageKey] || {};
-                            const updated = { ...prev, selectedConfigId, selectedConfig, decryptedCode: decrypted };
+                            const updated = { ...prev, selectedConfigId, selectedConfig };
                             chrome.storage.local.set({ [storageKey]: updated });
-                            console.log('[FloatPilot] Config changed (on load):', selectedConfig);
+                            console.log('[FloatPilot] Config changed:', selectedConfig);
                         });
                     });
 
@@ -124,8 +81,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
             console.log('[FloatPilot] Loaded stored settings:', storedSettings);
-
-            // popup.js (rewritten section for settingsEls.forEach)
 
             settingsEls.forEach(el => {
                 const key = el.dataset.key;
@@ -150,11 +105,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             const nowChecked = !checkbox.classList.contains('checked');
                             checkbox.classList.toggle('checked', nowChecked);
 
-                            chrome.storage.local.get(storageKey, async result => {
-                                const current = result[storageKey] || {};
-                                const updated = { ...current, [key]: nowChecked };
-                                await chrome.storage.local.set({ [storageKey]: updated });
-                            });
+                            const updated = { ...currentSettings, [key]: nowChecked };
+                            await chrome.storage.local.set({ [storageKey]: updated });
 
                             console.log('[FloatPilot] Updated setting:', key, nowChecked);
 
@@ -167,7 +119,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                                 if (nowChecked) {
                                     try {
-                                        console.log('[FloatPilot] Fetching purchased configs...');
                                         const purchasedRes = await fetch('https://www.floatpilot.store/api/configs/purchased', {
                                             method: 'GET',
                                             headers: { 'x-steamid': steamID64 },
@@ -175,11 +126,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         });
                                         const purchased = await purchasedRes.json();
                                         const ids = purchased.map(p => p.config_id).join(',');
-                                        console.log('[FloatPilot] Purchased config IDs:', ids);
 
                                         const detailsRes = await fetch(`https://www.floatpilot.store/api/configs?ids=${ids}`);
                                         const configs = await detailsRes.json();
-                                        console.log('[FloatPilot] Config details:', configs);
 
                                         configDropdown.innerHTML = '';
                                         configs.forEach(cfg => {
@@ -192,33 +141,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         const storedId = currentSettings.selectedConfigId;
                                         if (storedId) {
                                             configDropdown.value = storedId;
-                                            const selectedConfig = configs.find(cfg => cfg.id === storedId);
-                                            if (selectedConfig) {
-                                                const decrypted = await decryptConfig(selectedConfig.encrypted_code, selectedConfig.id);
-                                                const current = await new Promise(resolve => {
-                                                    chrome.storage.local.get(storageKey, result => resolve(result[storageKey] || {}));
-                                                });
-                                                const updated = {
-                                                    ...current,
-                                                    itemEstimation: true, // 🔥 force re-apply
-                                                    selectedConfigId: storedId,
-                                                    selectedConfig,
-                                                    decryptedCode: decrypted
-                                                };
-                                                await chrome.storage.local.set({ [storageKey]: updated });
-
-                                            }
                                         }
+                                        cacheSelectedConfigIfMissing(configs, currentSettings, storageKey);
 
                                         configDropdown.addEventListener('change', async () => {
                                             const selectedConfigId = configDropdown.value;
                                             const selectedConfig = configs.find(cfg => cfg.id === selectedConfigId);
-                                            const decrypted = await decryptConfig(selectedConfig.encrypted_code, selectedConfig.id);
                                             chrome.storage.local.get(storageKey, result => {
                                                 const prev = result[storageKey] || {};
-                                                const updated = { ...prev, selectedConfigId, selectedConfig, decryptedCode: decrypted };
+                                                const updated = { ...prev, selectedConfigId, selectedConfig };
                                                 chrome.storage.local.set({ [storageKey]: updated });
-                                                console.log('[FloatPilot] Config changed (on load):', selectedConfig);
+                                                console.log('[FloatPilot] Config changed:', selectedConfig);
                                             });
                                         });
 
