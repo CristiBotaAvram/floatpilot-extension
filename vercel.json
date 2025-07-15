@@ -1,7 +1,8 @@
 {
   "functions": {
     "api/estimation.ts": {
-      "memory": 256
+      "memory": 256,
+      "maxDuration": 10
     }
   }
 }
