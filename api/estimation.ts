@@ -7,6 +7,11 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+function logMemory(label: string) {
+    const used = process.memoryUsage();
+    console.log(`[Memory] ${label}: ${(used.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -27,9 +32,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({error: "Expected listingsArray in body"});
     }
 
+    logMemory("Before estimation batch");
+
     try {
         const results = await Promise.all(listingsArray.map(async ({item, configId}, index) => {
             try {
+                logMemory(`Item ${index} - Start`);
+
                 if (!item?.market_hash_name || typeof item.market_hash_name !== 'string') {
                     throw new Error("Missing or invalid item.market_hash_name");
                 }
@@ -39,6 +48,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     .select('encrypted_code')
                     .eq('id', configId)
                     .single();
+
+                logMemory(`Item ${index} - After config fetch`);
 
                 if (configError || !configData) {
                     throw new Error("Failed to retrieve config code");
@@ -52,6 +63,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     .eq('market_hash_name', item.market_hash_name)
                     .eq('stickers', '"[]"')
                     .order('sale_date', {ascending: false});
+
+                logMemory(`Item ${index} - After sales fetch (${data?.length || 0} rows)`);
 
                 if (error) {
                     console.error(`[API] Supabase error for item ${item.market_hash_name}:`, error.message);
@@ -67,14 +80,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     timeout: 500
                 });
 
+                logMemory(`Item ${index} - After VM created`);
+
                 const wrappedCode = `module.exports = function(listings, item) { ${code}\nreturn typeof run === 'function' ? run(listings, item) : null; }`;
                 const estimationFn = vm.run(wrappedCode);
-                return estimationFn(data, item);
 
+                logMemory(`Item ${index} - After code injected`);
+
+                const result = estimationFn(data, item);
+
+                logMemory(`Item ${index} - After estimation`);
+
+                return result;
             } catch (innerErr: any) {
                 return `error_in_run_${index}: ${innerErr.message}`;
             }
         }));
+
+        logMemory("After all estimations");
 
         return res.status(200).json({prices: results});
     } catch (err: any) {
