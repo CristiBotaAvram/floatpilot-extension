@@ -1,16 +1,20 @@
+function logMemory(label: string) {
+    const used = process.memoryUsage();
+    console.log(`[Memory] ${label}: Heap=${(used.heapUsed / 1024 / 1024).toFixed(2)} MB, RSS=${(used.rss / 1024 / 1024).toFixed(2)} MB, External=${(used.external / 1024 / 1024).toFixed(2)} MB, Buffers=${(used.arrayBuffers / 1024 / 1024).toFixed(2)} MB`);
+}
 import type {VercelRequest, VercelResponse} from '@vercel/node';
+logMemory("Before import1");
 import {createClient} from '@supabase/supabase-js';
+logMemory("Before import2");
 import {NodeVM} from 'vm2';
+logMemory("Before import3");
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function logMemory(label: string) {
-    const used = process.memoryUsage();
-    console.log(`[Memory] ${label}: Heap=${(used.heapUsed / 1024 / 1024).toFixed(2)} MB, RSS=${(used.rss / 1024 / 1024).toFixed(2)} MB, External=${(used.external / 1024 / 1024).toFixed(2)} MB, Buffers=${(used.arrayBuffers / 1024 / 1024).toFixed(2)} MB`);
-}
+
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
