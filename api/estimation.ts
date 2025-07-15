@@ -2,6 +2,7 @@ function logMemory(label: string) {
     const used = process.memoryUsage();
     console.log(`[Memory] ${label}: Heap=${(used.heapUsed / 1024 / 1024).toFixed(2)} MB, RSS=${(used.rss / 1024 / 1024).toFixed(2)} MB, External=${(used.external / 1024 / 1024).toFixed(2)} MB, Buffers=${(used.arrayBuffers / 1024 / 1024).toFixed(2)} MB`);
 }
+logMemory("Before import0");
 import type {VercelRequest, VercelResponse} from '@vercel/node';
 logMemory("Before import1");
 import {createClient} from '@supabase/supabase-js';
