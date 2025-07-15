@@ -9,8 +9,9 @@ const supabase = createClient(
 
 function logMemory(label: string) {
     const used = process.memoryUsage();
-    console.log(`[Memory] ${label}: ${(used.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+    console.log(`[Memory] ${label}: Heap=${(used.heapUsed / 1024 / 1024).toFixed(2)} MB, RSS=${(used.rss / 1024 / 1024).toFixed(2)} MB, External=${(used.external / 1024 / 1024).toFixed(2)} MB, Buffers=${(used.arrayBuffers / 1024 / 1024).toFixed(2)} MB`);
 }
+
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
