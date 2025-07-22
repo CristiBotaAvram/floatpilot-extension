@@ -92,59 +92,128 @@
     <h1 class="text-3xl font-bold mb-6">Sandbox Config Documentation</h1>
 
     <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Overview</h2>
+        <h2 class="text-2xl font-semibold mb-2">What is a Config?</h2>
         <p class="text-gray-300">
-            FloatPilot configs let you write logic that processes historical listings and recommends a price or decision based on an array called <code class="bg-[#1f1f1f] px-2 py-1 rounded">listings[]</code>.
+            A config is a custom script written in JavaScript that analyzes a list of past skin sales (<code class="bg-[#1f1f1f] px-2 py-1 rounded">listings[]</code>) and returns a single number — your suggested price or value estimation.
+        </p>
+        <p class="text-gray-300 mt-2">
+            You also receive the current <code class="bg-[#1f1f1f] px-2 py-1 rounded">item</code> object to compare against each listing.
         </p>
     </section>
 
     <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">How it works</h2>
+        <h2 class="text-2xl font-semibold mb-2">Inputs</h2>
         <ul class="list-disc pl-6 text-gray-300">
-            <li>You will receive a predefined array called <code class="bg-[#1f1f1f] px-2 py-1 rounded">listings</code>.</li>
-            <li>Each listing is a JavaScript object with data like <code>price</code>, <code>float</code>, <code>pattern</code>, etc.</li>
-            <li>You must return a single number (e.g., recommended price).</li>
+            <li><code>listings[]</code>: array of past sales. Each entry has fields like <code>sale_price</code>, <code>float_value</code>, <code>fade_percent</code>, <code>playside_blue</code>, <code>sale_date</code>, etc.</li>
+            <li><code>item</code>: the current item being estimated. Contains fields like <code>float_value</code>, <code>fade_percent</code>, <code>playside_blue</code>, and <code>stickers</code>.</li>
         </ul>
     </section>
 
     <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Example</h2>
-        <pre class="bg-[#1a1a1a] p-4 rounded text-sm overflow-x-auto">
-<code>let total = 0;
-for (let l of listings) {
-  total += l.price;
-}
+        <h2 class="text-2xl font-semibold mb-2">Return Value</h2>
+        <p class="text-gray-300">
+            Your script must return a single number — this will be shown as the estimated price on the CSFloat listing card. If your config can’t estimate (e.g. not enough data), return <code>null</code>.
+        </p>
+    </section>
 
-return total / listings.length;</code>
-    </pre>
-        <p class="text-gray-400 mt-2">This returns the average price from the listings array.</p>
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-2">Writing Your First Config</h2>
+        <p class="text-gray-300 mb-2">Here’s the simplest possible config — it returns the average price of all listings:</p>
+        <pre class="bg-[#1a1a1a] p-4 rounded text-sm overflow-x-auto">
+<code>function run(listings, item) {
+    let total = 0;
+    for (let l of listings) {
+      total += l.sale_price;
+    }
+
+ return total / listings.length;
+}</code>
+        </pre>
+
+        <p class="text-gray-300 mt-4">But some configs will:</p>
+        <ul class="list-disc pl-6 text-gray-300">
+            <li>Group listings by float range (e.g., 0.07–0.09)</li>
+            <li>Filter by fade percent, blue %, and stickers</li>
+            <li>Trim outliers (lowest/highest prices)</li>
+            <li>Use time-decay weighting to prioritize recent sales</li>
+            <li>Add a small bonus for stickers</li>
+        </ul>
+
+        <p class="text-gray-300 mt-4">The following default config shows how to do all of the above.</p>
+    </section>
+
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-2">Default Config Example</h2>
+        <pre class="bg-[#1a1a1a] p-4 rounded text-sm overflow-x-auto">
+<code>function run(listings, item) {
+  function getFloatBucket(f) {
+    const r = [[0.75,1],[0.5,0.75],[0.45,0.5],[0.4,0.45],[0.38,0.4],[0.3,0.38],[0.24,0.3],[0.21,0.24],[0.18,0.21],[0.165,0.18],[0.15,0.165],[0.12,0.15],[0.09,0.12],[0.07,0.09],[0.06,0.07],[0.01,0.06],[0.001,0.01],[0,0.001]];
+    for (const [min, max] of r) if (f <= max && f > min) return [min, max];
+    return null;
+  }
+  function within(a, b, t) {
+    return typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= t;
+  }
+
+  const b = getFloatBucket(item.float_value);
+  if (!b) return null;
+
+  const TOL_FADE = 3, TOL_BLUE = 3, now = Date.now(), decayDays = 1, trimPercent = 0.15;
+
+  const baseOnly = listings.filter(s =>
+    s.float_value > b[0] && s.float_value <= b[1] &&
+    (item.fade_percent == null || within(s.fade_percent, item.fade_percent, TOL_FADE)) &&
+    (item.playside_blue == null || within(s.playside_blue, item.playside_blue, TOL_BLUE)) &&
+    s.stickers === '[]'
+  );
+
+  if (baseOnly.length < 3) return null;
+
+  const sorted = baseOnly.slice().sort((a, b) => a.sale_price - b.sale_price);
+  const cut = Math.floor(sorted.length * trimPercent);
+  const trimmed = sorted.slice(cut, sorted.length - cut);
+
+  const weighted = trimmed.map(s => {
+    const age = (now - new Date(s.sale_date).getTime()) / (1000 * 60 * 60 * 24);
+    const w = Math.exp(-age / decayDays);
+    return { p: s.sale_price, w };
+  });
+
+  const sumW = weighted.reduce((a, x) => a + x.w, 0);
+  const base = sumW ? weighted.reduce((a, x) => a + x.p * x.w, 0) / sumW : null;
+  if (!base) return null;
+
+  let stickerPrice = 0, boost = 0;
+  try {
+    const stickers = JSON.parse(item.stickers || '[]');
+    stickerPrice = stickers.reduce((sum, s) => sum + (s.reference?.price || 0), 0);
+    if (stickerPrice < 100) boost = 0.1;
+    else if (stickerPrice < 1000) boost = 0.05;
+    else boost = 0.02;
+  } catch {}
+
+  return Math.round(base + (stickerPrice * boost));
+}</code>
+        </pre>
+        <p class="text-gray-400 mt-2">This config buckets float, filters by fade & blue %, removes outliers, weights recent sales, and boosts for stickers.</p>
     </section>
 
     <section class="mb-8">
         <h2 class="text-2xl font-semibold mb-2">Security and Restrictions</h2>
         <ul class="list-disc pl-6 text-gray-300">
-            <li>Scripts are sandboxed: no network or external access allowed.</li>
-            <li>No access to <code>window</code>, <code>fetch</code>, or <code>document</code>.</li>
-            <li>Only pure JavaScript logic is supported.</li>
+            <li>No access to network, window, document, or fetch</li>
+            <li>No DOM or browser APIs</li>
+            <li>Only pure JavaScript logic is allowed</li>
         </ul>
     </section>
 
     <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Available Fields</h2>
-        <ul class="list-disc pl-6 text-gray-300">
-            <li><code>listing.price</code>: number (price in Credits)</li>
-            <li><code>listing.float</code>: number (float value)</li>
-            <li><code>listing.pattern</code>: string (e.g., phase, fade percentage)</li>
-            <li><code>listing.stickers</code>: array of sticker names (if any)</li>
-        </ul>
-    </section>
-
-    <section class="mb-12">
         <h2 class="text-2xl font-semibold mb-2">Tips</h2>
         <ul class="list-disc pl-6 text-gray-300">
-            <li>Wrap logic in try/catch to avoid runtime crashes.</li>
-            <li>Test your config with various listing arrays before uploading.</li>
-            <li>Smaller configs run faster — optimize if possible.</li>
+            <li>Wrap logic in try/catch to avoid runtime crashes</li>
+            <li>Return <code>null</code> when you can't make a good estimate</li>
+            <li>Test your config with real listing arrays</li>
+            <li>Keep your code short and optimized</li>
         </ul>
     </section>
 

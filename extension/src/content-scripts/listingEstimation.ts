@@ -1,49 +1,4 @@
 (() => {
-    // const decryptConfigCode = async (encryptedCode: string, configId: string): Promise<string | null> => {
-    //     const cacheKey = `decrypted_config_${configId}`;
-    //     const cached = await new Promise<string | null>((resolve) => {
-    //         chrome.storage.local.get(cacheKey, (result) => resolve(result[cacheKey] || null));
-    //     });
-    //     if (cached) return cached;
-    //
-    //     try {
-    //         const res = await fetch("https://www.floatpilot.store/api/decrypt", {
-    //             method: "POST",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify({ encrypted: encryptedCode })
-    //         });
-    //
-    //         const json = await res.json();
-    //         const decrypted = json.payload || json.code;
-    //         if (!res.ok || !decrypted) throw new Error(json?.error || "Missing payload");
-    //
-    //         await new Promise<void>((resolve) => {
-    //             chrome.storage.local.set({ [cacheKey]: decrypted }, () => resolve());
-    //         });
-    //
-    //         return decrypted;
-    //     } catch (err) {
-    //         console.error("Decrypt failed:", err);
-    //         return null;
-    //     }
-    // };
-
-    const listingDataCache: Record<number, any> = {};
-
-    window.addEventListener("message", (event) => {
-        if (event.source !== window || !event.data?.type || event.data.type !== "CSFLOAT_LISTINGS") return;
-        const listings = event.data.payload;
-        if (Array.isArray(listings)) {
-            listings.forEach((entry: any) => {
-                const float = entry.item?.float_value;
-                if (typeof float === "number") {
-                    listingDataCache[float] = entry.item;
-                }
-            });
-            console.log("[INJECTED FETCH] Cached listings:", listingDataCache);
-        }
-    });
-
     const estimateCard = async (htmlCard: HTMLElement) => {
         htmlCard.dataset.estimationStatus = "processing";
 

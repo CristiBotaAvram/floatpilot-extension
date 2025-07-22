@@ -46,7 +46,7 @@
 
     function attachListingsToCards(listings) {
         const cards = document.querySelectorAll("item-card");
-        listings?.forEach((entry) => {
+        (Array.isArray(listings) ? listings : [listings])?.forEach((entry) => {
             const float = entry?.item?.float_value;
             if (typeof float !== "number") return;
 
@@ -56,6 +56,7 @@
                 if (!isNaN(cardFloat) && Math.abs(cardFloat - float) < tolerance) {
                     const cleaned = cleanEntry({ ...entry });
                     card.dataset.csfloatData = JSON.stringify(cleaned);
+                    console.log(`[CSFLOAT DATA ATTACHED] Float: ${float}`, cleaned);
                     break;
                 }
             }
@@ -66,11 +67,11 @@
         const response = await originalFetch(...args);
         const url = args[0];
 
-        if (typeof url === "string" && url.includes("/api/v1/listings?")) {
+        if (typeof url === "string" && url.includes("/api/v1/listings")) {
             try {
                 const cloned = response.clone();
                 const json = await cloned.json();
-                const listings = json?.data;
+                const listings = json?.data ?? json;
                 window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
 
                 setTimeout(() => attachListingsToCards(listings), 300);
@@ -87,9 +88,10 @@
         this.addEventListener("load", function () {
             try {
                 const url = this.responseURL;
-                if (url.includes("/api/v1/listings?")) {
+                if (url.includes("/api/v1/listings")) {
                     const json = JSON.parse(this.responseText);
-                    const listings = json?.data;
+                    const listings = json?.data ?? json;
+                    console.log('The url:', url, json);
                     window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
 
                     setTimeout(() => attachListingsToCards(listings), 300);
