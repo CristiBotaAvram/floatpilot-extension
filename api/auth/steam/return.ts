@@ -38,13 +38,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         try {
             const { data: existingUser, error: selectError } = await supabase
                 .from('users')
-                .select('*')
+                .select('steam_id, avatar_url, display_name, api_key')
                 .eq('steam_id', steamID64)
-                .single();
+                .maybeSingle();
 
             let userData = existingUser;
 
-            if (selectError && selectError.status === 406) {
+            if (!existingUser) {
                 const apiKey = process.env.STEAM_API_KEY;
                 if (!apiKey) throw new Error('Missing STEAM_API_KEY');
 
@@ -68,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const insertResult = await supabase
                     .from('users')
                     .insert({ steam_id: steamID64, avatar_url: avatarUrl, display_name: displayName })
-                    .select()
+                    .select('steam_id, avatar_url, display_name, api_key')
                     .single();
 
                 if (insertResult.error || !insertResult.data) {
@@ -83,7 +83,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 {
                     steamID64,
                     avatarUrl: userData?.avatar_url ?? '',
-                    displayName: userData?.display_name ?? ''
+                    displayName: userData?.display_name ?? '',
+                    apiKey: userData?.api_key ?? ''
                 },
                 process.env.JWT_SECRET!,
                 { expiresIn: '7d' }
