@@ -21,6 +21,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({error: "Method Not Allowed"});
     }
 
+    const apiKey = req.headers["x-api-key"];
+    if (!apiKey || typeof apiKey !== "string") {
+        return res.status(401).json({ error: "Missing API key" });
+    }
+
+    const { data: user, error } = await supabase
+        .from("users")
+        .select("steam_id")
+        .eq("api_key", apiKey)
+        .single();
+
+    if (!user) return res.status(403).json({ error: "Invalid API key" });
+
+    const now = new Date();
+
+    // Get most recent active subscription
+    const { data: sub, error: subError } = await supabase
+        .from('subscriptions')
+        .select('tier, expires_at')
+        .eq('steam_id', user.steam_id)
+        .order('expires_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (sub && sub.expires_at && new Date(sub.expires_at) < now) {
+        return res.status(401).json({ error: "Missing Pro subscription" });
+    }
     const listingsArray = req.body.listingsArray;
 
     if (!Array.isArray(listingsArray)) {

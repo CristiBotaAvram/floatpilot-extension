@@ -12,6 +12,7 @@
         const all = await new Promise<any>((resolve) => chrome.storage.local.get(null, resolve));
         const steamID = all["floatpilot_user"]?.steamID64;
         const settings = all[`floatpilot_settings_${steamID}`];
+        const apiKey = all["floatpilot_user"]?.apiKey;
         const selectedConfig = settings?.selectedConfig;
         const enabled = settings?.itemEstimation;
 
@@ -51,7 +52,10 @@
 
             const estimationRes = await fetch("https://www.floatpilot.store/api/estimation", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": apiKey
+                },
                 body: JSON.stringify({ listingsArray: batchPayload })
             });
 
