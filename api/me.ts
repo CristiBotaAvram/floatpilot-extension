@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { data: row, error: selectError } = await supabase
         .from('users')
-        .select('display_name, avatar_url, last_fetched_at')
+        .select('display_name, avatar_url, last_fetched_at, api_key')
         .eq('steam_id', steamID64)
         .maybeSingle();
 
@@ -58,6 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     let displayName = row?.display_name ?? steamID64;
     let avatarUrl = row?.avatar_url ?? '';
+    let apiKey = row?.api_key ?? '';
     const lastFetchedAt = row?.last_fetched_at ? new Date(row.last_fetched_at) : null;
     const shouldRefresh = !lastFetchedAt || (Date.now() - lastFetchedAt.getTime()) > 3 * 365 * 24 * 60 * 60 * 1000;
 
@@ -132,6 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         avatarUrl,
         tier,
         ff_balance,
-        subscriptionExpiresAt
+        subscriptionExpiresAt,
+        apiKey
     });
 }

@@ -1,7 +1,5 @@
 // popup.js
 
-// Removed decryptConfig function — no longer needed
-
 document.addEventListener('DOMContentLoaded', async () => {
     const avatarEl = document.getElementById('avatar');
     const usernameEl = document.getElementById('username');
@@ -247,7 +245,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.body.addEventListener('click', e => {
         if (e.target.matches('.upgrade-btn')) {
-            chrome.tabs.create({ url: 'https://floatpilot.store/' });
+            chrome.tabs.create({ url: 'https://floatpilot.store/pricing' });
         }
     });
 });
