@@ -43,13 +43,14 @@ async function evaluateProfitability() {
 
         const minPriceToBreakEven = estimatedValue * (100 / (100 + resaleThreshold));
 
-        let directProfitable = priceValue <= minPriceToBreakEven;
+        const directProfitable = priceValue <= minPriceToBreakEven;
         let bargainProfitable = false;
 
         const dataAttr = card.getAttribute("data-csfloat-data");
+        let parsed
         if (dataAttr) {
             try {
-                const parsed = JSON.parse(dataAttr);
+                parsed = JSON.parse(dataAttr);
                 const minOfferPriceCents = parsed?.min_offer_price;
                 const minOfferPrice = minOfferPriceCents / 100;
 

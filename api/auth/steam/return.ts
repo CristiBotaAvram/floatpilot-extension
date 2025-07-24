@@ -36,26 +36,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const steamID64 = match[1];
 
         try {
-            const apiKey = process.env.STEAM_API_KEY;
-            if (!apiKey) throw new Error('Missing STEAM_API_KEY');
-
-            const summaryRes = await fetch(
-                `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamID64}`
-            );
-
-            const raw = await summaryRes.text();
-            let summaryJson;
-            try {
-                summaryJson = JSON.parse(raw);
-            } catch (jsonErr) {
-                console.error('Invalid Steam JSON:', raw);
-                throw jsonErr;
-            }
-
-            const player = summaryJson.response.players?.[0];
-            const avatarUrl: string | undefined = player?.avatarfull;
-            const displayName: string | undefined = player?.personaname;
-
             const { data: existingUser, error: selectError } = await supabase
                 .from('users')
                 .select('*')
@@ -65,9 +45,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             let userData = existingUser;
 
             if (!existingUser && !selectError) {
+                const apiKey = process.env.STEAM_API_KEY;
+                if (!apiKey) throw new Error('Missing STEAM_API_KEY');
+
+                const summaryRes = await fetch(
+                    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${apiKey}&steamids=${steamID64}`
+                );
+
+                const raw = await summaryRes.text();
+                let summaryJson;
+                try {
+                    summaryJson = JSON.parse(raw);
+                } catch (jsonErr) {
+                    console.error('Invalid Steam JSON:', raw);
+                    throw jsonErr;
+                }
+
+                const player = summaryJson.response.players?.[0];
+                const avatarUrl: string | undefined = player?.avatarfull;
+                const displayName: string | undefined = player?.personaname;
+
                 const insertResult = await supabase
                     .from('users')
-                    .insert({ steam_id: steamID64 })
+                    .insert({ steam_id: steamID64, avatar_url: avatarUrl, display_name: displayName })
                     .select()
                     .single();
 
@@ -80,7 +80,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             const token = jwt.sign(
-                { steamID64, avatarUrl, displayName },
+                {
+                    steamID64,
+                    avatarUrl: userData.avatar_url,
+                    displayName: userData.display_name
+                },
                 process.env.JWT_SECRET!,
                 { expiresIn: '7d' }
             );
