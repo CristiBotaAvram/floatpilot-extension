@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FloatPilot</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #sliderHandle {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            border: 3px solid white;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: ew-resize;
+            z-index: 20;
+        }
+        /* vertical divider line between images */
+        #divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: white;
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <!-- Confirmation Modal -->
 <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
@@ -40,7 +69,7 @@
 <!-- Header -->
 <header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
     <div class="flex items-center space-x-4">
-        <img src="../../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+        <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
         <h1 class="text-2xl font-signature">FloatPilot</h1>
         <nav class="flex space-x-0 ml-6 text-lg">
             <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
@@ -53,11 +82,11 @@
     <div class="flex items-center space-x-4">
         <!-- GitHub icon without circle -->
         <a href="https://github.com/CristiBotaAvram/floatpilot-extension" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="../../../icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
+            <img src="./icons/icon-github.png" alt="GitHub" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
         <!-- X / Twitter icon without circle -->
         <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="../../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
+            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
         </a>
 
         <!-- Not logged in -->
@@ -100,8 +129,8 @@
         <!-- Copy -->
         <div class="md:w-5/12 text-lg space-y-4">
             <p><strong>Instant price intelligence:</strong> FloatPilot’s Estimation Tool overlays live market listings with fair‑value estimates based on recent sales, float, pattern ID, stickers and more.</p>
-            <p><strong>See hidden deals before others:</strong> Color‑coded backgrounds flag listings that are under‑ or over‑valued at a glance. Green means bargain, red means beware.</p>
-            <p><strong>Works right inside CSFloat:</strong> No extra tabs or copy‑paste — just browse, and FloatPilot injects the insights directly into every listing card.</p>
+            <p><strong>See hidden deals before others:</strong> Color‑coded backgrounds flag listings that are under‑ or over‑valued at a glance.</p>
+            <p><strong>Works right inside CSFloat:</strong> No extra tabs or copy‑paste, just browse, and FloatPilot injects the insights directly into listing cards.</p>
         </div>
 
         <!-- Before / After Images -->
@@ -112,9 +141,12 @@
             <div id="beforeImage" class="absolute inset-0 overflow-hidden rounded-lg">
                 <img src="./pictures/homepage2.png" alt="Before – vanilla CSFloat" class="w-full h-full object-cover border-r border-gray-700"/>
             </div>
+            <!-- Divider line -->
+            <div id="divider"></div>
             <!-- Slider handle -->
             <div id="sliderHandle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-black text-xl font-bold shadow-lg cursor-ew-resize">
-                ↔
+                <div style="width: 0px; height: 0px; border-top: 8px solid transparent; border-right: 10px solid; border-bottom: 8px solid transparent; margin-right: 4px;"></div>
+                <div style="width: 0px; height: 0px; border-top: 8px solid transparent; border-right: 10px solid; border-bottom: 8px solid transparent; transform: rotate(180deg); margin-left: 4px;"></div>
             </div>
             <!-- Labels -->
             <span class="absolute bottom-3 left-3 bg-white text-black text-xs font-bold px-2 py-1 rounded">Before</span>
@@ -129,32 +161,28 @@
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
 <script>
-    // Simple before/after slider logic (no image resizing — we clip instead)
     document.addEventListener('DOMContentLoaded', () => {
         const wrapper = document.getElementById('compareWrapper');
-        const beforeOverlay  = document.getElementById('beforeImage');
-        const handle  = document.getElementById('sliderHandle');
-        if (!wrapper || !beforeOverlay || !handle) return;
+        const beforeOverlay = document.getElementById('beforeImage');
+        const handle = document.getElementById('sliderHandle');
+        const divider = document.getElementById('divider');
+        if (!wrapper || !beforeOverlay || !handle || !divider) return;
 
         const setPosition = (xRatio = 0.5) => {
             const rect = wrapper.getBoundingClientRect();
             const pos = rect.width * xRatio;
             handle.style.left = pos + 'px';
+            divider.style.left = pos + 'px';
             const right = rect.width - pos;
             beforeOverlay.style.clipPath = `inset(0 ${right}px 0 0)`;
         };
 
-        // Initialize to exact center after everything loads
         const init = () => setPosition(0.5);
         window.addEventListener('load', init);
         window.addEventListener('resize', init);
 
         let dragging = false;
-        const start = (e) => {
-            dragging = true;
-            move(e);
-        };
-
+        const start = (e) => { dragging = true; move(e); };
         const move = (e) => {
             if (!dragging) return;
             const rect = wrapper.getBoundingClientRect();
@@ -163,13 +191,11 @@
             const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
             setPosition(ratio);
         };
-
         const end = () => { dragging = false; };
 
         handle.addEventListener('mousedown', start);
         window.addEventListener('mousemove', move);
         window.addEventListener('mouseup', end);
-
         handle.addEventListener('touchstart', start, { passive: true });
         window.addEventListener('touchmove', move, { passive: true });
         window.addEventListener('touchend', end);

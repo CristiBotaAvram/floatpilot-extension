@@ -1,7 +1,7 @@
 (function () {
     console.log("[FETCH INTERCEPT LOADED]");
     const originalFetch = window.fetch;
-    const tolerance = 0.00001;
+    const tolerance = 0.000000001;
 
     function cleanEntry(entry) {
         delete entry.seller;
@@ -56,7 +56,24 @@
                 if (!isNaN(cardFloat) && Math.abs(cardFloat - float) < tolerance) {
                     const cleaned = cleanEntry({ ...entry });
                     card.dataset.csfloatData = JSON.stringify(cleaned);
-                    console.log(`[CSFLOAT DATA ATTACHED] Float: ${float}`, cleaned);
+                }
+            }
+        });
+    }
+
+    function attachOffersToCards(offers) {
+        const offerHeaders = document.querySelectorAll(".header");
+        (Array.isArray(offers) ? offers : [offers])?.forEach((offer) => {
+            const item = offer?.contract;
+            const float = item?.item?.float_value;
+            if (typeof float !== "number") return;
+
+            for (const header of offerHeaders) {
+                const floatDiv = header.querySelector(".float");
+                const cardFloat = floatDiv ? parseFloat(floatDiv.textContent) : NaN;
+                if (!isNaN(cardFloat) && Math.abs(cardFloat - float) < tolerance) {
+                    const cleaned = cleanEntry({ ...item });
+                    header.dataset.csfloatData = JSON.stringify(cleaned);
                     break;
                 }
             }
@@ -67,16 +84,23 @@
         const response = await originalFetch(...args);
         const url = args[0];
 
-        if (typeof url === "string" && url.includes("/api/v1/listings")) {
+        if (typeof url === "string") {
             try {
                 const cloned = response.clone();
                 const json = await cloned.json();
-                const listings = json?.data ?? json;
-                window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
 
-                setTimeout(() => attachListingsToCards(listings), 300);
+                if (url.includes("/api/v1/listings")) {
+                    const listings = json?.data ?? json;
+                    window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
+                    setTimeout(() => attachListingsToCards(listings), 300);
+                }
+
+                if (url.includes("/api/v1/me/offers-timeline")) {
+                    const offers = json?.offers ?? [];
+                    setTimeout(() => attachOffersToCards(offers), 300);
+                }
             } catch (err) {
-                console.warn("Failed to parse listings (fetch):", err);
+                console.warn("Failed to parse response (fetch):", err);
             }
         }
 
@@ -93,11 +117,16 @@
                     const listings = json?.data ?? json;
                     console.log('The url:', url, json);
                     window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
-
                     setTimeout(() => attachListingsToCards(listings), 300);
                 }
+                if (url.includes("/api/v1/me/offers-timeline")) {
+                    const json = JSON.parse(this.responseText);
+                    const offers = json?.offers ?? [];
+                    console.log('The url:', url, json);
+                    setTimeout(() => attachOffersToCards(offers), 300);
+                }
             } catch (err) {
-                console.warn("XHR failed to parse listings:", err);
+                console.warn("XHR failed to parse response:", err);
             }
         });
         return originalOpen.apply(this, args);

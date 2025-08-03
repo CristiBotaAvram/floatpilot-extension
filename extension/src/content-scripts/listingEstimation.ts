@@ -1,4 +1,49 @@
 (() => {
+    const listingDataCache: Record<number, any> = {};
+
+    window.addEventListener("message", (event) => {
+        if (event.source !== window || !event.data?.type || event.data.type !== "CSFLOAT_LISTINGS") return;
+        const listings = event.data.payload;
+        if (Array.isArray(listings)) {
+            listings.forEach((entry: any) => {
+                const float = entry.item?.float_value;
+                if (typeof float === "number") {
+                    listingDataCache[float] = entry.item;
+                }
+            });
+            console.log("[INJECTED FETCH] Cached listings:", listingDataCache);
+        }
+    });
+
+    const findItemByFloat = (float: number): any | null => {
+        const tolerance = 0.00001;
+        for (const cachedFloatStr in listingDataCache) {
+            const cachedFloat = parseFloat(cachedFloatStr);
+            if (Math.abs(cachedFloat - float) < tolerance) {
+                return listingDataCache[cachedFloatStr];
+            }
+        }
+        return null;
+    };
+
+    const attachDataToCard = (card: HTMLElement) => {
+        const wearText = card.querySelector(".wear")?.textContent?.trim();
+        const cardFloat = wearText ? parseFloat(wearText) : NaN;
+        if (isNaN(cardFloat)) return;
+
+        const item = findItemByFloat(cardFloat);
+        if (!item) return;
+
+        try {
+            if (!card.dataset.csfloatData) {
+                card.dataset.csfloatData = JSON.stringify({ item });
+                console.log(`[DATA ATTACHED TO CARD] Float: ${cardFloat}`, item);
+            }
+        } catch (err) {
+            console.warn("Failed to attach listing data to card:", err);
+        }
+    };
+
     const estimateCard = async (htmlCard: HTMLElement) => {
         htmlCard.dataset.estimationStatus = "processing";
 
@@ -26,7 +71,6 @@
             htmlCard.dataset.estimationStatus = "invalid";
             return;
         }
-
 
         const item = {
             float_value: itemData.item.float_value,
@@ -63,15 +107,24 @@
             const estimatedPrice = result?.prices?.[0] / 100;
 
             if (estimatedPrice) {
-                const priceEl = htmlCard.querySelector(".price");
-                if (priceEl && !priceEl.querySelector(".estimation-tag")) {
+                let targetEl = htmlCard.querySelector(".price");
+                console.log("targetEl:", htmlCard.classList.contains("header"), targetEl);
+                if (htmlCard.classList.contains("header")) {
+                    targetEl = htmlCard.querySelector(".details .container");
+                    console.log("targetEl:", targetEl);
+                }
+
+                if (targetEl && !targetEl.querySelector(".estimation-tag")) {
                     const tag = document.createElement("div");
                     tag.className = "estimation-tag";
                     tag.textContent = `~$${estimatedPrice.toFixed(2)}`;
                     tag.style.color = "#64EC42";
                     tag.style.fontWeight = "normal";
                     tag.style.fontSize = "0.9em";
-                    priceEl.appendChild(tag);
+                    if (htmlCard.classList.contains("header")) {
+                        tag.style.fontSize = "1.5em";
+                    }
+                    targetEl.appendChild(tag);
                 }
                 htmlCard.dataset.estimationStatus = "done";
             } else {
@@ -84,10 +137,11 @@
     };
 
     const checkCards = () => {
-        document.querySelectorAll("item-card").forEach((card) => {
+        document.querySelectorAll("item-card, .header").forEach((card) => {
             const htmlCard = card as HTMLElement;
-            const status = htmlCard.dataset.estimationStatus;
+            attachDataToCard(htmlCard);
 
+            const status = htmlCard.dataset.estimationStatus;
             if (!status || status === "waiting") {
                 estimateCard(htmlCard);
             }
