@@ -192,5 +192,5 @@
     const observer = new MutationObserver(checkCards);
     observer.observe(document.body, { childList: true, subtree: true });
 
-    observeHeaderChanges();
+    setInterval(observeHeaderChanges, 1000);
 })();

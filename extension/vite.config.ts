@@ -35,6 +35,7 @@ export default defineConfig({
                 'content-scripts/profitEvaluator': resolve(__dirname, 'src/content-scripts/profitEvaluator.ts'),
                 'content-scripts/refreshButton': resolve(__dirname, 'src/content-scripts/refreshButton.ts'),
                 'content-scripts/floatHighlighter': resolve(__dirname, 'src/content-scripts/floatHighlighter.ts'),
+                'content-scripts/bargainHelper': resolve(__dirname, 'src/content-scripts/bargainHelper.ts'),
 
                 /* ------------  Background + Offscreen  ------------ */
                 'background/sw': resolve(__dirname, 'src/background/sw.ts'),
@@ -65,6 +66,8 @@ export default defineConfig({
                             return 'src/content-scripts/refreshButton.js';
                         case 'content-scripts/floatHighlighter':
                             return 'src/content-scripts/floatHighlighter.js';
+                        case 'content-scripts/bargainHelper':
+                            return 'src/content-scripts/bargainHelper.js';
                         case 'injected/fetch-intercept.js':
                             return 'injected/fetch-intercept.js';
                         case 'inject-loader.js':

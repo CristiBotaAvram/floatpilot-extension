@@ -14,7 +14,6 @@
 
   "host_permissions": [
     "https://csfloat.com/*",
-    "https://api.exchangerate.host/*",
     "https://floatpilot.store/"
   ],
 
@@ -33,6 +32,11 @@
     {
       "matches": ["*://csfloat.com/*"],
       "js": ["src/content-scripts/profitEvaluator.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://csfloat.com/profile/offers"],
+      "js": ["src/content-scripts/bargainHelper.js"],
       "run_at": "document_idle"
     },
     {
