@@ -8,7 +8,7 @@
             listings.forEach((entry: any) => {
                 const float = entry.item?.float_value;
                 if (typeof float === "number") {
-                    listingDataCache[float] = entry.item;
+                    listingDataCache[float] = entry;
                 }
             });
             console.log("[INJECTED FETCH] Cached listings:", listingDataCache);
@@ -27,7 +27,8 @@
     };
 
     const attachDataToCard = (card: HTMLElement) => {
-        const wearText = card.querySelector(".wear")?.textContent?.trim();
+        if (card.hasAttribute("data-csfloat-data")) return;
+        const wearText = card.querySelector(".wear, .float")?.textContent?.trim();
         const cardFloat = wearText ? parseFloat(wearText) : NaN;
         if (isNaN(cardFloat)) return;
 
@@ -35,10 +36,9 @@
         if (!item) return;
 
         try {
-            if (!card.dataset.csfloatData) {
-                card.dataset.csfloatData = JSON.stringify({ item });
-                console.log(`[DATA ATTACHED TO CARD] Float: ${cardFloat}`, item);
-            }
+            const data = { ...item };
+            card.dataset.csfloatData = JSON.stringify(data);
+            console.log(`[DATA ATTACHED TO CARD] Float: ${cardFloat}`, data);
         } catch (err) {
             console.warn("Failed to attach listing data to card:", err);
         }
@@ -108,23 +108,24 @@
 
             if (estimatedPrice) {
                 let targetEl = htmlCard.querySelector(".price");
-                console.log("targetEl:", htmlCard.classList.contains("header"), targetEl);
                 if (htmlCard.classList.contains("header")) {
                     targetEl = htmlCard.querySelector(".details .container");
-                    console.log("targetEl:", targetEl);
                 }
 
-                if (targetEl && !targetEl.querySelector(".estimation-tag")) {
-                    const tag = document.createElement("div");
-                    tag.className = "estimation-tag";
-                    tag.textContent = `~$${estimatedPrice.toFixed(2)}`;
-                    tag.style.color = "#64EC42";
-                    tag.style.fontWeight = "normal";
-                    tag.style.fontSize = "0.9em";
-                    if (htmlCard.classList.contains("header")) {
-                        tag.style.fontSize = "1.5em";
+                if (targetEl) {
+                    const estimateText = `~$${estimatedPrice.toFixed(2)}`;
+                    let tag = targetEl.querySelector(".estimation-tag") as HTMLElement;
+                    if (!tag) {
+                        tag = document.createElement("div");
+                        tag.className = "estimation-tag";
+                        tag.style.color = "#64EC42";
+                        tag.style.fontWeight = "normal";
+                        tag.style.fontSize = htmlCard.classList.contains("header") ? "1.5em" : "0.9em";
+                        tag.textContent = estimateText;
+                        targetEl.appendChild(tag);
+                    } else if (tag.textContent !== estimateText) {
+                        tag.textContent = estimateText;
                     }
-                    targetEl.appendChild(tag);
                 }
                 htmlCard.dataset.estimationStatus = "done";
             } else {
@@ -148,8 +149,48 @@
         });
     };
 
+    const observeHeaderChanges = () => {
+        if (!location.href.includes("/profile/offers")) return;
+
+        const waitForHeaders = () => {
+            const headers = Array.from(document.querySelectorAll(".header"))
+                .filter(h => h.querySelector(".item") || h.querySelector(".details"));
+
+            if (headers.length === 0) {
+                requestAnimationFrame(waitForHeaders);
+                return;
+            }
+
+            headers.forEach((header) => {
+                const observer = new MutationObserver(() => {
+                    const htmlHeader = header as HTMLElement;
+                    htmlHeader.dataset.estimationStatus = "";
+
+                    const float = parseFloat(header.querySelector(".float")?.textContent || "");
+                    if (!isNaN(float)) {
+                        const item = findItemByFloat(float);
+                        if (item) {
+                            const currentData = htmlHeader.dataset.csfloatData;
+                            const newData = JSON.stringify({ ...item });
+                            if (currentData !== newData) {
+                                htmlHeader.dataset.csfloatData = newData;
+                                console.log(`[HEADER UPDATE] data-csfloat-data refreshed for float: ${float}`);
+                            }
+                        }
+                    }
+                });
+
+                observer.observe(header, { childList: true, subtree: true, characterData: true });
+            });
+        };
+
+        waitForHeaders();
+    };
+
     setInterval(checkCards, 500);
 
     const observer = new MutationObserver(checkCards);
     observer.observe(document.body, { childList: true, subtree: true });
+
+    observeHeaderChanges();
 })();

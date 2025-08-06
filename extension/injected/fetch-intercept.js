@@ -63,6 +63,7 @@
 
     function attachOffersToCards(offers) {
         const offerHeaders = document.querySelectorAll(".header");
+
         (Array.isArray(offers) ? offers : [offers])?.forEach((offer) => {
             const item = offer?.contract;
             const float = item?.item?.float_value;
@@ -74,7 +75,7 @@
                 if (!isNaN(cardFloat) && Math.abs(cardFloat - float) < tolerance) {
                     const cleaned = cleanEntry({ ...item });
                     header.dataset.csfloatData = JSON.stringify(cleaned);
-                    break;
+                    //break;
                 }
             }
         });
@@ -115,14 +116,15 @@
                 if (url.includes("/api/v1/listings")) {
                     const json = JSON.parse(this.responseText);
                     const listings = json?.data ?? json;
-                    console.log('The url:', url, json);
+                    //console.log('The url:', url, json);
                     window.postMessage({ type: "CSFLOAT_LISTINGS", payload: listings }, "*");
                     setTimeout(() => attachListingsToCards(listings), 300);
                 }
                 if (url.includes("/api/v1/me/offers-timeline")) {
                     const json = JSON.parse(this.responseText);
                     const offers = json?.offers ?? [];
-                    console.log('The url:', url, json);
+                    //console.log('The url:', url, json);
+                    window.postMessage({ type: "CSFLOAT_LISTINGS", payload: offers.map(o => cleanEntry({ ...o.contract })) }, "*");
                     setTimeout(() => attachOffersToCards(offers), 300);
                 }
             } catch (err) {
