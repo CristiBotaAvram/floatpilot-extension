@@ -6,123 +6,151 @@
     <title>FloatPilot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* --------- Background polish (purely visual) --------- */
+        .bg-grid { background-image: linear-gradient(#ffffff18 1px, transparent 1px), linear-gradient(90deg, #ffffff18 1px, transparent 1px); background-size: 26px 26px; }
+        .radial-spot { background:
+                radial-gradient(2000px 1000px at 50% -10%, rgba(0,104,255,.18), transparent 60%),
+                radial-gradient(1600px 800px at 10% 110%, rgba(0,255,153,.09), transparent 60%);
+        }
+
+        /* --------- Before/After slider visuals (IDs preserved) --------- */
         #sliderHandle {
             position: absolute;
-            width: 56px;
-            height: 56px;
-            border: 3px solid white;
-            background-color: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(4px);
+            width: 56px; height: 56px;
+            border: 2px solid rgba(255,255,255,.9);
+            background: rgba(255,255,255,.1);
+            backdrop-filter: blur(6px);
             border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: ew-resize;
-            z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.25rem; font-weight: 800;
+            cursor: ew-resize; z-index: 20;
+            box-shadow: 0 10px 30px rgba(0,0,0,.35);
+            transition: box-shadow .2s ease, transform .2s ease, background .2s ease;
         }
+        #sliderHandle:hover { box-shadow: 0 14px 36px rgba(0,0,0,.45); background: rgba(255,255,255,.14); }
+        #sliderHandle:active { transform: scale(.98); }
+
         /* vertical divider line between images */
         #divider {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: white;
-            z-index: 10;
-            pointer-events: none;
+            position: absolute; top: 0; bottom: 0;
+            width: 2px; background: linear-gradient(to bottom, #ffffff, #a2cdfd);
+            z-index: 10; pointer-events: none;
         }
+        /* optional guide ticks (purely decorative) */
+        #divider::before, #divider::after {
+            content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+            width: 2px; height: 18px; background: white; opacity: .9; border-radius: 1px;
+        }
+        #divider::before { top: 10px; }
+        #divider::after { bottom: 10px; }
+
+        /* tiny arrows inside handle */
+        .arrow { width: 0; height: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+        .arrow-left { border-right: 9px solid white; margin-right: 6px; filter: drop-shadow(0 0 2px rgba(0,0,0,.4)); }
+        .arrow-right { border-right: 9px solid white; transform: rotate(180deg); margin-left: 6px; filter: drop-shadow(0 0 2px rgba(0,0,0,.4)); }
+
+        /* Modal card polish (IDs/classes preserved) */
+        .modal-card { background: rgba(17,18,20,.9); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+        .glass { background: rgba(11,12,15,.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.12); }
     </style>
 </head>
+<body class="bg-[#0f0f0f] text-white font-sans bg-grid radial-spot min-h-screen">
+
 <!-- Confirmation Modal -->
-<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
-        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
-        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
-                ➜
-            </div>
+<div id="confirmationModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card relative p-6 rounded-2xl w-full max-w-sm text-center">
+        <button id="closeModal" class="absolute top-3 left-3 text-white/80 text-lg font-bold hover:text-white transition">✕</button>
+        <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-5 text-white/70">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border border-white/15">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none shadow-xl">➜</div>
         </div>
     </div>
 </div>
-<body class="bg-[#0f0f0f] text-white font-sans">
 
 <!-- FF Purchase Modal -->
-<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
-        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
+<div id="buyFFModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card p-6 rounded-2xl max-w-sm w-full">
+        <h2 class="text-2xl font-extrabold text-center mb-4 tracking-tight">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="50">
+                <span class="block text-base">50 Credits</span>
+                <span class="block text-white/70 text-sm">$5</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="100">
+                <span class="block text-base">100 Credits</span>
+                <span class="block text-white/70 text-sm">$10</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="250">
+                <span class="block text-base">250 Credits</span>
+                <span class="block text-white/70 text-sm">$25</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="500">
+                <span class="block text-base">500 Credits</span>
+                <span class="block text-white/70 text-sm">$50</span>
+            </button>
         </div>
-        <div class="flex justify-end gap-4">
-            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
+        <div class="flex justify-end gap-3">
+            <button id="cancelFFPurchase" class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-semibold">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 rounded-lg bg-[#0068ff] hover:brightness-110 text-black font-extrabold shadow-md">Continue</button>
         </div>
     </div>
 </div>
+
 <!-- Header -->
-<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
-    <div class="flex items-center space-x-4">
-        <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
-        <h1 class="text-2xl font-signature">FloatPilot</h1>
-        <nav class="flex space-x-0 ml-6 text-lg">
-            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
-            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-            <!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
-            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
-        </nav>
-    </div>
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0f0f0f]/70 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+        <div class="flex items-center space-x-4">
+            <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
+            <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
+                <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
+                <a href="/pricing" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Pricing</a>
+                <a href="/configs" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Configs</a>
+            </nav>
+        </div>
 
-    <div class="flex items-center space-x-4">
-        <!-- Youtube Icon -->
-        <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="./icons/icon-youtube.png" alt="GitHub" class="w-7 h-5 hover:opacity-30"/>
-        </a>
-        <!-- X / Twitter icon without circle -->
-        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
-        </a>
+        <div class="flex items-center space-x-3">
+            <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
+                <img src="./icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+            </a>
+            <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition">
+                <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+            </a>
 
-        <!-- Not logged in -->
-        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
-        <!-- Logged in -->
-        <div id="userMenu" class="hidden relative">
-            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
-                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
-                <div class="flex items-center gap-2">
-                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+            <!-- Not logged in -->
+            <a href="/api/auth/steam" class="hidden md:inline-flex items-center gap-2 bg-black border border-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+            <!-- Logged in -->
+            <div id="userMenu" class="hidden relative">
+                <button class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-ease duration-500">
+                    <img id="avatarImg" src="" alt="avatar" class="w-7 h-7 rounded-full"/>
+                    <span id="tierBadge" class="px-3 py-1 rounded-lg text-white text-xs border border-black/40 shadow-md"></span>
+                    <span id="ffBalance" class="text-white font-semibold hidden md:inline">100 Credits</span>
+                    <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-64 glass rounded-xl shadow-2xl hidden overflow-hidden" id="userDropdown">
+                    <div class="px-4 py-3 border-b border-white/10">
+                        <p id="steamName" class="font-semibold">Steam name</p>
+                        <p id="steamID" class="text-white/60 text-xs">Steam ID</p>
+                    </div>
+                    <a href="#" id="buyFFBtn" class="block px-4 py-2 hover:bg-[#0068ff] hover:text-black transition font-semibold">Buy Credits</a>
+                    <a href="/transactions" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Transactions</a>
+                    <a href="/configs/owned" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Configs</a>
+                    <form method="POST" action="/api/logout">
+                        <button type="submit" class="block w-full text-left px-4 py-2 font-semibold text-[#ff5b5b] hover:bg-[#ff5b5b] hover:text-black transition">Logout</button>
+                    </form>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
-                </div>
-            </button>
-            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
-                <div class="px-4 py-2 border-b border-white">
-                    <p id="steamName" class="font-semibold">Steam name</p>
-                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
-                </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
-                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
-                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
-                <form method="POST" action="/api/logout">
-                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
-                </form>
             </div>
         </div>
     </div>
 </header>
+
 <!-- Hero / Feature Section -->
-<main class="px-6 py-12 lg:px-20 max-w-7xl mx-auto">
+<main class="px-6 py-14 lg:px-20 max-w-7xl mx-auto">
     <!-- Big Title -->
     <h1 class="text-4xl md:text-6xl font-extrabold text-center mb-12 leading-tight">
-        Meet <span class="text-[#0068ff]">FloatPilot</span>
-        <p> your smarter, faster way to trade CS2 skins </p>
+        Meet <span class="bg-gradient-to-r from-[#0068ff] to-[#00b3ff] text-transparent bg-clip-text">FloatPilot</span>
+        <span class="block text-white/80 text-2xl md:text-3xl mt-3">your smarter, faster way to trade CS2 skins</span>
     </h1>
 
     <div class="flex flex-col md:flex-row items-start md:items-center gap-10">
@@ -130,37 +158,43 @@
         <div class="md:w-5/12 text-lg space-y-4">
             <p><strong>Instant price intelligence:</strong> FloatPilot’s Estimation Tool overlays live market listings with fair‑value estimates based on recent sales, float, pattern ID, stickers and more.</p>
             <p><strong>See hidden deals before others:</strong> Color‑coded backgrounds flag listings that are under‑ or over‑valued at a glance.</p>
-            <p><strong>Works right inside CSFloat:</strong> No extra tabs or copy‑paste, just browse, and FloatPilot injects the insights directly into listing cards.</p>
+            <p><strong>Works right inside CSFloat:</strong> No extra tabs or copy‑paste — just browse, and FloatPilot injects insights directly into listing cards.</p>
+            <div class="pt-4">
+                <a href="/pricing" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0068ff] to-[#00b3ff] px-6 py-3 font-extrabold text-black shadow-lg hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition">
+                    Get Pro
+                </a>
+            </div>
         </div>
 
         <!-- Before / After Images -->
         <div class="md:w-7/12 w-full relative select-none" id="compareWrapper">
             <!-- After image (full width) -->
-            <img src="./pictures/homepage1.png" alt="After – FloatPilot enabled" class="w-full h-full object-cover rounded-lg shadow-lg border border-[#0068ff]"/>
+            <img src="./pictures/homepage1.png" alt="After – FloatPilot enabled" class="w-full h-full object-cover rounded-xl shadow-2xl border border-white/10"/>
             <!-- Before image, width adjusted via JS -->
-            <div id="beforeImage" class="absolute inset-0 overflow-hidden rounded-lg">
-                <img src="./pictures/homepage2.png" alt="Before – vanilla CSFloat" class="w-full h-full object-cover border-r border-gray-700"/>
+            <div id="beforeImage" class="absolute inset-0 overflow-hidden rounded-xl">
+                <img src="./pictures/homepage2.png" alt="Before – vanilla CSFloat" class="w-full h-full object-cover"/>
             </div>
             <!-- Divider line -->
             <div id="divider"></div>
             <!-- Slider handle -->
-            <div id="sliderHandle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-black text-xl font-bold shadow-lg cursor-ew-resize">
-                <div style="width: 0px; height: 0px; border-top: 8px solid transparent; border-right: 10px solid; border-bottom: 8px solid transparent; margin-right: 4px;"></div>
-                <div style="width: 0px; height: 0px; border-top: 8px solid transparent; border-right: 10px solid; border-bottom: 8px solid transparent; transform: rotate(180deg); margin-left: 4px;"></div>
+            <div id="sliderHandle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div class="arrow arrow-left"></div>
+                <div class="arrow arrow-right"></div>
             </div>
             <!-- Labels -->
-            <span class="absolute bottom-3 left-3 bg-white text-black text-xs font-bold px-2 py-1 rounded">Before</span>
-            <span class="absolute bottom-3 right-3 bg-[#0068ff] text-black text-xs font-bold px-2 py-1 rounded">After</span>
+            <span class="absolute bottom-3 left-3 bg-white text-black text-[11px] md:text-xs font-bold px-2 py-1 rounded">Before</span>
+            <span class="absolute bottom-3 right-3 bg-[#0068ff] text-black text-[11px] md:text-xs font-bold px-2 py-1 rounded">After</span>
         </div>
-
     </div>
 </main>
 
 <!-- Footer -->
-<footer class="text-center text-gray-500 text-sm py-8 ">
+<footer class="text-center text-white/60 text-sm py-10">
     &copy; 2025 FloatPilot. All rights reserved.
 </footer>
+
 <script>
+    // --------- Before/After logic (unchanged) ---------
     document.addEventListener('DOMContentLoaded', () => {
         const wrapper = document.getElementById('compareWrapper');
         const beforeOverlay = document.getElementById('beforeImage');
@@ -202,6 +236,7 @@
     });
 </script>
 <script>
+    // --------- Header profile dropdown (unchanged) ---------
     document.addEventListener('DOMContentLoaded', () => {
         const ffBalance = document.getElementById('ffBalance');
 
@@ -246,6 +281,7 @@
     });
 </script>
 <script>
+    // --------- Buy credits modal (unchanged) ---------
     document.addEventListener('DOMContentLoaded', () => {
         const buyFFBtn = document.getElementById('buyFFBtn');
         const buyFFModal = document.getElementById('buyFFModal');
@@ -254,20 +290,17 @@
         const ffOptions = document.querySelectorAll('.ff-option');
         let selectedAmount = null;
 
-        buyFFBtn?.addEventListener('click', () => {
-            buyFFModal.classList.remove('hidden');
-        });
-
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
         cancelBtn?.addEventListener('click', () => {
             buyFFModal.classList.add('hidden');
-            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
             selectedAmount = null;
         });
 
         ffOptions.forEach(button => {
             button.addEventListener('click', () => {
-                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
-                button.classList.add('border-[#00ff99]');
+                ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+                button.classList.add('ring-2','ring-[#00ff99]');
                 selectedAmount = parseInt(button.dataset.value);
             });
         });
@@ -278,17 +311,12 @@
 
             try {
                 const res = await fetch('/api/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
                 });
-
                 const { url } = await res.json();
-                if (url) window.location.href = url;
-                else alert('Failed to create Stripe checkout session.');
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
+                if (url) window.location.href = url; else alert('Failed to create Stripe checkout session.');
+            } catch (err) { alert('Error: ' + err.message); }
         });
     });
 </script>

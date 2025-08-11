@@ -9,169 +9,169 @@
     <link rel="icon" type="image/png" sizes="48x48" href="../icons/icon48.png"/>
     <link rel="icon" type="image/png" sizes="128x128" href="../icons/icon128.png"/>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Background polish */
+        .bg-grid{background-image:linear-gradient(#ffffff12 1px,transparent 1px),linear-gradient(90deg,#ffffff12 1px,transparent 1px);background-size:26px 26px}
+        .radial-spot{background:radial-gradient(2000px 1000px at 50% -10%,rgba(0,104,255,.18),transparent 60%),radial-gradient(1600px 800px at 10% 110%,rgba(0,255,153,.09),transparent 60%)}
+        /* Glass cards */
+        .glass{background:rgba(15,16,20,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)}
+        .modal-card{background:rgba(17,18,20,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+        /* Gradient border helper */
+        .gradient-wrap{position:relative;border-radius:1rem;padding:1px;background:linear-gradient(135deg,#0068ff,rgba(0,179,255,.6))}
+        .gradient-inner{border-radius:calc(1rem - 1px)}
+    </style>
 </head>
-<body class="bg-[#0f0f0f] antialiased text-white font-sans">
+<body class="bg-[#0f0f0f] antialiased text-white font-sans bg-grid radial-spot min-h-screen">
+
 <!-- Confirmation Modal -->
-<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
-        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
-        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
-                ➜
-            </div>
+<div id="confirmationModal" class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center hidden z-50 p-4">
+    <div class="relative modal-card p-6 rounded-2xl w-full max-w-md text-center">
+        <button id="closeModal" class="absolute top-3 left-3 text-white/80 text-lg font-bold hover:text-white transition">✕</button>
+        <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-5 text-white/70">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border border-white/10 ring-1 ring-white/10">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none shadow-lg">➜</div>
         </div>
     </div>
 </div>
 
 <!-- FF Purchase Modal -->
-<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
-        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
-        </div>
-        <div class="flex justify-end gap-4">
-            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
-        </div>
-    </div>
-</div>
-<!-- Promotional Marquee -->
-<div class="bg-[#0068ff] text-black py-2 overflow-hidden">
-    <div class="flex w-max animate-[marquee_20s_linear_infinite]">
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-        <span class="inline-block text-lg font-bold px-4">Launch Bonus! 50% more time on every plan for a limited time!</span>
-    </div>
-</div>
-</div>
-
-<style>
-    @keyframes marquee {
-        0%   { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-    }
-</style>
-<!-- Header -->
-<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
-    <div class="flex items-center space-x-4">
-        <img src="../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
-        <h1 class="text-2xl font-signature">FloatPilot</h1>
-        <nav class="flex space-x-0 ml-6 text-lg">
-            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
-            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-            <!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
-            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
-        </nav>
-    </div>
-
-    <div class="flex items-center space-x-4">
-        <!-- Youtube Icon -->
-        <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="../icons/icon-youtube.png" alt="GitHub" class="w-7 h-5 hover:opacity-30"/>
-        </a>
-        <!-- X / Twitter icon without circle -->
-        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
-        </a>
-
-        <!-- Not logged in -->
-        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
-        <!-- Logged in -->
-        <div id="userMenu" class="hidden relative">
-            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
-                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
-                <div class="flex items-center gap-2">
-                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
-                </div>
+<div id="buyFFModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card p-6 rounded-2xl max-w-sm w-full">
+        <h2 class="text-2xl font-extrabold text-center mb-4 tracking-tight">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="50">
+                <span class="block text-base">50 Credits</span>
+                <span class="block text-white/70 text-sm">$5</span>
             </button>
-            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
-                <div class="px-4 py-2 border-b border-white">
-                    <p id="steamName" class="font-semibold">Steam name</p>
-                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="100">
+                <span class="block text-base">100 Credits</span>
+                <span class="block text-white/70 text-sm">$10</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="250">
+                <span class="block text-base">250 Credits</span>
+                <span class="block text-white/70 text-sm">$25</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="500">
+                <span class="block text-base">500 Credits</span>
+                <span class="block text-white/70 text-sm">$50</span>
+            </button>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button id="cancelFFPurchase" class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-semibold">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 rounded-lg bg-[#0068ff] hover:brightness-110 text-black font-extrabold shadow-md">Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0b0b0b]/80 backdrop-blur supports-[backdrop-filter]:bg-[#0b0b0b]/60">
+    <div class="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
+        <div class="flex items-center space-x-4">
+            <img src="../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
+            <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
+                <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
+                <a href="/pricing" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Pricing</a>
+                <a href="/configs" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Configs</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
+                <img src="../icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+            </a>
+            <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition ">
+                <img src="../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+            </a>
+
+            <!-- Not logged in -->
+            <a href="/api/auth/steam" id="loginHeaderBtn" class="hidden sm:inline-flex items-center gap-2 bg-black border border-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg font-semibold transition">Login</a>
+            <!-- Logged in -->
+            <div id="userMenu" class="hidden relative">
+                <button class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+                    <img id="avatarImg" src="" alt="avatar" class="w-7 h-7 rounded-full"/>
+                    <span id="tierBadge" class="px-3 py-1 rounded-lg text-white text-xs border border-black/40 shadow-md"></span>
+                    <span id="ffBalance" class="text-white font-semibold hidden sm:inline">100 Credits</span>
+                    <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="userDropdown" class="absolute right-0 mt-2 w-64 bg-[#0f0f10] border border-white/10 rounded-xl shadow-2xl hidden overflow-hidden">
+                    <div class="px-4 py-3 border-b border-white/10">
+                        <p id="steamName" class="font-semibold">Steam name</p>
+                        <p id="steamID" class="text-white/60 text-xs">Steam ID</p>
+                    </div>
+                    <a href="#" id="buyFFBtn" class="block px-4 py-2 hover:bg-[#0068ff] hover:text-black transition font-semibold">Buy Credits</a>
+                    <a href="/transactions" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Transactions</a>
+                    <a href="/configs/owned" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Configs</a>
+                    <form method="POST" action="/api/logout">
+                        <button type="submit" class="block w-full text-left px-4 py-2 font-semibold text-[#ff5b5b] hover:bg-[#ff5b5b] hover:text-black transition">Logout</button>
+                    </form>
                 </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
-                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
-                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
-                <form method="POST" action="/api/logout">
-                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
-                </form>
             </div>
         </div>
     </div>
 </header>
+
 <!-- Main -->
-<main class="w-full px-4 py-8 xl:px-0">
-    <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Plan</h2>
-    <div class="grid md:grid-cols-2 gap-6 md:gap-10 xl:gap-20 2xl:gap-32 xl:max-w-5xl xl:mx-auto">
+<main class="w-full px-4 py-10 xl:px-0">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-6 text-center tracking-tight">
+        Choose Your <span class="bg-gradient-to-r from-[#0068ff] to-[#00b3ff] text-transparent bg-clip-text">Plan</span>
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-3 md:gap-10 xl:gap-16 xl:max-w-5xl xl:mx-auto">
         <!-- Free Plan -->
-        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#848884] relative w-full xl:min-w-[350px] xl:max-w-[420px]">
-            <div class="absolute text-2xl -top-0 left-0 bg-[#848884] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Free</div>
-            <p class="text-3xl font-bold mb-4 mt-6">0 Credits</p>
-            <ul class="text-sm text-gray-300 mb-4 space-y-1">
-                <li>✔ Compare listings to cheapest alternative</li>
-                <li>✔ Highlight special floats</li>
-                <li>✔ Remove top rated listings</li>
+        <div class="glass p-6 rounded-2xl shadow-xl relative w-full xl:min-w-[350px] xl:max-w-[420px]">
+            <div class="absolute text-sm -top-0 left-0 bg-[#848884] text-black text-xl font-bold px-5 py-2 rounded-tl-2xl rounded-br-md">Free</div>
+            <p class="text-3xl font-extrabold mb-4 mt-6">0 Credits</p>
+            <ul class="text-sm text-white/80 mb-6 space-y-2">
+                <li class="flex items-start gap-2"><span>✔</span> <span>Compare listings to cheapest alternative</span></li>
+                <li class="flex items-start gap-2"><span>✔</span> <span>Highlight low floats</span></li>
+                <li class="flex items-start gap-2"><span>✔</span> <span>Hide top rated listings</span></li>
             </ul>
-            <button id="tier-Free" data-tier="Free" class="w-full bg-[#848884] text-black font-bold py-2 rounded cursor-not-allowed" disabled>
-                Current Plan
-            </button>
+            <button id="tier-Free" data-tier="Free" class="w-full bg-[#848884] text-black font-bold py-2.5 rounded-xl cursor-not-allowed">Current Plan</button>
         </div>
 
         <!-- Pro Plan -->
-        <div class="bg-[#0f0f0f] p-6 rounded-lg shadow border border-[#0068ff] relative w-full xl:min-w-[350px] xl:max-w-[420px] xl:mx-auto">
-            <div class="absolute text-2xl -top-0 left-0 bg-[#0068ff] text-black font-bold px-4 py-1 rounded-tl-md rounded-br-md">Pro</div>
-            <p class="text-3xl font-bold mb-4 mt-6">Starts at 50 Credits</p>
-            <ul class="text-sm text-gray-300 mb-4 space-y-1">
-                <li>✔ Includes all Free features</li>
-                <li>✔ Advanced Price Estimation Tools:</li>
-                <li style="padding-left: 20px;">• Set custom profit margins</li>
-                <li style="padding-left: 20px;">• Use and apply custom configs</li>
-                <li style="padding-left: 20px;">• Highlight listings based on your customisation</li>
-                <li>✔ Create and sell configs</li>
-            </ul>
-            <div class="relative w-full group" id="subscribeRow-Pro">
-                <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#1a1a1a] px-2 py-1 rounded" id="subscribeTrigger-Pro">
-                    <div class="flex rounded overflow-hidden">
-                        <span class="bg-[#0068ff] text-black px-3 py-2 font-bold">Subscribe for</span>
-                        <button id="dropdownToggle-Pro" class="bg-black text-white px-4 py-2 font-semibold z-10" type="button">
-                            <span id="selectedDuration-Pro">1.5 hours</span>
-                        </button>
-                    </div>
-                    <span id="costDisplay-Pro" class="ml-4 text-white font-bold text-lg">50 Credits</span>
-                </div>
-                <ul id="dropdownMenu-Pro" class="absolute z-10 w-full mt-2 bg-black text-white rounded shadow-md hidden">
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 hours" data-cost="50">1.5 hours</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 days" data-cost="100">1.5 days</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 weeks" data-cost="150">1.5 weeks</li>
-                    <li class="px-4 py-2 hover:bg-[#222] cursor-pointer" data-duration="1.5 months" data-cost="400">1.5 months</li>
+        <div class="gradient-wrap w-full xl:min-w-[350px] xl:max-w-[420px]">
+            <div class="gradient-inner glass p-6 rounded-2xl shadow-2xl relative">
+                <div class="absolute text-sm -top-0 left-0 bg-[#0068ff] text-black text-xl font-extrabold px-5 py-2 rounded-tl-2xl rounded-br-md">Pro</div>
+                <p class="text-3xl font-extrabold mb-4 mt-6">Starts at 50 Credits</p>
+                <ul class="text-sm text-white/80 mb-6 space-y-2">
+                    <li class="flex items-start gap-2"><span>✔</span> <span>Includes all Free features</span></li>
+                    <li class="flex items-start gap-2"><span>✔</span> <span>Advanced Price Estimation Tools:</span></li>
+                    <li class="ml-6">• Set custom profit margins</li>
+                    <li class="ml-6">• Use and apply custom configs</li>
+                    <li class="ml-6">• Highlight listings based on your customisation</li>
+                    <li class="flex items-start gap-2"><span>✔</span> <span>Create and sell configs</span></li>
                 </ul>
+
+                <!-- Subscribe Row (IDs preserved) -->
+                <div class="relative w-full group" id="subscribeRow-Pro">
+                    <div class="flex items-center justify-between cursor-pointer group-hover:opacity-90 bg-[#14161b] px-2 py-2 rounded-lg border border-white/10" id="subscribeTrigger-Pro">
+                        <div class="flex rounded overflow-hidden shadow-sm">
+                            <span class="bg-[#0068ff] text-black px-3 py-2 font-extrabold">Subscribe for</span>
+                            <button id="dropdownToggle-Pro" class="bg-black/70 text-white px-4 py-2 font-semibold z-10" type="button">
+                                <span id="selectedDuration-Pro">1.5 hours</span>
+                            </button>
+                        </div>
+                        <span id="costDisplay-Pro" class="ml-4 text-white font-extrabold text-lg">50 Credits</span>
+                    </div>
+                    <ul id="dropdownMenu-Pro" class="absolute z-10 w-full mt-2 bg-black/90 text-white rounded-lg shadow-xl hidden border border-white/10 overflow-hidden">
+                        <li class="px-4 py-2 hover:bg-white/10 cursor-pointer" data-duration="1.5 hours" data-cost="50">1.5 hours</li>
+                        <li class="px-4 py-2 hover:bg-white/10 cursor-pointer" data-duration="1.5 days" data-cost="100">1.5 days</li>
+                        <li class="px-4 py-2 hover:bg-white/10 cursor-pointer" data-duration="1.5 weeks" data-cost="150">1.5 weeks</li>
+                        <li class="px-4 py-2 hover:bg-white/10 cursor-pointer" data-duration="1.5 months" data-cost="400">1.5 months</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </main>
 
 <!-- Footer -->
-<footer class="text-center text-gray-500 text-sm mt-12 mb-4">
-    &copy; 2025 FloatPilot. All rights reserved.
-</footer>
+<footer class="text-center text-white/60 text-sm mt-12 mb-6">&copy; 2025 FloatPilot. All rights reserved.</footer>
 
-<!-- JavaScript functionality for merged Pro tier -->
+<!-- JavaScript functionality for merged Pro tier (unchanged) -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         let selectedTier = null;
@@ -184,7 +184,7 @@
         const confirmationText = document.getElementById('confirmationText');
         const sliderThumb = document.getElementById('sliderThumb');
         const closeModal = document.getElementById('closeModal');
-        const tierBadge    = document.getElementById('tierBadge');
+        const tierBadge = document.getElementById('tierBadge');
         let isSliding = false, startX = 0;
 
         const setupDropdown = () => {
@@ -220,7 +220,6 @@
         fetch('/api/me')
             .then(r => r.json())
             .then(data => {
-                /* NEW HEADER HANDLING  ⬇︎ */
                 if (data.loggedIn) {
                     const tier = data.tier || 'Free';
                     let tierColor = '#848884';
@@ -231,23 +230,19 @@
                     tierBadge.style.fontWeight = 'bold';
                     tierBadge.style.webkitTextStroke = '0px';
                     tierBadge.style.textShadow = 'none';
-                    // swap header buttons
                     document.getElementById('loginHeaderBtn')?.classList.add('hidden');
                     document.getElementById('userMenu')?.classList.remove('hidden');
 
-                    // fill header info
                     document.getElementById('avatarImg').src = data.avatarUrl || '';
                     document.getElementById('steamName').textContent = data.displayName || '';
                     document.getElementById('steamID').textContent = data.steamID64 || '';
                     currentFF = data.ff_balance || 0;
                     document.getElementById('ffBalance').textContent = `${currentFF} Credits`;
                 } else {
-                    // ensure logout state
                     document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
                     document.getElementById('userMenu')?.classList.add('hidden');
-                    return;                // stop; user not logged in
+                    return;
                 }
-                /* — existing Pro-plan code continues here — */
 
                 if (data.tier === 'Pro' && data.subscriptionExpiresAt) {
                     const remaining = Math.max(0, new Date(data.subscriptionExpiresAt) - Date.now());
@@ -311,20 +306,17 @@
         const ffOptions = document.querySelectorAll('.ff-option');
         let selectedAmount = null;
 
-        buyFFBtn?.addEventListener('click', () => {
-            buyFFModal.classList.remove('hidden');
-        });
-
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
         cancelBtn?.addEventListener('click', () => {
             buyFFModal.classList.add('hidden');
-            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
             selectedAmount = null;
         });
 
         ffOptions.forEach(button => {
             button.addEventListener('click', () => {
-                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
-                button.classList.add('border-[#00ff99]');
+                ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+                button.classList.add('ring-2','ring-[#00ff99]');
                 selectedAmount = parseInt(button.dataset.value);
             });
         });
@@ -341,15 +333,11 @@
                 });
 
                 const { url } = await res.json();
-                if (url) window.location.href = url;
-                else alert('Failed to create Stripe checkout session.');
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
+                if (url) window.location.href = url; else alert('Failed to create Stripe checkout session.');
+            } catch (err) { alert('Error: ' + err.message); }
         });
     });
 </script>
-
 
 </body>
 </html>

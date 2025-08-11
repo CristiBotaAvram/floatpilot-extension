@@ -6,19 +6,46 @@
     <title>Thank You - FloatPilot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Subtle decorative background (no functional changes) */
+        .bg-grid { background-image: linear-gradient(#ffffff0d 1px, transparent 1px), linear-gradient(90deg, #ffffff0d 1px, transparent 1px); background-size: 28px 28px; }
+        .radial-spot { background:
+                radial-gradient(2000px 1000px at 50% -10%, rgba(0,104,255,.25), transparent 60%),
+                radial-gradient(1600px 800px at 10% 110%, rgba(0,255,153,.12), transparent 60%);
+        }
+        @keyframes pop { 0% { transform: scale(.92); opacity:.6 } 100% { transform: scale(1); opacity:1 } }
+        @keyframes floaty { 0% { transform: translateY(0) } 50% { transform: translateY(-6px) } 100% { transform: translateY(0) } }
+    </style>
 </head>
-<body class="bg-[#0f0f0f] text-white flex items-center justify-center min-h-screen text-center px-4">
-<div>
-    <h1 class="text-4xl font-bold mb-6">🎉 Thank you for your purchase!</h1>
-    <p class="text-xl text-gray-300 mb-8">Your credits will be added to your account shortly.</p>
-    <a href="/" class="px-6 py-3 bg-[#0068ff] text-black font-semibold rounded hover:bg-[#00cc7a] transition">Return to Homepage</a>
-</div>
+<body class="bg-[#0f0f0f] text-white min-h-screen flex items-center justify-center px-4 bg-grid radial-spot">
+<main class="w-full max-w-xl">
+    <section class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0c0f]/80 backdrop-blur p-8 shadow-2xl animate-[pop_.5s_ease-out]">
+        <!-- Decorative orbs -->
+        <div class="pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full bg-[#0068ff]/20 blur-2xl"></div>
+        <div class="pointer-events-none absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-emerald-400/10 blur-2xl"></div>
+
+        <h1 class="text-4xl font-extrabold tracking-tight text-center">Thank you for your purchase!</h1>
+        <p class="mt-3 text-center text-lg text-white/70" aria-live="polite">Your credits will be added to your account shortly.</p>
+
+        <div class="mt-8 flex justify-center">
+            <a href="/" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0068ff] to-[#00b3ff] px-6 py-3 font-extrabold text-black shadow-lg hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition">
+                Return to Homepage
+            </a>
+        </div>
+
+        <!-- Tiny footer note -->
+        <p class="mt-4 text-center text-xs text-white/50">If you don’t see the credits after a minute, try refreshing your profile.</p>
+    </section>
+</main>
+
 <script>
-    confetti({
-        particleCount: 200,
-        spread: 160,
-        origin: { y: 0.6 }
-    });
+    // Confetti burst on load (kept functionality intact)
+    confetti({ particleCount: 200, spread: 160, origin: { y: 0.6 } });
+
+    // Gentle follow-up confetti for a more premium feel
+    setTimeout(() => {
+        confetti({ particleCount: 80, scalar: .8, ticks: 200, spread: 90, origin: { y: 0.4 } });
+    }, 600);
 </script>
 </body>
 </html>

@@ -5,109 +5,188 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upload Configs</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom checkbox styling */
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 0.375rem;
+            background-color: rgba(255,255,255,0.05);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .custom-checkbox:checked {
+            background-color: #0068ff;
+            border-color: #0068ff;
+        }
+        .custom-checkbox:checked::after {
+            content: "";
+            display: block;
+            width: 0.5rem;
+            height: 0.9rem;
+            border: solid black;
+            border-width: 0 0.2rem 0.2rem 0;
+            border-radius: 0.15rem;
+            transform: rotate(40deg);
+        }
+        .custom-checkbox:hover {
+            border-color: #00b3ff;
+        }
+    </style>
+    <style>
+        /* Decorative background layers (no functionality change) */
+        .bg-grid { background-image: linear-gradient(#1f29371a 1px, transparent 1px), linear-gradient(90deg, #1f29371a 1px, transparent 1px); background-size: 24px 24px; }
+        .radial-spot { background: radial-gradient(1600px 800px at 10% 0%, rgba(0,104,255,.25), transparent 60%),
+        radial-gradient(1600px 800px at 90% 10%, rgba(0,255,153,.12), transparent 60%); }
+    </style>
 </head>
+<body class="bg-[#0b0b0b] text-white font-sans bg-grid radial-spot min-h-screen">
 <!-- Confirmation Modal -->
-<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
-        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
-        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
-                ➜
-            </div>
+<div id="confirmationModal" class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center hidden z-50 p-4">
+    <div class="relative bg-[#111214]/95 border border-white/10 p-6 rounded-2xl shadow-2xl w-full max-w-md text-center">
+        <button id="closeModal" class="absolute top-3 left-3 text-white/80 text-lg font-bold hover:text-white transition">✕</button>
+        <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-5 text-white/70">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border border-white/10 ring-1 ring-white/10">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none shadow-lg">➜</div>
         </div>
     </div>
 </div>
-<body class="bg-[#0f0f0f] text-white font-sans">
+
 <!-- FF Purchase Modal -->
-<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
-        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
+<div id="buyFFModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card p-6 rounded-2xl max-w-sm w-full">
+        <h2 class="text-2xl font-extrabold text-center mb-4 tracking-tight">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="50">
+                <span class="block text-base">50 Credits</span>
+                <span class="block text-white/70 text-sm">$5</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="100">
+                <span class="block text-base">100 Credits</span>
+                <span class="block text-white/70 text-sm">$10</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="250">
+                <span class="block text-base">250 Credits</span>
+                <span class="block text-white/70 text-sm">$25</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="500">
+                <span class="block text-base">500 Credits</span>
+                <span class="block text-white/70 text-sm">$50</span>
+            </button>
         </div>
-        <div class="flex justify-end gap-4">
-            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
+        <div class="flex justify-end gap-3">
+            <button id="cancelFFPurchase" class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-semibold">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 rounded-lg bg-[#0068ff] hover:brightness-110 text-black font-extrabold shadow-md">Continue</button>
         </div>
     </div>
 </div>
+
 
 <!-- Header -->
-<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
-    <div class="flex items-center space-x-4">
-        <img src="../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
-        <h1 class="text-2xl font-signature">FloatPilot</h1>
-        <nav class="flex space-x-0 ml-6 text-lg">
-            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
-            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-<!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
-            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
-        </nav>
-    </div>
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0b0b0b]/80 backdrop-blur supports-[backdrop-filter]:bg-[#0b0b0b]/60">
+    <div class="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
+        <div class="flex items-center space-x-4">
+            <img src="../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
+            <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
+                <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
+                <a href="/pricing" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Pricing</a>
+                <a href="/configs" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Configs</a>
+            </nav>
+        </div>
 
-    <div class="flex items-center space-x-4">
-        <!-- Youtube Icon -->
-        <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="../../icons/icon-youtube.png" alt="GitHub" class="w-7 h-5 hover:opacity-30"/>
-        </a>
-        <!-- X / Twitter icon without circle -->
-        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
-        </a>
+        <div class="flex items-center space-x-3">
+            <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
+                <img src="../../icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+            </a>
+            <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition ">
+                <img src="../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+            </a>
 
-        <!-- Not logged in -->
-        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
-        <!-- Logged in -->
-        <div id="userMenu" class="hidden relative">
-            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
-                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
-                <div class="flex items-center gap-2">
-                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+            <!-- Not logged in -->
+            <a href="/api/auth/steam" id="loginHeaderBtn" class="hidden sm:inline-flex items-center gap-2 bg-black border border-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg font-semibold transition">Login</a>
+            <!-- Logged in -->
+            <div id="userMenu" class="hidden relative">
+                <button class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/5 transition">
+                    <img id="avatarImg" src="" alt="avatar" class="w-7 h-7 rounded-full"/>
+                    <span id="tierBadge" class="px-3 py-1 rounded-lg text-white text-xs border border-black/40 shadow-md"></span>
+                    <span id="ffBalance" class="text-white font-semibold hidden sm:inline">100 Credits</span>
+                    <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="userDropdown" class="absolute right-0 mt-2 w-64 bg-[#0f0f10] border border-white/10 rounded-xl shadow-2xl hidden overflow-hidden">
+                    <div class="px-4 py-3 border-b border-white/10">
+                        <p id="steamName" class="font-semibold">Steam name</p>
+                        <p id="steamID" class="text-white/60 text-xs">Steam ID</p>
+                    </div>
+                    <a href="#" id="buyFFBtn" class="block px-4 py-2 hover:bg-[#0068ff] hover:text-black transition font-semibold">Buy Credits</a>
+                    <a href="/transactions" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Transactions</a>
+                    <a href="/configs/owned" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Configs</a>
+                    <form method="POST" action="/api/logout">
+                        <button type="submit" class="block w-full text-left px-4 py-2 font-semibold text-[#ff5b5b] hover:bg-[#ff5b5b] hover:text-black transition">Logout</button>
+                    </form>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
-                </div>
-            </button>
-            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
-                <div class="px-4 py-2 border-b border-white">
-                    <p id="steamName" class="font-semibold">Steam name</p>
-                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
-                </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
-                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
-                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
-                <form method="POST" action="/api/logout">
-                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
-                </form>
             </div>
         </div>
     </div>
 </header>
 
-<main class="p-8 max-w-xl mx-auto">
-    <h2 class="text-2xl font-bold mb-4">Upload New Config</h2>
-    <p class="text-sm text-gray-400 mb-1">Need help writing your config? See the <a href="/configs/upload/docs" target="_blank" class="text-[#0068ff] underline hover:text-[#00a8ff]">Documentation</a>.</p>
-    <p class="text-sm text-gray-400 mb-2">Want to test your config before uploading? You can test it <a href="/configs/upload/test" target="_blank" class="text-[#0068ff] underline hover:text-[#00a8ff]">here</a>.</p>
-    <form id="uploadForm" class="flex flex-col gap-4">
-        <label class="flex items-center gap-1 text-sm">
-            <input type="checkbox" id="configPrivate" class="text-[#0068ff]" />
-            Make this config private
-        </label>
-        <p id=privateWarning" class="text-sm font-semibold text-red-600">! Public configs CANNOT be deleted</p>
-        <input type="text" id="configName" placeholder="Name" required class="p-3 rounded bg-[#1a1a1a] text-white" />
-        <textarea id="configDescription" placeholder="Description" class="p-3 rounded bg-[#1a1a1a] text-white"></textarea>
-        <input type="number" id="configPrice" placeholder="Credits Price" required min="50" class="p-3 rounded bg-[#1a1a1a] text-white" />
-        <p id="youReceiveText" class="text-sm text-gray-400">You will receive: 0 credits</p>
-<!--        <p class="text-sm text-gray-400">There is a 30% fee on each sale</p>-->
-        <textarea id="configCode" placeholder="Config Code" required class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
-        <button type="submit" class="bg-[#999999] hover:bg-[#0068ff] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Upload Config</button>
-    </form>
-    <p id="uploadStatus" class="mt-4 text-sm text-gray-300"></p>
+<main class="px-6 py-10">
+    <div class="max-w-3xl mx-auto">
+        <div class="mb-8">
+            <h2 class="text-3xl font-extrabold tracking-tight">Upload New Config</h2>
+            <p class="text-sm text-white/60 mt-2">Need help writing your config? See the <a href="/configs/upload/docs" target="_blank" class="text-[#7ab8ff] underline underline-offset-4 hover:text-[#a7d0ff]">Documentation</a>.</p>
+            <p class="text-sm text-white/60">Want to test your config before uploading? You can test it <a href="/configs/upload/test" target="_blank" class="text-[#7ab8ff] underline underline-offset-4 hover:text-[#a7d0ff]">here</a>.</p>
+        </div>
+
+        <form id="uploadForm" class="bg-[#0f1012]/80 border border-white/10 rounded-2xl shadow-xl p-6 space-y-5">
+            <label class="flex items-start gap-3 text-sm select-none">
+                <input type="checkbox" id="configPrivate" class="custom-checkbox" />
+                <span class="leading-tight">
+              Make this config private
+              <span class="block text-[12px] text-white/50">Only you can view and use it. Public configs are visible to everyone.</span>
+            </span>
+            </label>
+            <p id="privateWarning" class="text-sm font-semibold text-red-500">! Public configs CANNOT be deleted</p>
+
+            <div class="grid gap-4">
+                <div>
+                    <label for="configName" class="block text-sm mb-1 text-white/80">Name</label>
+                    <input type="text" id="configName" placeholder="Name" required class="w-full p-3 rounded-xl bg-[#141518] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#0068ff]/50" />
+                </div>
+                <div>
+                    <label for="configDescription" class="block text-sm mb-1 text-white/80">Description</label>
+                    <textarea id="configDescription" placeholder="Describe what your config looks for and how it scores listings" class="w-full p-3 rounded-xl bg-[#141518] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#0068ff]/50" rows="4"></textarea>
+                </div>
+                <div>
+                    <label for="configPrice" class="block text-sm mb-1 text-white/80">Credits Price</label>
+                    <div class="relative">
+                        <input type="number" id="configPrice" placeholder="Min 50" required min="50" class="w-full p-3 rounded-xl bg-[#141518] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#0068ff]/50 pr-16" />
+                        <span class="absolute inset-y-0 right-3 flex items-center text-white/50 text-sm">credits</span>
+                    </div>
+                    <p id="youReceiveText" class="mt-2 text-sm text-white/70">You will receive: 0 credits</p>
+                </div>
+                <div>
+                    <label for="configCode" class="block text-sm mb-1 text-white/80">Config Code</label>
+                    <textarea id="configCode" placeholder="Write your config code here" required class="w-full p-3 rounded-xl bg-[#0d0f13] border border-white/10 font-mono text-[13px] text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#0068ff]/50" rows="8"></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 pt-2">
+                <div class="text-xs text-white/50">Submitting will upload your config with the current settings.</div>
+                <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#0068ff] to-[#00b3ff] hover:brightness-110 text-black font-extrabold py-2.5 px-5 rounded-xl shadow-lg">
+                    Upload Config
+                </button>
+            </div>
+            <p id="uploadStatus" class="mt-2 text-sm text-white/80"></p>
+        </form>
+    </div>
 </main>
 
 <script>
@@ -211,20 +290,17 @@
         const ffOptions = document.querySelectorAll('.ff-option');
         let selectedAmount = null;
 
-        buyFFBtn?.addEventListener('click', () => {
-            buyFFModal.classList.remove('hidden');
-        });
-
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
         cancelBtn?.addEventListener('click', () => {
             buyFFModal.classList.add('hidden');
-            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
             selectedAmount = null;
         });
 
         ffOptions.forEach(button => {
             button.addEventListener('click', () => {
-                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
-                button.classList.add('border-[#00ff99]');
+                ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+                button.classList.add('ring-2','ring-[#00ff99]');
                 selectedAmount = parseInt(button.dataset.value);
             });
         });
