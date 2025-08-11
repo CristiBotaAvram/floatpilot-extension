@@ -11,7 +11,7 @@
                     listingDataCache[float] = entry;
                 }
             });
-            console.log("[INJECTED FETCH] Cached listings:", listingDataCache);
+            //console.log("[INJECTED FETCH] Cached listings:", listingDataCache);
         }
     });
 
@@ -38,7 +38,7 @@
         try {
             const data = { ...item };
             card.dataset.csfloatData = JSON.stringify(data);
-            console.log(`[DATA ATTACHED TO CARD] Float: ${cardFloat}`, data);
+            //console.log(`[DATA ATTACHED TO CARD] Float: ${cardFloat}`, data);
         } catch (err) {
             console.warn("Failed to attach listing data to card:", err);
         }
@@ -174,7 +174,7 @@
                             const newData = JSON.stringify({ ...item });
                             if (currentData !== newData) {
                                 htmlHeader.dataset.csfloatData = newData;
-                                console.log(`[HEADER UPDATE] data-csfloat-data refreshed for float: ${float}`);
+                                //console.log(`[HEADER UPDATE] data-csfloat-data refreshed for float: ${float}`);
                             }
                         }
                     }
