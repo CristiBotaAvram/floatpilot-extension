@@ -273,14 +273,36 @@
 
     document.getElementById('loadSampleJson')?.addEventListener('click', () => {
         const sample = {
-            item:{
-                market_hash_name:"★ Karambit | Doppler",
-                phase:"Phase 2",
-                float_value:0.03,
-                fade:{percentage:95},
-                blue_gem:{playside_blue:12},
-                stickers:[]
-            }
+            "id": "878316738863827304",
+            "created_at": "2025-08-20T16:37:08.881518Z",
+            "type": "buy_now",
+            "price": 481940,
+            "state": "listed",
+            "reference": {
+                "base_price": 479210,
+                "float_factor": 1.12584,
+                "predicted_price": 539514,
+                "quantity": 130,
+                "last_updated": "2025-08-20T16:36:11.001206Z"
+            },
+            "item": {
+                "def_index": 507,
+                "paint_index": 419,
+                "paint_seed": 836,
+                "float_value": 0.02355693280696869,
+                "is_stattrak": false,
+                "is_souvenir": false,
+                "rarity": 6,
+                "quality": 3,
+                "market_hash_name": "★ Karambit | Doppler (Factory New)",
+                "tradable": 0,
+                "phase": "Phase 2"
+            },
+            "is_seller": false,
+            "min_offer_price": 459434,
+            "max_offer_discount": 467,
+            "is_watchlisted": false,
+            "watchers": 3
         };
         document.getElementById('configDescription').value = JSON.stringify(sample, null, 2);
     });
