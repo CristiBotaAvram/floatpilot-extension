@@ -49,7 +49,7 @@
 <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0f0f0f]/70 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/50">
     <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
         <div class="flex items-center space-x-4">
-            <img src="./icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <img src="../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
             <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
             <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
                 <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
@@ -60,10 +60,10 @@
 
         <div class="flex items-center space-x-3">
             <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
-                <img src="./icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+                <img src="../icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
             </a>
             <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition">
-                <img src="./icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+                <img src="../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
             </a>
 
             <!-- Not logged in -->
@@ -96,8 +96,7 @@
 <main class="max-w-5xl mx-auto px-4 py-10">
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-3xl font-extrabold tracking-tight">Your Transactions</h2>
-        <a id="buyFFBtnTop" href="#" class="hidden md:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0068ff] to-[#00b3ff] px-4 py-2 font-extrabold text-black shadow-lg hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition">Buy Credits</a>
-    </div>
+     </div>
 
     <div class="glass rounded-2xl p-4 shadow-xl">
         <div class="overflow-x-auto rounded-xl border border-white/10">
@@ -145,6 +144,10 @@
             const json = await res.json();
             const transactions = json?.transactions || [];
 
+            // remove skeleton rows
+            document.getElementById('loadingRow1')?.remove();
+            document.getElementById('loadingRow2')?.remove();
+
             if (transactions.length === 0) {
                 emptyMsg.classList.remove('hidden');
                 return;
@@ -152,22 +155,33 @@
 
             transactions.forEach(tx => {
                 const row = document.createElement('tr');
-                row.className = 'hover:bg-[#1f1f1f] transition';
+                row.className = 'hover:bg-white/5 transition';
+
+                const isCredit = Number(tx.amount) > 0;
+                const amountStr = `${isCredit ? '+' : ''}${tx.amount}`;
+                const pill = isCredit ? 'bg-emerald-500/15 text-emerald-300 border-emerald-400/20' : 'bg-rose-500/15 text-rose-300 border-rose-400/20';
 
                 row.innerHTML = `
-            <td class="px-4 py-2 border border-white">${new Date(tx.created_at).toLocaleString()}</td>
-            <td class="px-4 py-2 border border-white text-blue-300">${tx.type}</td>
-            <td class="px-4 py-2 border border-white text-${tx.amount > 0 ? 'green' : 'red'}-400 font-semibold">${tx.amount > 0 ? '+' : ''}${tx.amount}</td>
-          `;
+            <td class="px-4 py-3 border-b border-white/10">${new Date(tx.created_at).toLocaleString()}</td>
+            <td class="px-4 py-3 border-b border-white/10">
+              <span class="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10">${tx.type}</span>
+            </td>
+            <td class="px-4 py-3 border-b border-white/10">
+              <span class="inline-flex items-center px-2 py-1 rounded-md border ${pill} font-semibold">${amountStr}</span>
+            </td>`;
+
                 tbody.appendChild(row);
             });
         } catch (err) {
             console.error('Error fetching transactions:', err);
+            document.getElementById('loadingRow1')?.remove();
+            document.getElementById('loadingRow2')?.remove();
             emptyMsg.textContent = 'Error loading transactions.';
             emptyMsg.classList.remove('hidden');
         }
     });
 </script>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ffBalance = document.getElementById('ffBalance');
