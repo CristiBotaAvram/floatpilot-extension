@@ -4,212 +4,143 @@
     <meta charset="utf-8" />
     <title>FloatPilot</title>
     <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            color: white;
-            background: #0f0f0f;
-            width: 300px;
-            padding: 16px;
+        :root{
+            --bg:#0f0f0f;           /* app background */
+            --card:#1a1b1f;         /* card/row background */
+            --card-2:#1a1b1f;       /* alt row */
+            --border:#2a2c33;       /* subtle borders */
+            --text:#ffffff;         /* main text */
+            --muted:#a1a1aa;        /* secondary text */
+            --accent:#0068ff;       /* brand */
+            --accent-2:#00b3ff;     /* accent gradient end */
+            --ok:#8bffb1;           /* success tint */
+            --shadow:0 10px 30px rgba(0,0,0,.35);
+            --r:10px;               /* radius */
         }
 
-        .user {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
+        *{box-sizing:border-box}
+        html,body{margin:0}
+
+        body{
+            font-family:"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+            color:var(--text);
+            background:var(--bg);
+            width:300px; /* keep extension popup width */
+            padding:16px;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
         }
 
-        .user img {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            margin-right: 12px;
-        }
+        /* ===== Header / user ===== */
+        .user{display:flex;align-items:center;margin-bottom:16px}
+        .avatar-wrap{position:relative;margin-right:12px}
+        .avatar-ring{position:absolute;inset:-2px;border-radius:9999px;padding:2px;background:linear-gradient(135deg,var(--accent),var(--accent-2));filter:blur(.2px)}
+        .avatar-ring > span{display:block;width:48px;height:48px;border-radius:9999px;background:var(--bg)}
+        .user img{position:relative;width:48px;height:48px;border-radius:50%;display:block}
+        .username{font-size:1.05rem;font-weight:800;color:var(--text);line-height:1.1}
+        .badge{margin-top:4px;display:inline-block;padding:2px 8px;font-size:.73rem;border-radius:9999px;color:#000;background:#848884;font-weight:800;letter-spacing:.2px}
 
-        .username {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: white;
-        }
+        /* ===== Sections ===== */
+        .section{margin-top:14px}
+        .section-title{font-weight:900;margin-bottom:8px;font-size:1.02rem;color:var(--text);letter-spacing:.2px}
 
-        .badge {
-            margin-top: 2px;
-            display: inline-block;
-            padding: 2px 8px;
-            font-size: 0.75em;
-            border-radius: 4px;
-            color: black;
-            background: #808080;
-            font-weight: bold;
-        }
+        /* ===== Rows ===== */
+        .setting{background:var(--card);padding:10px 10px;margin-bottom:8px;border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);box-shadow:none;transition:background .2s,border-color .2s,transform .08s}
+        .setting:nth-child(even){background:var(--card-2)}
+        .setting:hover{border-color:#3a3e47}
+        .setting:active{transform:scale(.996)}
+        .setting.locked{opacity:.55;pointer-events:none}
+        .setting-text{font-weight:650}
+        .setting small{display:block;color:var(--muted);font-weight:500}
 
-        .section {
-            margin-top: 16px;
-        }
+        /* ===== Toggle (uses existing .checkbox + .checked) ===== */
+        .checkbox{position:relative;width:38px;height:22px;background:#2b2f37;border:1px solid #3a3e47;border-radius:9999px;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);transition:background .2s,border-color .2s}
+        .checkbox::after{content:"";position:absolute;top:50%;left:3px;width:16px;height:16px;transform:translateY(-50%);background:#fff;border-radius:50%;box-shadow:var(--shadow);transition:left .2s ease}
+        .checkbox.checked{background:linear-gradient(90deg,var(--accent),var(--accent-2));border-color:transparent}
+        .checkbox.checked::after{left:19px}
+        .checkbox:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-        .section-title {
-            font-weight: bold;
-            margin-bottom: 6px;
-            font-size: 1.1em;
-            color: white;
-        }
+        /* ===== Inputs ===== */
+        .profit-input{width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:#0b0c10;font-weight:800;color:#fff;text-align:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
+        .profit-input:focus{outline:2px solid var(--accent);outline-offset:2px}
+        /* remove number spinners */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+        input[type=number]{-moz-appearance:textfield}
 
-        .setting {
-            background: #1f1f1f;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        select#configDropdown{width:100%;padding:8px 10px;margin-top:6px;border:1px solid var(--border);border-radius:8px;background:#0b0c10;color:#fff;font-weight:650}
+        select#configDropdown:focus{outline:2px solid var(--accent);outline-offset:2px}
 
-        .setting.locked {
-            opacity: 0.4;
-            pointer-events: none;
-        }
+        /* ===== Locked group overlay ===== */
+        .locked-group{position:relative}
+        .locked-overlay{position:absolute;inset:0;border-radius:var(--r);background:linear-gradient(to bottom,rgba(0,0,0,.2),rgba(0,0,0,.45));display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;z-index:1;border:1px dashed #60646e}
+        .locked-overlay span{font-weight:900;margin-bottom:8px;letter-spacing:.3px}
+        .upgrade-btn{padding:10px 14px;font-weight:900;color:#000;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;cursor:pointer;box-shadow:var(--shadow)}
+        .upgrade-btn:hover{filter:brightness(1.08)}
 
-        .setting-text {
-            font-weight: 550;
-        }
+        /* ===== Footer ===== */
+        .footer{font-size:.75rem;text-align:left;margin-top:16px;opacity:.7;display:flex;justify-content:space-between;align-items:center}
+        .footer .badge{background:#2c2f36;color:#fff}
 
-        .checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #555;
-            border-radius: 4px;
-            background: transparent;
-        }
-
-        .checkbox.checked {
-            background: white;
-        }
-
-        .profit-input {
-            width: 60px;
-            padding: 4px 6px;
-            border: 2px solid #555;
-            border-radius: 6px;
-            background: #000;
-            font-weight: bold;
-            color: #fff;
-            text-align: center;
-        }
-
-        .locked-group {
-            position: relative;
-        }
-
-        .locked-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            background: rgba(128, 128, 128, 0.5);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            z-index: 1;
-        }
-
-        .locked-overlay span {
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .upgrade-btn {
-            padding: 10px 16px;
-            font-weight: 700;
-            color: white;
-            border-radius: 8px;
-            background: #000000;
-            border: none;
-            cursor: pointer;
-        }
-
-        .upgrade-btn:hover {
-            background: #0068ff;
-            color: black;
-            transition: ease 0.5s;
-        }
-
-        .footer {
-            font-size: 0.75em;
-            text-align: left;
-            margin-top: 16px;
-            opacity: 0.6;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #loginBtn {
-            margin-top: 12px;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            width: 100%;
-            background: #1b2838;
-            border: none;
-            color: white;
-            cursor: pointer;
-            display: none;
-        }
-
-        #loginBtn:hover {
-            background: #2e3d52;
-        }
+        /* Utility */
+        [hidden]{display:none !important}
+        .hidden{display:none !important}
     </style>
 </head>
 <body>
 
 <div class="user">
-    <img id="avatar" src="" alt="Avatar" />
+    <div class="avatar-wrap">
+        <span class="avatar-ring"><span></span></span>
+        <img id="avatar" src="" alt="Avatar" />
+    </div>
     <div>
         <div id="username" class="username">Loading…</div>
         <div id="plan" class="badge">...</div>
     </div>
 </div>
 
-<button id="loginBtn">Log In with Steam</button>
+<button id="loginBtn" hidden>Log In with Steam</button>
 
 <div class="section">
     <div class="section-title">Settings</div>
 
     <div class="setting" data-key="removeTopSeller">
         <div class="setting-text">Remove Top Rated Seller</div>
-        <div class="checkbox"></div>
+        <div class="checkbox" tabindex="0" aria-label="Remove Top Rated Seller toggle"></div>
     </div>
 
     <div class="setting" data-key="cheapestToggle">
         <div class="setting-text">Show Cheapest Listing</div>
-        <div class="checkbox"></div>
+        <div class="checkbox" tabindex="0" aria-label="Show Cheapest Listing toggle"></div>
     </div>
+
     <div class="setting" data-key="floatHighlight">
-        <div class="setting-text">Highlight extreme floats</div>
-        <div class="checkbox"></div>
+        <div class="setting-text">Highlight extreme floats <small>Marks very low/high float items</small></div>
+        <div class="checkbox" tabindex="0" aria-label="Highlight extreme floats toggle"></div>
     </div>
+
     <div class="locked-group">
         <div class="setting locked" data-key="itemEstimation">
-            <div class="setting-text">Advanced Estimation</div>
+            <div class="setting-text">Advanced Estimation <small>Enables profit-aware estimates in cards</small></div>
             <div class="checkbox"></div>
         </div>
-        <div class="setting" id="configSelectorSetting" style="display: none;">
+
+        <div class="setting" id="configSelectorSetting" hidden>
             <div class="setting-text">Select Config</div>
-            <select id="configDropdown" class="profit-input" style="width: 100%; padding: 6px; margin-top: 6px;"></select>
+            <select id="configDropdown" class="profit-input"></select>
         </div>
 
-        <div class="setting locked" data-key="profitTarget">
+        <div class="setting locked " data-key="profitTarget">
             <div class="setting-text">Desired profit (%)</div>
             <input id="profitInput" class="profit-input" type="number" min="0" max="100" step="1" placeholder="10" />
         </div>
+
         <div class="setting locked" data-key="bargainHelper">
             <div class="setting-text">Bargain Helper</div>
             <div class="checkbox"></div>
         </div>
+
         <div class="locked-overlay">
             <span>Pro required</span>
             <button class="upgrade-btn">Upgrade to Pro</button>
@@ -222,6 +153,12 @@
     <div class="badge" id="footerTier">Free</div>
 </div>
 
-<script src="popup.js" type ="module"></script>
+<style>
+    /* Button styles moved to bottom to avoid extension overrides */
+    #loginBtn{margin-top:12px;padding:10px;border-radius:10px;font-weight:900;width:100%;background:#10131a;border:1px solid var(--border);color:#e6e9ef;cursor:pointer;box-shadow:var(--shadow);}
+    #loginBtn:hover{background:#172133;border-color:#2c3442}
+</style>
+
+<script src="popup.js" type="module"></script>
 </body>
 </html>

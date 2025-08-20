@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         chrome.storage.local.get(storageKey, async (result) => {
             const storedSettings = result[storageKey] || {};
             if (storedSettings.itemEstimation) {
-                configSelectorSetting.style.display = 'flex';
+                configSelectorSetting.hidden = true;
                 try {
                     console.log('[FloatPilot] Auto-fetching configs on popup open...');
                     const purchasedRes = await fetch('https://www.floatpilot.store/api/configs/purchased', {
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     checkbox.classList.toggle('checked', checked);
 
                     if (key === 'itemEstimation' && configSelectorSetting) {
-                        configSelectorSetting.style.display = checked ? 'flex' : 'none';
+                        configSelectorSetting.hidden = !checked;
                     }
 
                     el.addEventListener('click', async () => {
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
 
                             if (key === 'itemEstimation' && configSelectorSetting) {
-                                configSelectorSetting.style.display = nowChecked ? 'flex' : 'none';
+                                configSelectorSetting.hidden = !nowChecked;
 
                                 if (nowChecked) {
                                     try {
