@@ -28,6 +28,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    async function disableProOnlyFeatures(storageKey) {
+        chrome.storage.local.get(storageKey, async (result) => {
+            const settings = result[storageKey] || {};
+            const updated = { ...settings, itemEstimation: false, bargainHelper: false };
+            await chrome.storage.local.set({ [storageKey]: updated });
+            console.log('[FloatPilot] Disabled Pro-only features for Free tier');
+        });
+    }
+
     function bindSettings(steamID64, tier) {
         const storageKey = `floatpilot_settings_${steamID64}`;
         console.log('[FloatPilot] Binding settings for:', steamID64, 'Tier:', tier);
@@ -199,15 +208,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             badgeEl.textContent = 'Pro';
         } else {
             planEl.style.backgroundColor = '#808080';
-            badgeEl.style.backgroundColor = '#334155';
+            badgeEl.style.backgroundColor = '#808080';
             planEl.textContent = 'Free';
             badgeEl.textContent = 'Free';
+            disableProOnlyFeatures(storageKey);
         }
     }
 
     try {
+        const { floatpilot_user } = await chrome.storage.local.get('floatpilot_user');
+        const apiKey = floatpilot_user?.apiKey;
+
         const res = await fetch('https://www.floatpilot.store/api/me', {
-            credentials: 'include'
+            headers: { Authorization: `Bearer ${apiKey}` }
         });
 
         if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -234,7 +247,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 console.warn('[FloatPilot] No user info found');
                 setFallbackUI();
-                loginBtn.style.display = 'block';
+                loginBtn.hidden = false;
             }
         });
     }
