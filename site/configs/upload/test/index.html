@@ -6,148 +6,186 @@
     <title>Config Tester</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Background polish */
+        .bg-grid{background-image:linear-gradient(#ffffff12 1px,transparent 1px),linear-gradient(90deg,#ffffff12 1px,transparent 1px);background-size:26px 26px}
+        .radial-spot{background:radial-gradient(2000px 1000px at 50% -10%,rgba(0,104,255,.18),transparent 60%),radial-gradient(1600px 800px at 10% 110%,rgba(0,255,153,.09),transparent 60%)}
+        .glass{background:rgba(15,16,20,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)}
+        .modal-card{background:rgba(17,18,20,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.5)}
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        textarea.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+        .anchor{scroll-margin-top:100px}
     </style>
 </head>
-<!-- Confirmation Modal -->
-<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
-        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
-        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
-                ➜
-            </div>
+
+<!-- Confirmation Modal (unchanged IDs) -->
+<div id="confirmationModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="relative modal-card p-6 rounded-2xl w-full max-w-md text-center">
+        <button id="closeModal" class="absolute top-3 left-3 text-white/80 text-lg font-bold hover:text-white transition">✕</button>
+        <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-5 text-white/70">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border border-white/10 ring-1 ring-white/10">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none shadow-lg">➜</div>
         </div>
     </div>
 </div>
-<body class="bg-[#0f0f0f] text-white font-sans">
+
+<body class="bg-[#0f0f0f] text-white font-sans bg-grid radial-spot min-h-screen">
 
 <!-- FF Purchase Modal -->
-<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
-        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
+<div id="buyFFModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card p-6 rounded-2xl max-w-sm w-full">
+        <h2 class="text-2xl font-extrabold text-center mb-4 tracking-tight">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="50">
+                <span class="block text-base">50 Credits</span>
+                <span class="block text-white/70 text-sm">$5</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="100">
+                <span class="block text-base">100 Credits</span>
+                <span class="block text-white/70 text-sm">$10</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="250">
+                <span class="block text-base">250 Credits</span>
+                <span class="block text-white/70 text-sm">$25</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="500">
+                <span class="block text-base">500 Credits</span>
+                <span class="block text-white/70 text-sm">$50</span>
+            </button>
         </div>
-        <div class="flex justify-end gap-4">
-            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
+        <div class="flex justify-end gap-3">
+            <button id="cancelFFPurchase" class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-semibold">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 rounded-lg bg-[#0068ff] hover:brightness-110 text-black font-extrabold shadow-md">Continue</button>
         </div>
     </div>
 </div>
+
 <!-- Header -->
-<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
-    <div class="flex items-center space-x-4">
-        <img src="../../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
-        <h1 class="text-2xl font-signature">FloatPilot</h1>
-        <nav class="flex space-x-0 ml-6 text-lg">
-            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
-            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-            <!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
-            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
-        </nav>
-    </div>
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0f0f0f]/70 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+        <div class="flex items-center space-x-4">
+            <img src="../../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
+            <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
+                <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
+                <a href="/pricing" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Pricing</a>
+                <a href="/configs" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Configs</a>
+            </nav>
+        </div>
 
-    <div class="flex items-center space-x-4">
-        <!-- Youtube Icon -->
-        <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="../../../icons/icon-youtube.png" alt="GitHub" class="w-7 h-5 hover:opacity-30"/>
-        </a>
-        <!-- X / Twitter icon without circle -->
-        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="../../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
-        </a>
+        <div class="flex items-center space-x-3">
+            <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
+                <img src="../../../icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+            </a>
+            <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition">
+                <img src="../../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+            </a>
 
-        <!-- Not logged in -->
-        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
-        <!-- Logged in -->
-        <div id="userMenu" class="hidden relative">
-            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
-                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
-                <div class="flex items-center gap-2">
-                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+            <!-- Not logged in -->
+            <a href="/api/auth/steam" class="hidden items-center gap-2 bg-black border border-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+            <!-- Logged in -->
+            <div id="userMenu" class="hidden relative">
+                <button class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-ease duration-500">
+                    <img id="avatarImg" src="" alt="avatar" class="w-7 h-7 rounded-full"/>
+                    <span id="tierBadge" class="px-3 py-1 rounded-lg text-white text-xs border border-black/40 shadow-md"></span>
+                    <span id="ffBalance" class="text-white font-semibold hidden md:inline">100 Credits</span>
+                    <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-64 glass rounded-xl shadow-2xl hidden overflow-hidden" id="userDropdown">
+                    <div class="px-4 py-3 border-b border-white/10">
+                        <p id="steamName" class="font-semibold">Steam name</p>
+                        <p id="steamID" class="text-white/60 text-xs">Steam ID</p>
+                    </div>
+                    <a href="#" id="buyFFBtn" class="block px-4 py-2 hover:bg-[#0068ff] hover:text-black transition font-semibold">Buy Credits</a>
+                    <a href="/transactions" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Transactions</a>
+                    <a href="/configs/owned" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Configs</a>
+                    <form method="POST" action="/api/logout">
+                        <button type="submit" class="block w-full text-left px-4 py-2 font-semibold text-[#ff5b5b] hover:bg-[#ff5b5b] hover:text-black transition">Logout</button>
+                    </form>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
-                </div>
-            </button>
-            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
-                <div class="px-4 py-2 border-b border-white">
-                    <p id="steamName" class="font-semibold">Steam name</p>
-                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
-                </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
-                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
-                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
-                <form method="POST" action="/api/logout">
-                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
-                </form>
             </div>
         </div>
     </div>
 </header>
-<main id="mainContent" class="p-8 max-w-xl mx-auto hidden">
-    <h2 class="text-2xl font-bold mb-4">Test Your Config</h2>
-    <form id="uploadForm" class="flex flex-col gap-4">
-        <div class="relative w-full">
-            <button id="jsonHelpBtn" type="button" class="absolute top-2 right-2 text-sm font-bold text-[#848484] hover:text-white z-10">?</button>
-            <textarea id="configDescription" placeholder="Paste item JSON here..." class="p-3 rounded bg-[#1a1a1a] text-white w-full" rows="6"></textarea>
+
+<!-- Main (kept IDs, improved UI) -->
+<main id="mainContent" class="px-6 py-10 max-w-6xl mx-auto hidden">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-6 tracking-tight">Test Your Config</h2>
+    <p class="text-white/70 mb-6">Paste an item JSON extracted from CSFloat and your config code. We'll run your logic on our backend with recent sales data.
+        <a href="/configs/upload/docs" class="underline hover:text-[#00b3ff]">Read the docs</a>.</p>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Item JSON -->
+        <div class="glass rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <label for="configDescription" class="font-semibold">Item JSON</label>
+                <div class="flex items-center gap-2">
+                    <button id="jsonHelpBtn" type="button" class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/15">How to get</button>
+                    <button id="loadSampleJson" type="button" class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/15">Load sample</button>
+                    <button id="formatJson" type="button" class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/15">Format</button>
+                </div>
+            </div>
+            <textarea id="configDescription" placeholder="Paste item JSON here..." class="mono p-3 rounded-lg bg-[#16181d] text-white w-full min-h-[260px]" ></textarea>
         </div>
-        <textarea id="configCode" placeholder="Paste your Config Code here..." required class="p-3 rounded bg-[#1a1a1a] text-white" rows="6"></textarea>
-        <button type="submit" class="bg-[#999999] hover:bg-[#0068ff] text-black font-bold py-2 px-4 rounded transition-ease duration-500">Test Config</button>
-    </form>
-    <p id="uploadStatus" class="mt-4 text-sm text-gray-300"></p>
-    <div id="estimationResult" class="mt-6 text-green-400 font-bold"></div>
-    <div id="jsonHelpModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 overflow-hidden">
-        <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-lg relative max-h-[90vh] overflow-y-scroll scrollbar-hide">
-            <button id="closeJsonHelp" class="absolute top-2 right-2 text-white text-xl font-bold">✕</button>
-            <h3 class="text-xl font-bold mb-4">How to Get Item JSON</h3>
-            <ol class="text-gray-300 list-decimal list-inside space-y-3 text-sm">
-                <li>Go to the <strong>CSFloat</strong> page with the item you want.</li>
-                <li>Right-click on the item listing and choose <strong>Inspect</strong>.</li>
-                <img src="../../../pictures/floatpilot1.png" alt="Step 1: Right click Inspect" class="rounded-lg w-full border border-gray-600"/>
-                <li>Find the HTML element containing <code>data-csfloat-data</code>.</li>
-                <img src="../../../pictures/floatpilot2.png" alt="Step 2: Locate data-csfloat-data" class="rounded-lg w-full border border-gray-600"/>
-                <li>Double-click the value inside that attribute and copy it fully.</li>
-                <img src="../../../pictures/floatpilot3.png" alt="Step 3: Copy the content" class="rounded-lg w-full border border-gray-600"/>
-                <li>Paste the result in the box, this is your item JSON.</li>
-                <img src="../../../pictures/floatpilot4.png" alt="Step 4: Paste it in the box" class="rounded-lg w-full border border-gray-600"/>
-            </ol>
+
+        <!-- Config Code -->
+        <div class="glass rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <label for="configCode" class="font-semibold">Config Code</label>
+                <div class="flex items-center gap-2">
+                    <button id="loadDefaultConfig" type="button" class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/15">Load default</button>
+                    <button id="copyConfig" type="button" class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/15">Copy</button>
+                </div>
+            </div>
+            <textarea id="configCode" placeholder="Paste your Config Code here..." required class="mono p-3 rounded-lg bg-[#16181d] text-white w-full min-h-[260px]"></textarea>
         </div>
     </div>
 
-    <script>
-        document.getElementById('jsonHelpBtn')?.addEventListener('click', () => {
-            document.getElementById('jsonHelpModal')?.classList.remove('hidden');
-        });
-        document.getElementById('closeJsonHelp')?.addEventListener('click', () => {
-            document.getElementById('jsonHelpModal')?.classList.add('hidden');
-        });
+    <form id="uploadForm" class="mt-6">
+        <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#0068ff] to-[#00b3ff] text-black font-extrabold py-2.5 px-5 rounded-xl shadow hover:brightness-110">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm8-4a1 1 0 011 1v2h2a1 1 0 110 2h-2v2a1 1 0 11-2 0v-2H6a1 1 0 110-2h2V7a1 1 0 011-1z"/></svg>
+            Test Config
+        </button>
+        <span id="uploadStatus" class="ml-3 text-sm text-white/70"></span>
+    </form>
 
-        // Close modal when clicking outside the content
-        const jsonHelpModal = document.getElementById('jsonHelpModal');
-        const modalContent = jsonHelpModal?.querySelector('div[class="bg-[#1f1f1f]"]');
-
-        jsonHelpModal?.addEventListener('click', (e) => {
-            if (e.target === jsonHelpModal) {
-                jsonHelpModal.classList.add('hidden');
-            }
-        });
-    </script>
-
+    <!-- Result -->
+    <div id="resultCard" class="hidden mt-6 glass rounded-2xl p-5">
+        <p class="text-sm text-white/60">Estimated Price</p>
+        <div id="estimationResult" class="mt-1 text-3xl font-extrabold text-[#00ffa3]"></div>
+    </div>
 </main>
-<div id="accessDenied" class="p-8 max-w-xl mx-auto text-center hidden">
-    <h2 class="text-2xl font-bold text-red-500">Access Denied</h2>
-    <p class="text-white mt-2">You need <span class="font-bold text-blue-400">Pro tier</span> to use this feature.</p>
-    <a href="/pricing" class="inline-block mt-4 px-6 py-2 bg-blue-500 text-black font-bold rounded hover:bg-blue-400">View Plans</a>
+
+<!-- Access denied -->
+<div id="accessDenied" class="px-6 py-16 max-w-3xl mx-auto text-center hidden">
+    <h2 class="text-3xl font-extrabold text-red-400">Access Denied</h2>
+    <p class="text-white/80 mt-2">You need <span class="font-bold text-[#00b3ff]">Pro</span> to use this feature.</p>
+    <a href="/pricing" class="inline-block mt-4 px-6 py-2 bg-[#0068ff] text-black font-extrabold rounded-xl hover:brightness-110">View Plans</a>
 </div>
 
+<!-- Help Modal (kept IDs) -->
+<div id="jsonHelpModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 overflow-hidden p-4">
+    <div class="modal-card p-6 rounded-2xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto scrollbar-hide">
+        <button id="closeJsonHelp" class="absolute top-3 right-3 text-white text-xl font-bold">✕</button>
+        <h3 class="text-2xl font-extrabold mb-4 tracking-tight">How to Get Item JSON</h3>
+        <ol class="text-white/80 list-decimal list-inside space-y-3 text-sm">
+            <li>Go to the <strong>CSFloat</strong> page with the item you want.</li>
+            <li>Right-click on the item listing and choose <strong>Inspect</strong>.</li>
+            <img src="../../../pictures/floatpilot1.png" alt="Step 1: Right click Inspect" class="rounded-lg w-full border border-white/10"/>
+            <li>Find the HTML element containing <code class="bg-white/10 px-1.5 py-0.5 rounded">data-csfloat-data</code>.</li>
+            <img src="../../../pictures/floatpilot2.png" alt="Step 2: Locate data-csfloat-data" class="rounded-lg w-full border border-white/10"/>
+            <li>Double-click the value inside that attribute and copy it fully.</li>
+            <img src="../../../pictures/floatpilot3.png" alt="Step 3: Copy the content" class="rounded-lg w-full border border-white/10"/>
+            <li>Paste the result in the box, this is your item JSON.</li>
+            <img src="../../../pictures/floatpilot4.png" alt="Step 4: Paste it in the box" class="rounded-lg w-full border border-white/10"/>
+        </ol>
+    </div>
+</div>
+
+<footer class="text-center text-white/60 text-sm mt-12 mb-6">&copy; 2025 FloatPilot. All rights reserved.</footer>
+
+<!-- Gating + header auth (kept logic/IDs) -->
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
         const mainContent = document.getElementById('mainContent');
@@ -156,69 +194,152 @@
         try {
             const res = await fetch('/api/me');
             const data = await res.json();
+            if (data?.tier === 'Pro') mainContent.classList.remove('hidden');
+            else accessDenied.classList.remove('hidden');
 
-            if (data?.tier === 'Pro') {
-                mainContent.classList.remove('hidden');
+            // Header fill
+            const ffBalance = document.getElementById('ffBalance');
+            if (data.loggedIn) {
+                document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                document.getElementById('userMenu')?.classList.remove('hidden');
+                document.getElementById('avatarImg').src = data.avatarUrl || '';
+                document.getElementById('steamName').textContent = data.displayName || '';
+                document.getElementById('steamID').textContent = data.steamID64 || '';
+                if (ffBalance) ffBalance.textContent = `${data.ff_balance || 0} Credits`;
+                const tier = data.tier || 'Free';
+                let tierColor = '#848884';
+                if (tier === 'Pro') tierColor = '#0068ff';
+                const tierBadge = document.getElementById('tierBadge');
+                if (tierBadge) { tierBadge.textContent = tier; tierBadge.style.backgroundColor = tierColor; tierBadge.style.color = '#000'; tierBadge.style.fontWeight = 'bold'; }
             } else {
-                accessDenied.classList.remove('hidden');
+                document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
+                document.getElementById('userMenu')?.classList.add('hidden');
             }
         } catch (err) {
             accessDenied.classList.remove('hidden');
         }
+
+        // Header dropdown
+        document.getElementById('userMenu')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            document.getElementById('userDropdown')?.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.getElementById('userMenu');
+            if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) dropdown.classList.add('hidden');
+        });
+    });
+</script>
+
+<!-- Tester UI logic (kept endpoints/IDs) -->
+<script>
+    const statusEl = document.getElementById('uploadStatus');
+    const resultEl = document.getElementById('estimationResult');
+    const resultCard = document.getElementById('resultCard');
+
+    // Helpers
+    function showStatus(msg){ if(statusEl){ statusEl.textContent = msg; } }
+    function showResult(value){
+        if(!resultEl || !resultCard) return;
+        if (value == null || Number.isNaN(value)) {
+            resultEl.classList.remove('text-[#00ffa3]');
+            resultEl.classList.add('text-red-400');
+            resultEl.textContent = 'No estimate returned (null).';
+        } else {
+            resultEl.classList.remove('text-red-400');
+            resultEl.classList.add('text-[#00ffa3]');
+            resultEl.textContent = `$${value.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+        }
+        resultCard.classList.remove('hidden');
+    }
+
+    // JSON Help modal
+    document.getElementById('jsonHelpBtn')?.addEventListener('click', () => {
+        document.getElementById('jsonHelpModal')?.classList.remove('hidden');
+    });
+    document.getElementById('closeJsonHelp')?.addEventListener('click', () => {
+        document.getElementById('jsonHelpModal')?.classList.add('hidden');
+    });
+    document.getElementById('jsonHelpModal')?.addEventListener('click', (e) => {
+        const modal = document.getElementById('jsonHelpModal');
+        if (e.target === modal) modal.classList.add('hidden');
     });
 
+    // Convenience buttons
+    document.getElementById('formatJson')?.addEventListener('click', () => {
+        const ta = document.getElementById('configDescription');
+        try{ ta.value = JSON.stringify(JSON.parse(ta.value.replaceAll('&quot;','"')), null, 2); }
+        catch{ /* ignore */ }
+    });
+
+    document.getElementById('loadSampleJson')?.addEventListener('click', () => {
+        const sample = {
+            item:{
+                market_hash_name:"★ Karambit | Doppler",
+                phase:"Phase 2",
+                float_value:0.03,
+                fade:{percentage:95},
+                blue_gem:{playside_blue:12},
+                stickers:[]
+            }
+        };
+        document.getElementById('configDescription').value = JSON.stringify(sample, null, 2);
+    });
+
+    document.getElementById('loadDefaultConfig')?.addEventListener('click', () => {
+        const def = `function run(listings, item) {\n  function getFloatBucket(f) {\n    const r = [[0.75,1],[0.5,0.75],[0.45,0.5],[0.4,0.45],[0.38,0.4],[0.3,0.38],[0.24,0.3],[0.21,0.24],[0.18,0.21],[0.165,0.18],[0.15,0.165],[0.12,0.15],[0.09,0.12],[0.07,0.09],[0.06,0.07],[0.01,0.06],[0.001,0.01],[0,0.001]];\n    for (const [min, max] of r) if (f <= max && f > min) return [min, max];\n    return null;\n  }\n  function within(a,b,t){return typeof a==='number'&&typeof b==='number'&&Math.abs(a-b)<=t;}\n  const b = getFloatBucket(item.float_value);\n  if(!b) return null;\n  const TOL_FADE=3,TOL_BLUE=3, now=Date.now(), decayDays=1, trimPercent=0.15;\n  const baseOnly=listings.filter(s=> s.float_value>b[0]&&s.float_value<=b[1] && (item.fade_percent==null||within(s.fade_percent,item.fade_percent,TOL_FADE)) && (item.playside_blue==null||within(s.playside_blue,item.playside_blue,TOL_BLUE)) && s.stickers==='[]');\n  if(baseOnly.length<3) return null;\n  const sorted=baseOnly.slice().sort((a,b)=>a.sale_price-b.sale_price);\n  const cut=Math.floor(sorted.length*trimPercent);\n  const trimmed=sorted.slice(cut,sorted.length-cut);\n  const weighted=trimmed.map(s=>{const age=(now-new Date(s.sale_date).getTime())/(1000*60*60*24);const w=Math.exp(-age/decayDays);return {p:s.sale_price,w};});\n  const sumW=weighted.reduce((a,x)=>a+x.w,0);\n  const base=sumW?weighted.reduce((a,x)=>a+x.p*x.w,0)/sumW:null;\n  if(!base) return null;\n  let stickerPrice=0,boost=0;\n  try{const stickers=JSON.parse(item.stickers||'[]');stickerPrice=stickers.reduce((sum,s)=>sum+(s.reference?.price||0),0);if(stickerPrice<100)boost=0.1;else if(stickerPrice<1000)boost=0.05;else boost=0.02;}catch{}\n  return Math.round(base+(stickerPrice*boost));\n}`;
+        document.getElementById('configCode').value = def;
+    });
+
+    document.getElementById('copyConfig')?.addEventListener('click', async () => {
+        try{ await navigator.clipboard.writeText(document.getElementById('configCode').value); }
+        catch(err){ console.error('Copy failed', err); }
+    });
+
+    // Submit
     document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        const itemText = document.getElementById('configDescription').value;
-        const configCode = document.getElementById('configCode').value;
-        const statusEl = document.getElementById('uploadStatus');
-        const resultEl = document.getElementById('estimationResult');
-
-        statusEl.textContent = 'Running estimation...';
-        resultEl.textContent = '';
+        showStatus('Running estimation…');
+        showResult(null); // reset
 
         try {
-            const itemData = JSON.parse(itemText.replaceAll('&quot;', '"'));
+            const itemText = document.getElementById('configDescription').value || '{}';
+            const configCode = document.getElementById('configCode').value || '';
+            const raw = JSON.parse(itemText.replaceAll('&quot;','"'));
 
             const item = {
-                float_value: itemData.item.float_value,
-                fade_percent: itemData.item.fade?.percentage,
-                playside_blue: itemData.item.blue_gem?.playside_blue,
-                stickers: JSON.stringify(itemData.item.stickers || [])
+                float_value: raw?.item?.float_value,
+                fade_percent: raw?.item?.fade?.percentage,
+                playside_blue: raw?.item?.blue_gem?.playside_blue,
+                stickers: JSON.stringify(raw?.item?.stickers || [])
             };
 
-            if (itemData.item.phase) {
-                itemData.item.market_hash_name = `${itemData.item.market_hash_name} | ${itemData.item.phase}`;
+            if (raw?.item?.phase) {
+                raw.item.market_hash_name = `${raw.item.market_hash_name} | ${raw.item.phase}`;
             }
 
-            const batchPayload = [
-                {
-                    code: configCode,
-                    item: {
-                        ...item,
-                        market_hash_name: itemData.item.market_hash_name
-                    }
-                }
-            ];
+            const batchPayload = [{
+                code: configCode,
+                item: { ...item, market_hash_name: raw?.item?.market_hash_name }
+            }];
 
-            const estimationRes = await fetch("https://www.floatpilot.store/api/estimationTester", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const estimationRes = await fetch('https://www.floatpilot.store/api/estimationTester', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ listingsArray: batchPayload })
             });
 
             const result = await estimationRes.json();
-            const estimatedPrice = result?.prices?.[0] / 100;
-
-            resultEl.textContent = `Estimated Price: $${estimatedPrice.toFixed(2)}`;
-            statusEl.textContent = 'Estimation complete.';
+            const cents = Array.isArray(result?.prices) ? result.prices[0] : undefined;
+            const price = typeof cents === 'number' ? cents/100 : null;
+            showResult(price);
+            showStatus('Estimation complete.');
         } catch (err) {
-            statusEl.textContent = 'Error during estimation: ' + err.message;
+            showStatus('Error during estimation: ' + (err?.message || String(err)));
         }
     });
-</script>
-<script>
+</script><script>
     document.addEventListener('DOMContentLoaded', () => {
         const ffBalance = document.getElementById('ffBalance');
 
@@ -263,6 +384,7 @@
     });
 </script>
 <script>
+    // --------- Buy credits modal (unchanged) ---------
     document.addEventListener('DOMContentLoaded', () => {
         const buyFFBtn = document.getElementById('buyFFBtn');
         const buyFFModal = document.getElementById('buyFFModal');
@@ -271,20 +393,17 @@
         const ffOptions = document.querySelectorAll('.ff-option');
         let selectedAmount = null;
 
-        buyFFBtn?.addEventListener('click', () => {
-            buyFFModal.classList.remove('hidden');
-        });
-
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
         cancelBtn?.addEventListener('click', () => {
             buyFFModal.classList.add('hidden');
-            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
             selectedAmount = null;
         });
 
         ffOptions.forEach(button => {
             button.addEventListener('click', () => {
-                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
-                button.classList.add('border-[#00ff99]');
+                ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+                button.classList.add('ring-2','ring-[#00ff99]');
                 selectedAmount = parseInt(button.dataset.value);
             });
         });
@@ -295,17 +414,12 @@
 
             try {
                 const res = await fetch('/api/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
                 });
-
                 const { url } = await res.json();
-                if (url) window.location.href = url;
-                else alert('Failed to create Stripe checkout session.');
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
+                if (url) window.location.href = url; else alert('Failed to create Stripe checkout session.');
+            } catch (err) { alert('Error: ' + err.message); }
         });
     });
 </script>

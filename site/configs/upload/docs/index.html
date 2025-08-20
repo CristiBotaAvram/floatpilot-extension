@@ -5,154 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Docs</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Background polish */
+        .bg-grid{background-image:linear-gradient(#ffffff12 1px,transparent 1px),linear-gradient(90deg,#ffffff12 1px,transparent 1px);background-size:26px 26px}
+        .radial-spot{background:radial-gradient(2000px 1000px at 50% -10%,rgba(0,104,255,.18),transparent 60%),radial-gradient(1000px 500px at 10% 110%,rgba(0,255,153,.09),transparent 60%)}
+        /* Glass + modal */
+        .glass{background:rgba(15,16,20,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)}
+        .modal-card{background:rgba(17,18,20,.92);border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+        /* Headings anchor offset for sticky header */
+        .anchor{scroll-margin-top:100px}
+        /* Code blocks */
+        .code-wrap{position:relative}
+        .copy-btn{position:absolute;top:.5rem;right:.5rem}
+        pre{tab-size:2}
+        code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    </style>
 </head>
-<!-- Confirmation Modal -->
-<div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="relative bg-[#1f1f1f] p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-        <button id="closeModal" class="absolute top-2 left-2 text-white text-lg font-bold">✕</button>
-        <h2 class="text-xl font-bold mb-2">Confirm Subscription</h2>
-        <p id="confirmationText" class="mb-4 text-gray-300">Slide to confirm your subscription.</p>
-        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border-2 border-gray-300">
-            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none">
-                ➜
-            </div>
+
+<!-- Confirmation Modal (kept, IDs unchanged) -->
+<div id="confirmationModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="relative modal-card p-6 rounded-2xl w-full max-w-md text-center">
+        <button id="closeModal" class="absolute top-3 left-3 text-white/80 text-lg font-bold hover:text-white transition">✕</button>
+        <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Confirm Subscription</h2>
+        <p id="confirmationText" class="mb-5 text-white/70">Slide to confirm your subscription.</p>
+        <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border border-white/10 ring-1 ring-white/10">
+            <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none shadow-lg">➜</div>
         </div>
     </div>
 </div>
-<body class="bg-[#0f0f0f] text-white font-sans">
+
+<body class="bg-[#0f0f0f] text-white font-sans bg-grid radial-spot min-h-screen">
 
 <!-- FF Purchase Modal -->
-<div id="buyFFModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-[#1f1f1f] p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 class="text-xl font-bold text-center mb-4">Buy Credits</h2>
-        <div id="ffOptionGrid" class="grid grid-cols-2 gap-4 mb-6">
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="50">50 Credits<br>$5</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="100">100 Credits<br>$10</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="250">250 Credits<br>$25</button>
-            <button class="ff-option px-4 py-3 border border-2 border-white rounded-lg text-white text-lg font-semibold hover:bg-[#505050] transition" data-value="500">500 Credits<br>$50</button>
+<div id="buyFFModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card p-6 rounded-2xl max-w-sm w-full">
+        <h2 class="text-2xl font-extrabold text-center mb-4 tracking-tight">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="50">
+                <span class="block text-base">50 Credits</span>
+                <span class="block text-white/70 text-sm">$5</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="100">
+                <span class="block text-base">100 Credits</span>
+                <span class="block text-white/70 text-sm">$10</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="250">
+                <span class="block text-base">250 Credits</span>
+                <span class="block text-white/70 text-sm">$25</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="500">
+                <span class="block text-base">500 Credits</span>
+                <span class="block text-white/70 text-sm">$50</span>
+            </button>
         </div>
-        <div class="flex justify-end gap-4">
-            <button id="cancelFFPurchase" class="px-4 py-2 bg-[#505050] font-semibold text-white rounded">Cancel</button>
-            <button id="confirmFFPurchase" class="px-4 py-2 bg-[#0068ff] font-semibold text-black rounded">Continue</button>
+        <div class="flex justify-end gap-3">
+            <button id="cancelFFPurchase" class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-semibold">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 rounded-lg bg-[#0068ff] hover:brightness-110 text-black font-extrabold shadow-md">Continue</button>
         </div>
     </div>
 </div>
+
 <!-- Header -->
-<header class="flex justify-between items-center px-6 py-4 bg-[#0f0f0f]">
-    <div class="flex items-center space-x-4">
-        <img src="../../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
-        <h1 class="text-2xl font-signature">FloatPilot</h1>
-        <nav class="flex space-x-0 ml-6 text-lg">
-            <a href="/" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Home</a>
-            <a href="/pricing" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Pricing</a>
-<!--            <a href="/marketplace" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Marketplace</a>-->
-            <a href="/configs" class="px-3 py-1 rounded font-medium hover:bg-[#1f1f1f] transition-ease duration-500">Configs</a>
-        </nav>
-    </div>
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0f0f0f]/70 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+        <div class="flex items-center space-x-4">
+            <img src="../../../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
+            <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
+                <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
+                <a href="/pricing" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Pricing</a>
+                <a href="/configs" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Configs</a>
+            </nav>
+        </div>
 
-    <div class="flex items-center space-x-4">
-        <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="GitHub" class="hover:opacity-80 transition-opacity">
-            <img src="../../../icons/icon-youtube.png" alt="GitHub" class="w-7 h-5 hover:opacity-30"/>
-        </a>
-        <!-- X / Twitter icon without circle -->
-        <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="hover:opacity-80 transition-opacity ">
-            <img src="../../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full hover:opacity-30"/>
-        </a>
+        <div class="flex items-center space-x-3">
+            <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
+                <img src="../../../icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+            </a>
+            <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition">
+                <img src="../../../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+            </a>
 
-        <!-- Not logged in -->
-        <a href="/api/auth/steam" class="bg-[#000000] hover:bg-white text-white hover:text-black px-4 py-2 rounded font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
-        <!-- Logged in -->
-        <div id="userMenu" class="hidden relative">
-            <button class="flex items-center space-x-3 px-3 py-1 rounded hover:bg-[#1f1f1f] transition-ease duration-500">
-                <img id="avatarImg" src="" alt="avatar" class="w-6 h-6 rounded-full"/>
-                <div class="flex items-center gap-2">
-                    <span id="tierBadge" class="px-4 py-1 rounded-xl text-white font-extrabold text-sm border border-black shadow-md" style="text-shadow: 1px 1px 1px black;"></span>
+            <!-- Not logged in -->
+            <a href="/api/auth/steam" class="hidden items-center gap-2 bg-black border border-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+            <!-- Logged in -->
+            <div id="userMenu" class="hidden relative">
+                <button class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-ease duration-500">
+                    <img id="avatarImg" src="" alt="avatar" class="w-7 h-7 rounded-full"/>
+                    <span id="tierBadge" class="px-3 py-1 rounded-lg text-white text-xs border border-black/40 shadow-md"></span>
+                    <span id="ffBalance" class="text-white font-semibold hidden md:inline">100 Credits</span>
+                    <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-64 glass rounded-xl shadow-2xl hidden overflow-hidden" id="userDropdown">
+                    <div class="px-4 py-3 border-b border-white/10">
+                        <p id="steamName" class="font-semibold">Steam name</p>
+                        <p id="steamID" class="text-white/60 text-xs">Steam ID</p>
+                    </div>
+                    <a href="#" id="buyFFBtn" class="block px-4 py-2 hover:bg-[#0068ff] hover:text-black transition font-semibold">Buy Credits</a>
+                    <a href="/transactions" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Transactions</a>
+                    <a href="/configs/owned" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Configs</a>
+                    <form method="POST" action="/api/logout">
+                        <button type="submit" class="block w-full text-left px-4 py-2 font-semibold text-[#ff5b5b] hover:bg-[#ff5b5b] hover:text-black transition">Logout</button>
+                    </form>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span id="ffBalance" class="text-white font-semibold">100 Credits</span>
-                </div>
-            </button>
-            <div class="absolute right-0 mt-2 w-56 bg-[#0f0f0f] border border-white rounded-md shadow-lg hidden" id="userDropdown">
-                <div class="px-4 py-2 border-b border-white">
-                    <p id="steamName" class="font-semibold">Steam name</p>
-                    <p id="steamID" class="text-[#808080] text-xs">Steam ID</p>
-                </div>
-                <a href="#" id="buyFFBtn" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-[#0068ff] transition-ease duration-500">Buy Credits</a>
-                <a href="/transactions" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Transactions</a>
-                <a href="/configs/owned" class="block px-4 py-2 font-normal hover:text-black font-semibold hover:bg-white transition-ease duration-500">Configs</a>
-                <form method="POST" action="/api/logout">
-                    <button type="submit" class="block w-full rounded-b-md text-left px-4 py-2 font-semibold text-[#ff0000] hover:bg-[#ff0000] hover:text-[#000000] transition-ease duration-500">Logout</button>
-                </form>
             </div>
         </div>
     </div>
 </header>
-<main class="px-6 py-8 max-w-4xl mx-auto text-white">
-    <h1 class="text-3xl font-bold mb-6">Sandbox Config Documentation</h1>
 
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">What is a Config?</h2>
-        <p class="text-gray-300">
-            A config is a custom script written in JavaScript that analyzes a list of past skin sales (<code class="bg-[#1f1f1f] px-2 py-1 rounded">listings[]</code>) and returns a single number — your suggested price or value estimation.
-        </p>
-        <p class="text-gray-300 mt-2">
-            You also receive the current <code class="bg-[#1f1f1f] px-2 py-1 rounded">item</code> object to compare against each listing.
-        </p>
-    </section>
+<!-- Hero -->
+<section class="max-w-7xl mx-auto px-6 pt-10 pb-6">
+    <div class="flex items-center justify-between gap-6">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Sandbox Config Documentation</h1>
+            <p class="text-white/70 mt-2">Write a JavaScript function that estimates a fair value for the current item using past sales.
+                Keep it pure and fast—no network calls or DOM access.</p>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <a href="/configs/upload/test" class="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2 font-semibold transition">Open Test Sandbox</a>
+                <a href="/configs/upload" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0068ff] to-[#00b3ff] px-4 py-2 font-extrabold text-black shadow-lg hover:brightness-110 transition">Upload Config</a>
+            </div>
+        </div>
+        <nav class="hidden lg:block glass rounded-2xl p-4 min-w-[260px]">
+            <p class="text-sm font-bold mb-2 text-white/80">On this page</p>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#what-is" class="hover:text-[#00b3ff]">What is a Config?</a></li>
+                <li><a href="#inputs" class="hover:text-[#00b3ff]">Inputs</a></li>
+                <li><a href="#return" class="hover:text-[#00b3ff]">Return Value</a></li>
+                <li><a href="#first" class="hover:text-[#00b3ff]">First Config</a></li>
+                <li><a href="#default" class="hover:text-[#00b3ff]">Default Example</a></li>
+                <li><a href="#security" class="hover:text-[#00b3ff]">Security</a></li>
+                <li><a href="#tips" class="hover:text-[#00b3ff]">Tips</a></li>
+            </ul>
+        </nav>
+    </div>
+</section>
 
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Inputs</h2>
-        <ul class="list-disc pl-6 text-gray-300">
-            <li><code>listings[]</code>: array of past sales. Each entry has fields like <code>sale_price</code>, <code>float_value</code>, <code>fade_percent</code>, <code>playside_blue</code>, <code>sale_date</code>, etc.</li>
-            <li><code>item</code>: the current item being estimated. Contains fields like <code>float_value</code>, <code>fade_percent</code>, <code>playside_blue</code>, and <code>stickers</code>.</li>
-        </ul>
-    </section>
+<!-- Main -->
+<main class="px-6 pb-12 max-w-7xl mx-auto grid lg:grid-cols-[1fr_280px] gap-8">
+    <article class="space-y-10">
+        <section id="what-is" class="anchor">
+            <h2 class="text-2xl font-extrabold mb-2 tracking-tight">What is a Config?</h2>
+            <p class="text-white/80">A config is a JavaScript function that analyzes a list of past sales (<code class="bg-white/10 px-1.5 py-0.5 rounded">listings[]</code>) and returns a single number—your suggested price/value. You also receive the current <code class="bg-white/10 px-1.5 py-0.5 rounded">item</code> object for comparison.</p>
+        </section>
 
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Return Value</h2>
-        <p class="text-gray-300">
-            Your script must return a single number — this will be shown as the estimated price on the CSFloat listing card. If your config can’t estimate (e.g. not enough data), return <code>null</code>.
-        </p>
-    </section>
+        <section id="inputs" class="anchor">
+            <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Inputs</h2>
+            <ul class="list-disc pl-6 text-white/80 space-y-1">
+                <li><code class="bg-white/10 px-1.5 py-0.5 rounded">listings[]</code>: past sales with fields like <code>sale_price</code>, <code>float_value</code>, <code>fade_percent</code>, <code>playside_blue</code>, <code>sale_date</code>, <code>stickers</code>, …</li>
+                <li><code class="bg-white/10 px-1.5 py-0.5 rounded">item</code>: current item’s <code>float_value</code>, <code>fade_percent</code>, <code>playside_blue</code>, <code>stickers</code>, etc.</li>
+            </ul>
+        </section>
 
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Writing Your First Config</h2>
-        <p class="text-gray-300 mb-2">Here’s the simplest possible config — it returns the average price of all listings:</p>
-        <pre class="bg-[#1a1a1a] p-4 rounded text-sm overflow-x-auto">
-<code>function run(listings, item) {
-    let total = 0;
-    for (let l of listings) {
-      total += l.sale_price;
-    }
+        <section id="return" class="anchor">
+            <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Return Value</h2>
+            <p class="text-white/80">Return a <strong>number</strong> (credits). If your config can’t estimate, return <code class="bg-white/10 px-1.5 py-0.5 rounded">null</code>.</p>
+        </section>
 
- return total / listings.length;
-}</code>
-        </pre>
+        <section id="first" class="anchor">
+            <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Writing Your First Config</h2>
+            <p class="text-white/80 mb-3">Simplest possible: average of all sale prices.</p>
+            <div class="code-wrap glass rounded-xl">
+                <button class="copy-btn bg-white/10 hover:bg-white/20 border border-white/15 text-xs px-2 py-1 rounded m-2" data-copy-target="#code-avg">Copy</button>
+                <pre class="p-4 overflow-x-auto text-sm"><code id="code-avg">function run(listings, item) {
+  let total = 0;
+  for (const l of listings) total += l.sale_price;
+  return listings.length ? total / listings.length : null;
+}</code></pre>
+            </div>
+        </section>
 
-        <p class="text-gray-300 mt-4">But some configs will:</p>
-        <ul class="list-disc pl-6 text-gray-300">
-            <li>Group listings by float range (e.g., 0.07–0.09)</li>
-            <li>Filter by fade percent, blue %, and stickers</li>
-            <li>Trim outliers (lowest/highest prices)</li>
-            <li>Use time-decay weighting to prioritize recent sales</li>
-            <li>Add a small bonus for stickers</li>
-        </ul>
-
-        <p class="text-gray-300 mt-4">The following default config shows how to do all of the above.</p>
-    </section>
-
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Default Config Example</h2>
-        <pre class="bg-[#1a1a1a] p-4 rounded text-sm overflow-x-auto">
-<code>function run(listings, item) {
+        <section id="default" class="anchor">
+            <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Default Config Example</h2>
+            <p class="text-white/70 mb-3">Buckets float, filters fade/blue, trims outliers, time‑decays, and boosts for stickers.</p>
+            <div class="code-wrap glass rounded-xl">
+                <button class="copy-btn bg-white/10 hover:bg-white/20 border border-white/15 text-xs px-2 py-1 rounded m-2" data-copy-target="#code-default">Copy</button>
+                <pre class="p-4 overflow-x-auto text-sm"><code id="code-default">function run(listings, item) {
   function getFloatBucket(f) {
     const r = [[0.75,1],[0.5,0.75],[0.45,0.5],[0.4,0.45],[0.38,0.4],[0.3,0.38],[0.24,0.3],[0.21,0.24],[0.18,0.21],[0.165,0.18],[0.15,0.165],[0.12,0.15],[0.09,0.12],[0.07,0.09],[0.06,0.07],[0.01,0.06],[0.001,0.01],[0,0.001]];
     for (const [min, max] of r) if (f <= max && f > min) return [min, max];
     return null;
   }
-  function within(a, b, t) {
-    return typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= t;
-  }
+  function within(a, b, t) { return typeof a==='number' && typeof b==='number' && Math.abs(a-b) <= t; }
 
   const b = getFloatBucket(item.float_value);
   if (!b) return null;
@@ -168,58 +201,88 @@
 
   if (baseOnly.length < 3) return null;
 
-  const sorted = baseOnly.slice().sort((a, b) => a.sale_price - b.sale_price);
+  const sorted = baseOnly.slice().sort((a,b) => a.sale_price - b.sale_price);
   const cut = Math.floor(sorted.length * trimPercent);
   const trimmed = sorted.slice(cut, sorted.length - cut);
 
   const weighted = trimmed.map(s => {
-    const age = (now - new Date(s.sale_date).getTime()) / (1000 * 60 * 60 * 24);
+    const age = (now - new Date(s.sale_date).getTime()) / (1000*60*60*24);
     const w = Math.exp(-age / decayDays);
     return { p: s.sale_price, w };
   });
 
-  const sumW = weighted.reduce((a, x) => a + x.w, 0);
-  const base = sumW ? weighted.reduce((a, x) => a + x.p * x.w, 0) / sumW : null;
+  const sumW = weighted.reduce((a,x) => a + x.w, 0);
+  const base = sumW ? weighted.reduce((a,x) => a + x.p * x.w, 0) / sumW : null;
   if (!base) return null;
 
   let stickerPrice = 0, boost = 0;
   try {
     const stickers = JSON.parse(item.stickers || '[]');
-    stickerPrice = stickers.reduce((sum, s) => sum + (s.reference?.price || 0), 0);
+    stickerPrice = stickers.reduce((sum,s) => sum + (s.reference?.price || 0), 0);
     if (stickerPrice < 100) boost = 0.1;
     else if (stickerPrice < 1000) boost = 0.05;
     else boost = 0.02;
   } catch {}
 
   return Math.round(base + (stickerPrice * boost));
-}</code>
-        </pre>
-        <p class="text-gray-400 mt-2">This config buckets float, filters by fade & blue %, removes outliers, weights recent sales, and boosts for stickers.</p>
-    </section>
+}</code></pre>
+            </div>
+        </section>
 
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Security and Restrictions</h2>
-        <ul class="list-disc pl-6 text-gray-300">
-            <li>No access to network, window, document, or fetch</li>
-            <li>No DOM or browser APIs</li>
-            <li>Only pure JavaScript logic is allowed</li>
-        </ul>
-    </section>
+        <section id="security" class="anchor">
+            <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Security & Restrictions</h2>
+            <ul class="list-disc pl-6 text-white/80 space-y-1">
+                <li>No access to <code class="bg-white/10 px-1.5 py-0.5 rounded">window</code>, <code class="bg-white/10 px-1.5 py-0.5 rounded">document</code>, <code class="bg-white/10 px-1.5 py-0.5 rounded">fetch</code>, or network.</li>
+                <li>No DOM or browser APIs.</li>
+                <li>Keep the function <em>pure</em>; only compute from inputs and return a number or <code class="bg-white/10 px-1.5 py-0.5 rounded">null</code>.</li>
+            </ul>
+        </section>
 
-    <section class="mb-8">
-        <h2 class="text-2xl font-semibold mb-2">Tips</h2>
-        <ul class="list-disc pl-6 text-gray-300">
-            <li>Wrap logic in try/catch to avoid runtime crashes</li>
-            <li>Return <code>null</code> when you can't make a good estimate</li>
-            <li>Test your config with real listing arrays</li>
-            <li>Keep your code short and optimized</li>
-        </ul>
-    </section>
+        <section id="tips" class="anchor">
+            <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Tips</h2>
+            <ul class="list-disc pl-6 text-white/80 space-y-1">
+                <li>Wrap logic in <code class="bg-white/10 px-1.5 py-0.5 rounded">try{…}catch{}</code> to avoid crashes.</li>
+                <li>Return <code class="bg-white/10 px-1.5 py-0.5 rounded">null</code> when you can’t estimate confidently.</li>
+                <li>Test with the sandbox using real listings arrays.</li>
+                <li>Favor clarity and small, fast helpers.</li>
+            </ul>
+        </section>
 
-    <p class="text-sm text-gray-500">This documentation is for FloatPilot config creators only.</p>
+        <p class="text-sm text-white/50">This documentation is for FloatPilot config creators only.</p>
+    </article>
+
+    <!-- Mobile TOC -->
+    <aside class="lg:hidden glass rounded-2xl p-4 h-fit">
+        <p class="text-sm font-bold mb-2 text-white/80">On this page</p>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+            <a href="#what-is" class="hover:text-[#00b3ff]">What is a Config?</a>
+            <a href="#inputs" class="hover:text-[#00b3ff]">Inputs</a>
+            <a href="#return" class="hover:text-[#00b3ff]">Return Value</a>
+            <a href="#first" class="hover:text-[#00b3ff]">First Config</a>
+            <a href="#default" class="hover:text-[#00b3ff]">Default Example</a>
+            <a href="#security" class="hover:text-[#00b3ff]">Security</a>
+            <a href="#tips" class="hover:text-[#00b3ff]">Tips</a>
+        </div>
+    </aside>
 </main>
 
+<footer class="text-center text-white/60 text-sm mt-12 mb-6">&copy; 2025 FloatPilot. All rights reserved.</footer>
 
+<!-- Copy buttons -->
+<script>
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.copy-btn');
+        if (!btn) return;
+        const target = document.querySelector(btn.dataset.copyTarget);
+        if (!target) return;
+        try {
+            await navigator.clipboard.writeText(target.textContent);
+            const prev = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = prev, 1200);
+        } catch (err) { console.error('Copy failed', err); }
+    });
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ffBalance = document.getElementById('ffBalance');
@@ -265,6 +328,7 @@
     });
 </script>
 <script>
+    // --------- Buy credits modal (unchanged) ---------
     document.addEventListener('DOMContentLoaded', () => {
         const buyFFBtn = document.getElementById('buyFFBtn');
         const buyFFModal = document.getElementById('buyFFModal');
@@ -273,20 +337,17 @@
         const ffOptions = document.querySelectorAll('.ff-option');
         let selectedAmount = null;
 
-        buyFFBtn?.addEventListener('click', () => {
-            buyFFModal.classList.remove('hidden');
-        });
-
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
         cancelBtn?.addEventListener('click', () => {
             buyFFModal.classList.add('hidden');
-            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
             selectedAmount = null;
         });
 
         ffOptions.forEach(button => {
             button.addEventListener('click', () => {
-                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
-                button.classList.add('border-[#00ff99]');
+                ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+                button.classList.add('ring-2','ring-[#00ff99]');
                 selectedAmount = parseInt(button.dataset.value);
             });
         });
@@ -297,17 +358,12 @@
 
             try {
                 const res = await fetch('/api/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
                 });
-
                 const { url } = await res.json();
-                if (url) window.location.href = url;
-                else alert('Failed to create Stripe checkout session.');
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
+                if (url) window.location.href = url; else alert('Failed to create Stripe checkout session.');
+            } catch (err) { alert('Error: ' + err.message); }
         });
     });
 </script>
