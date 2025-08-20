@@ -213,11 +213,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!res.ok) throw new Error(`API error: ${res.status}`);
 
         const data = await res.json();
+        console.log('[FloatPilot] User info fetched:', data);
         if (!data.loggedIn) throw new Error('Not logged in');
 
         avatarEl.src = data.avatarUrl;
         usernameEl.textContent = data.displayName;
-
         bindSettings(data.steamID64, data.tier);
         await chrome.storage.local.set({ floatpilot_user: data });
         console.log('[FloatPilot] User info saved and bound:', data);

@@ -91,7 +91,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             );
 
             res.setHeader('Set-Cookie', [
-                `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`
+                `fp_session=${token}; Path=/; HttpOnly; Secure; SameSite=None; Partitioned`
             ]);
 
             res.writeHead(302, { Location: '/' });
