@@ -228,6 +228,7 @@
 </script>
 
 <script>
+    // --------- Buy credits modal (unchanged) ---------
     document.addEventListener('DOMContentLoaded', () => {
         const buyFFBtn = document.getElementById('buyFFBtn');
         const buyFFModal = document.getElementById('buyFFModal');
@@ -236,20 +237,17 @@
         const ffOptions = document.querySelectorAll('.ff-option');
         let selectedAmount = null;
 
-        buyFFBtn?.addEventListener('click', () => {
-            buyFFModal.classList.remove('hidden');
-        });
-
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
         cancelBtn?.addEventListener('click', () => {
             buyFFModal.classList.add('hidden');
-            ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
+            ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
             selectedAmount = null;
         });
 
         ffOptions.forEach(button => {
             button.addEventListener('click', () => {
-                ffOptions.forEach(btn => btn.classList.remove('border-[#00ff99]'));
-                button.classList.add('border-[#00ff99]');
+                ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+                button.classList.add('ring-2','ring-[#00ff99]');
                 selectedAmount = parseInt(button.dataset.value);
             });
         });
@@ -260,17 +258,12 @@
 
             try {
                 const res = await fetch('/api/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
                 });
-
                 const { url } = await res.json();
-                if (url) window.location.href = url;
-                else alert('Failed to create Stripe checkout session.');
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
+                if (url) window.location.href = url; else alert('Failed to create Stripe checkout session.');
+            } catch (err) { alert('Error: ' + err.message); }
         });
     });
 </script>
