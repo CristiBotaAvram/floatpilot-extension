@@ -76,6 +76,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     return res.status(500).send('User insert error');
                 }
 
+                const { error: purchaseError } = await supabase
+                    .from('config_purchases')
+                    .insert({ config_id: "6adc294a-c7b9-4751-bd48-6615e5aefcca", buyer_steam_id: steamID64 });
+
+                if (purchaseError) {
+                    console.error('Purchase insert error:', purchaseError);
+                    return res.status(500).json({ error: 'Failed to complete purchase' });
+                }
+
                 userData = insertResult.data;
             }
 
