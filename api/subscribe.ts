@@ -8,13 +8,13 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const bonus = 1.5;
+const bonus = 1;
 
 const DURATIONS: Record<string, number> = {
-    '1.5 hours': 60 * 60 * 1000 * bonus,
-    '1.5 days': 24 * 60 * 60 * 1000 * bonus,
-    '1.5 weeks': 7 * 24 * 60 * 60 * 1000 * bonus,
-    '1.5 months': 30 * 24 * 60 * 60 * 1000 * bonus
+    '1 hour': 60 * 60 * 1000 * bonus,
+    '1 day': 24 * 60 * 60 * 1000 * bonus,
+    '1 week': 7 * 24 * 60 * 60 * 1000 * bonus,
+    '1 month': 30 * 24 * 60 * 60 * 1000 * bonus
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
