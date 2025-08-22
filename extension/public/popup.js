@@ -49,8 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.log('[FloatPilot] Auto-fetching configs on popup open...');
                     const purchasedRes = await fetch('https://www.floatpilot.store/api/configs/purchased', {
                         method: 'GET',
-                        headers: { 'x-steamid': steamID64 },
-                        credentials: 'include'
+                        headers: { 'x-steamid': steamID64 }
                     });
                     const purchased = await purchasedRes.json();
                     const ids = purchased.map(p => p.config_id).join(',');
@@ -128,8 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     try {
                                         const purchasedRes = await fetch('https://www.floatpilot.store/api/configs/purchased', {
                                             method: 'GET',
-                                            headers: { 'x-steamid': steamID64 },
-                                            credentials: 'include'
+                                            headers: { 'x-steamid': steamID64 }
                                         });
                                         const purchased = await purchasedRes.json();
                                         const ids = purchased.map(p => p.config_id).join(',');

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service — FloatPilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <style>
+        .bg-grid{background-image:linear-gradient(#ffffff12 1px,transparent 1px),linear-gradient(90deg,#ffffff12 1px,transparent 1px);background-size:26px 26px}
+        .radial-spot{background:radial-gradient(1600px 800px at 50% -10%,rgba(0,104,255,.18),transparent 60%),radial-gradient(3200px 1600px at 10% 110%,rgba(0,255,153,.09),transparent 60%)}
+        .glass{background:rgba(15,16,20,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)}
+        .content h1,.content h2,.content h3,.content h4{scroll-margin-top:110px}
+        .content h2{font-size:1.25rem;margin-top:2rem;margin-bottom:.75rem;font-weight:800}
+        .content h3{font-size:1.05rem;margin-top:1.25rem;margin-bottom:.5rem;font-weight:700}
+        .content p{color:#e5e7eb;margin:.75rem 0;line-height:1.7}
+        .content ul{list-style:disc;padding-left:1.25rem;color:#d1d5db}
+        .content ol{list-style:decimal;padding-left:1.25rem;color:#d1d5db}
+        .skeleton{background:linear-gradient(90deg,#ffffff10,#ffffff20,#ffffff10);background-size:200% 100%;animation:pulse 1.2s ease-in-out infinite}
+        @keyframes pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    </style>
+</head>
+
+<body class="bg-[#0f0f0f] text-white font-sans bg-grid radial-spot min-h-screen">
+<!-- FF Purchase Modal -->
+<div id="buyFFModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card p-6 rounded-2xl max-w-sm w-full">
+        <h2 class="text-2xl font-extrabold text-center mb-4 tracking-tight">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="50">
+                <span class="block text-base">50 Credits</span>
+                <span class="block text-white/70 text-sm">$5</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="100">
+                <span class="block text-base">100 Credits</span>
+                <span class="block text-white/70 text-sm">$10</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="250">
+                <span class="block text-base">250 Credits</span>
+                <span class="block text-white/70 text-sm">$25</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="500">
+                <span class="block text-base">500 Credits</span>
+                <span class="block text-white/70 text-sm">$50</span>
+            </button>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button id="cancelFFPurchase" class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-semibold">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 rounded-lg bg-[#0068ff] hover:brightness-110 text-black font-extrabold shadow-md">Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0f0f0f]/70 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+        <div class="flex items-center space-x-4">
+            <img src="../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
+            <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
+                <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
+                <a href="/pricing" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Pricing</a>
+                <a href="/configs" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Configs</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
+                <img src="../icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+            </a>
+            <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition">
+                <img src="../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+            </a>
+
+            <!-- Not logged in -->
+            <a href="/api/auth/steam" class="hidden items-center gap-2 bg-black border border-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+            <!-- Logged in -->
+            <div id="userMenu" class="hidden relative">
+                <button class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-ease duration-500">
+                    <img id="avatarImg" src="" alt="avatar" class="w-7 h-7 rounded-full"/>
+                    <span id="tierBadge" class="px-3 py-1 rounded-lg text-white text-xs border border-black/40 shadow-md"></span>
+                    <span id="ffBalance" class="text-white font-semibold hidden md:inline">100 Credits</span>
+                    <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-64 glass rounded-xl shadow-2xl hidden overflow-hidden" id="userDropdown">
+                    <div class="px-4 py-3 border-b border-white/10">
+                        <p id="steamName" class="font-semibold">Steam name</p>
+                        <p id="steamID" class="text-white/60 text-xs">Steam ID</p>
+                    </div>
+                    <a href="#" id="buyFFBtn" class="block px-4 py-2 hover:bg-[#0068ff] hover:text-black transition font-semibold">Buy Credits</a>
+                    <a href="/transactions" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Transactions</a>
+                    <a href="/configs/owned" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Configs</a>
+                    <form method="POST" action="/api/logout">
+                        <button type="submit" class="block w-full text-left px-4 py-2 font-semibold text-[#ff5b5b] hover:bg-[#ff5b5b] hover:text-black transition">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="max-w-7xl mx-auto px-6 py-10">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- TOC -->
+        <aside class="lg:w-64 lg:flex-shrink-0">
+            <div class="glass rounded-xl p-4 sticky top-24">
+                <h3 class="text-sm font-bold mb-2 text-white/80">On this page</h3>
+                <nav id="toc" class="text-sm space-y-1 text-white/70">
+                    <a href="#eligibility-and-accounts" class="block hover:text-white">1) Eligibility &amp; accounts</a>
+
+                    <a href="#plans-credits-billing" class="block hover:text-white">2) Plans, credits, and billing</a>
+                    <a href="#plans-subscriptions" class="block hover:text-white ml-4">2.1 Plans &amp; subscriptions</a>
+                    <a href="#credits-ff" class="block hover:text-white ml-4">2.2 Credits</a>
+                    <a href="#pricing-taxes-changes" class="block hover:text-white ml-4">2.3 Pricing, taxes, and changes</a>
+                    <a href="#refunds" class="block hover:text-white ml-4">2.4 Refunds</a>
+                    <a href="#payment-processing" class="block hover:text-white ml-4">2.5 Payment processing</a>
+
+                    <a href="#configs-marketplace" class="block hover:text-white">3) Configs marketplace</a>
+                    <a href="#buying-configs" class="block hover:text-white ml-4">3.1 Buying configs</a>
+                    <a href="#uploading-configs" class="block hover:text-white ml-4">3.2 Uploading configs (for eligible sellers)</a>
+                    <a href="#no-resale-anti-circumvention" class="block hover:text-white ml-4">3.3 No resale / anti-circumvention</a>
+
+                    <a href="#acceptable-use" class="block hover:text-white">4) Acceptable use</a>
+                    <a href="#estimates-and-third-parties" class="block hover:text-white">5) Estimates, data, and third-party services</a>
+                    <a href="#ip-and-user-content" class="block hover:text-white">6) IP ownership &amp; user content</a>
+                    <a href="#privacy" class="block hover:text-white">7) Privacy</a>
+                    <a href="#service-changes-and-availability" class="block hover:text-white">8) Service changes and availability</a>
+                    <a href="#termination" class="block hover:text-white">9) Termination</a>
+                    <a href="#disclaimers" class="block hover:text-white">10) Disclaimers</a>
+                    <a href="#limitation-of-liability" class="block hover:text-white">11) Limitation of liability</a>
+                    <a href="#indemnity" class="block hover:text-white">12) Indemnity</a>
+                    <a href="#consumer-rights" class="block hover:text-white">13) Consumer rights (EEA/UK)</a>
+                    <a href="#changes" class="block hover:text-white">14) Changes to these Terms</a>
+                    <a href="#contact" class="block hover:text-white">15) Contact</a>
+                    <a href="#definitions" class="block hover:text-white">16) Definitions</a>
+
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <section class="flex-1">
+            <header class="mb-6">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Terms of Service</h2>
+                <p class="text-white/60 mt-1">Last updated: <span id="lastUpdated">2025-08-21</span></p>
+            </header>
+
+            <article id="tosContent" class="glass rounded-2xl p-6 content">
+                <p>Welcome to <strong>FloatPilot</strong>. These Terms of Service (“<strong>Terms</strong>”) govern your access to and use of the FloatPilot browser extension, website, and related services (collectively, the “<strong>Service</strong>”). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree, do not use the Service.</p>
+
+                <p>References to “<strong>we</strong>”, “<strong>us</strong>”, or “<strong>our</strong>” mean the operator above. “<strong>You</strong>” means the end user or customer.</p>
+
+                <h2 id="eligibility-and-accounts">1) Eligibility &amp; accounts</h2>
+                <ul>
+                    <li>You must be at least 13 years old.</li>
+                    <li>Access requires a valid <strong>Steam</strong> account for login via Steam OpenID; you must also comply with Steam’s terms.</li>
+                    <li>You are responsible for your login credentials and all activity under your account. Notify us immediately of any unauthorized use.</li>
+                </ul>
+
+                <h2 id="plans-credits-billing">2) Plans, credits, and billing</h2>
+                <h3 id="plans-subscriptions">2.1 Plans &amp; subscriptions</h3>
+                <ul>
+                    <li>We offer <strong>Free</strong> and <strong>Pro</strong> (paid) tiers. Features may vary by tier and can change over time.</li>
+                    <li>Time-based subscriptions (e.g., 1 hour, 1 day, 1 week, 1 month) start when delivered and <strong>expire automatically</strong> at the end of the purchased period.</li>
+                </ul>
+                <h3 id="credits-ff">2.2 Credits</h3>
+                <ul>
+                    <li>FloatPilot <strong>Credits</strong> can be used to purchase time-based access and certain digital items (e.g., configs).</li>
+                    <li>Credits <strong>have no cash value</strong>, are <strong>non-transferable</strong>, and are <strong>non-refundable</strong>, except where required by law.</li>
+                </ul>
+                <h3 id="pricing-taxes-changes">2.3 Pricing, taxes, and changes</h3>
+                <ul>
+                    <li>Prices are shown exclusive or inclusive of taxes depending on your location. You are responsible for any applicable taxes.</li>
+                    <li>We may change prices or features prospectively at any time. New prices apply only to future purchases.</li>
+                </ul>
+                <h3 id="refunds">2.4 Refunds</h3>
+                <ul>
+                    <li>Refunds are not provided.</li>
+                </ul>
+                <h3 id="payment-processing">2.5 Payment processing</h3>
+                <ul>
+                    <li>Payments are processed by <strong>Stripe</strong>. We do not store full payment card details.</li>
+                </ul>
+
+                <h2 id="configs-marketplace">3) Configs marketplace</h2>
+                <h3 id="buying-configs">3.1 Buying configs</h3>
+                <ul>
+                    <li>When you buy a <strong>config</strong>, you receive a <strong>personal, non-transferable, non-exclusive license</strong> to use it <strong>within FloatPilot</strong> for your own trading decisions.</li>
+                    <li>You may not resell, distribute, share, rent, or sublicense configs, nor attempt to <strong>extract, decrypt, reverse engineer</strong>, or otherwise access their source logic.</li>
+                </ul>
+                <h3 id="uploading-configs">3.2 Uploading configs (for eligible sellers)</h3>
+                <ul>
+                    <li>If your plan allows uploads, you must only upload configs <strong>you own</strong> or have the right to license. You warrant your uploads <strong>do not infringe</strong> third-party rights and <strong>do not contain malware</strong>.</li>
+                    <li>You grant us a worldwide, royalty-free license to <strong>host, store, reproduce, and display</strong> your config to you and to purchasers, as needed to operate the marketplace.</li>
+                    <li>We may remove configs that violate these Terms or applicable law.</li>
+                </ul>
+                <h3 id="no-resale-anti-circumvention">3.3 No resale / anti-circumvention</h3>
+                <ul>
+                    <li>Any attempt to <strong>circumvent encryption</strong>, watermarking, or other protection; to <strong>scrape</strong> code; or to share configs outside FloatPilot is prohibited and may result in <strong>account termination</strong> and legal action.</li>
+                </ul>
+
+                <h2 id="acceptable-use">4) Acceptable use</h2>
+                <p>You agree <strong>not</strong> to:</p>
+                <ul>
+                    <li>Bypass, disable, or interfere with security or usage limits.</li>
+                    <li>Scrape, harvest, or misuse our APIs or data beyond permitted rate limits.</li>
+                    <li>Use bots or automation that degrades service quality or violates third-party terms (e.g., Steam, CSFloat).</li>
+                    <li>Engage in illegal activity, fraud, or actions likely to harm others or the Service.</li>
+                    <li>Impersonate others or misrepresent your affiliation.</li>
+                </ul>
+                <p>We may implement automated and manual <strong>rate limiting</strong> and <strong>anti-abuse</strong> protections.</p>
+
+                <h2 id="estimates-and-third-parties">5) Estimates, data, and third-party services</h2>
+                <ul>
+                    <li>FloatPilot provides <strong>price estimations and analytics for informational purposes only</strong>. They are <strong>not financial advice</strong> and <strong>no outcome is guaranteed</strong>.</li>
+                    <li>Data may originate from <strong>third-party sources</strong> and can be delayed, incomplete, or inaccurate. Availability of third-party services can change without notice.</li>
+                    <li>We are <strong>not affiliated</strong> with Valve, Steam, or CSFloat. Their names/logos are used for identification only and remain their owners’ trademarks.</li>
+                </ul>
+
+                <h2 id="ip-and-user-content">6) IP ownership &amp; user content</h2>
+                <ul>
+                    <li>The Service, including our UI, branding, and code, is protected by intellectual property laws. Except for configs you upload, all rights are reserved by us and our licensors.</li>
+                    <li><strong>Feedback</strong> you provide (ideas, suggestions) may be used by us <strong>without restriction or compensation</strong>.</li>
+                </ul>
+
+                <h2 id="privacy">7) Privacy</h2>
+                <p>Your use of the Service is also governed by our <a href="/privacy">Privacy Policy</a>. It describes how we process personal data, including <strong>Steam sign-in</strong> information.</p>
+
+                <h2 id="service-changes-and-availability">8) Service changes and availability</h2>
+                <ul>
+                    <li>We may <strong>modify</strong>, <strong>suspend</strong>, or <strong>discontinue</strong> features or the Service at any time (e.g., maintenance, legal, or operational reasons).</li>
+                    <li>We do not guarantee uninterrupted or error-free operation. We are not liable for <strong>downtime</strong>, <strong>data loss</strong>, or <strong>third-party outages</strong>.</li>
+                </ul>
+
+                <h2 id="termination">9) Termination</h2>
+                <p>We may suspend or terminate your access immediately if you: (a) violate these Terms or applicable law; (b) attempt to circumvent security, encryption, or rate limits; (c) engage in fraud or abuse.</p>
+                <p>Upon termination, your right to use the Service and any purchased <strong>time-limited access</strong> ends. Previously purchased configs remain subject to these Terms and may become unusable if your account is closed.</p>
+
+                <h2 id="disclaimers">10) Disclaimers</h2>
+                <ul>
+                    <li>The Service is provided “<strong>as is</strong>” and “<strong>as available</strong>” without warranties of any kind, whether express or implied, including <strong>merchantability</strong>, <strong>fitness for a particular purpose</strong>, <strong>non-infringement</strong>, and <strong>availability</strong>.</li>
+                    <li><strong>Trading is risky.</strong> You are solely responsible for your decisions and outcomes.</li>
+                </ul>
+
+                <h2 id="limitation-of-liability">11) Limitation of liability</h2>
+                <p>To the maximum extent permitted by law, we (and our affiliates, officers, employees, and partners) <strong>will not be liable</strong> for any indirect, incidental, special, consequential, exemplary, or punitive damages; lost profits; lost data; or business interruption, even if advised of the possibility.</p>
+
+                <h2 id="indemnity">12) Indemnity</h2>
+                <p>You agree to <strong>defend, indemnify, and hold harmless</strong> us and our affiliates from any claims, damages, liabilities, costs, and expenses (including reasonable legal fees) arising from your <strong>use of the Service</strong>, your <strong>uploads/configs</strong>, or your <strong>violation of these Terms or applicable law</strong>.</p>
+
+                <h2 id="consumer-rights">13) Consumer rights (EEA/UK)</h2>
+                <p>If you are a <strong>consumer</strong> in the <strong>EEA/UK</strong>, you may have non-waivable legal rights. Nothing in these Terms limits those rights.</p>
+                <p>For <strong>digital content</strong> delivered immediately on purchase, you <strong>request immediate performance</strong> and acknowledge that you <strong>lose the right of withdrawal</strong> once delivery begins, where permitted by law.</p>
+                <p><strong>EU ODR platform:</strong> <a href="https://ec.europa.eu/consumers/odr/">https://ec.europa.eu/consumers/odr/</a>. We are not obliged to and generally do not agree to participate in ADR procedures.</p>
+
+                <h2 id="changes">14) Changes to these Terms</h2>
+                <p>We may update these Terms from time to time. If we make material changes, we will take reasonable steps to notify you (e.g., posting on the site or in-product notice). <strong>Continued use</strong> after the effective date means you <strong>accept</strong> the updated Terms.</p>
+
+                <h2 id="contact">15) Contact</h2>
+                <p>Questions about these Terms? <a href="mailto:support@floatpilot.store">support@floatpilot.store</a></p>
+                <p>Do you have any feedback or want to suggest features? <a href="mailto:support@floatpilot.store">dev@floatpilot.store</a></p>
+
+                <h2 id="definitions">16) Definitions</h2>
+                <ul>
+                    <li><strong>“Config”</strong>: A user-provided or FloatPilot-provided script, rule set, or logic bundle used to estimate or analyze listing prices.</li>
+                    <li><strong>“Credits”</strong>: The internal, non-monetary credit used to unlock time-limited features or purchase configs.</li>
+                    <li><strong>“Service”</strong>: The FloatPilot extension, website, APIs, marketplace, and related features.</li>
+                </ul>
+
+            </article>
+
+            <p class="text-xs text-white/50 mt-4">If you have questions about these Terms, contact us at <a href="mailto:support@floatpilot.store" class="underline">support@floatpilot.store</a>.</p>
+        </section>
+    </div>
+</main>
+
+<footer class="text-center text-white/60 text-sm mt-12 mb-6">&copy; 2025 FloatPilot. All rights reserved.</footer>
+
+<script>
+    // --------- Header profile dropdown (unchanged) ---------
+    document.addEventListener('DOMContentLoaded', () => {
+        const ffBalance = document.getElementById('ffBalance');
+
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    document.getElementById('userMenu')?.classList.remove('hidden');
+                    document.getElementById('avatarImg').src = data.avatarUrl;
+                    document.getElementById('steamName').textContent = data.displayName;
+                    document.getElementById('steamID').textContent = data.steamID64;
+                    ffBalance.textContent = `${data.ff_balance || 0} Credits`;
+
+                    const tier = data.tier || 'Free';
+                    let tierColor = '#848884';
+                    if (tier === 'Pro') tierColor = '#0068ff';
+
+                    const tierBadge = document.getElementById('tierBadge');
+                    tierBadge.textContent = tier;
+                    tierBadge.style.backgroundColor = tierColor;
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+                } else {
+                    document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
+                    document.getElementById('userMenu')?.classList.add('hidden');
+                }
+            });
+
+        document.getElementById('userMenu')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            document.getElementById('userDropdown')?.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.getElementById('userMenu');
+            if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+
+    // --- Fetch & render TOS ---
+    const tosContentEl = document.getElementById('tosContent');
+    const lastUpdatedEl = document.getElementById('lastUpdated');
+    const tocEl = document.getElementById('toc');
+
+    function slugify(text){
+        const base = text.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');
+        // ensure uniqueness
+        let slug = base, i = 2;
+        while (document.getElementById(slug)) slug = base + '-' + (i++);
+        return slug;
+    }
+
+    function buildTOC(){
+        const headings = tosContentEl.querySelectorAll('h2, h3');
+        if (!headings.length) { tocEl.innerHTML = '<span class="text-white/50">No sections</span>'; return; }
+        const items = [];
+        headings.forEach(h => {
+            if (!h.id) h.id = slugify(h.textContent);
+            const level = h.tagName.toLowerCase();
+            items.push(`<a href="#${h.id}" class="block hover:text-white ${level==='h3' ? 'ml-4' : ''}">${h.textContent}</a>`);
+        });
+        tocEl.innerHTML = items.join('');
+    }
+
+
+
+        // --------- Buy credits modal (unchanged) ---------
+        document.addEventListener('DOMContentLoaded', () => {
+        const buyFFBtn = document.getElementById('buyFFBtn');
+        const buyFFModal = document.getElementById('buyFFModal');
+        const cancelBtn = document.getElementById('cancelFFPurchase');
+        const confirmBtn = document.getElementById('confirmFFPurchase');
+        const ffOptions = document.querySelectorAll('.ff-option');
+        let selectedAmount = null;
+
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
+        cancelBtn?.addEventListener('click', () => {
+        buyFFModal.classList.add('hidden');
+        ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+        selectedAmount = null;
+    });
+
+        ffOptions.forEach(button => {
+        button.addEventListener('click', () => {
+        ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+        button.classList.add('ring-2','ring-[#00ff99]');
+        selectedAmount = parseInt(button.dataset.value);
+    });
+    });
+
+        confirmBtn?.addEventListener('click', async () => {
+        const steamID = document.getElementById('steamID')?.textContent;
+        if (!steamID || !selectedAmount) return alert('Missing Steam ID or Credits amount');
+
+        try {
+        const res = await fetch('/api/create-checkout-session', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
+    });
+        const { url } = await res.json();
+        if (url) window.location.href = url; else alert('Failed to create Stripe checkout session.');
+    } catch (err) { alert('Error: ' + err.message); }
+    });
+    });
+
+</script>
+</body>
+</html>

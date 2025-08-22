@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — FloatPilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <style>
+        .bg-grid{background-image:linear-gradient(#ffffff12 1px,transparent 1px),linear-gradient(90deg,#ffffff12 1px,transparent 1px);background-size:26px 26px}
+        .radial-spot{background:radial-gradient(1600px 800px at 50% -10%,rgba(0,104,255,.18),transparent 60%),radial-gradient(3200px 1600px at 10% 110%,rgba(0,255,153,.09),transparent 60%)}
+        .glass{background:rgba(15,16,20,.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)}
+        .content h1,.content h2,.content h3,.content h4{scroll-margin-top:110px}
+        .content h2{font-size:1.25rem;margin-top:2rem;margin-bottom:.75rem;font-weight:800}
+        .content h3{font-size:1.05rem;margin-top:1.25rem;margin-bottom:.5rem;font-weight:700}
+        .content p{color:#e5e7eb;margin:.75rem 0;line-height:1.7}
+        .content ul{list-style:disc;padding-left:1.25rem;color:#d1d5db}
+        .content ol{list-style:decimal;padding-left:1.25rem;color:#d1d5db}
+        .skeleton{background:linear-gradient(90deg,#ffffff10,#ffffff20,#ffffff10);background-size:200% 100%;animation:pulse 1.2s ease-in-out infinite}
+        @keyframes pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    </style>
+</head>
+
+<body class="bg-[#0f0f0f] text-white font-sans bg-grid radial-spot min-h-screen">
+<!-- FF Purchase Modal -->
+<div id="buyFFModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="modal-card p-6 rounded-2xl max-w-sm w-full">
+        <h2 class="text-2xl font-extrabold text-center mb-4 tracking-tight">Buy Credits</h2>
+        <div id="ffOptionGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="50">
+                <span class="block text-base">50 Credits</span>
+                <span class="block text-white/70 text-sm">$5</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="100">
+                <span class="block text-base">100 Credits</span>
+                <span class="block text-white/70 text-sm">$10</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="250">
+                <span class="block text-base">250 Credits</span>
+                <span class="block text-white/70 text-sm">$25</span>
+            </button>
+            <button class="ff-option px-4 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition shadow-sm text-left font-semibold" data-value="500">
+                <span class="block text-base">500 Credits</span>
+                <span class="block text-white/70 text-sm">$50</span>
+            </button>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button id="cancelFFPurchase" class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-semibold">Cancel</button>
+            <button id="confirmFFPurchase" class="px-4 py-2 rounded-lg bg-[#0068ff] hover:brightness-110 text-black font-extrabold shadow-md">Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0f0f0f]/70 backdrop-blur supports-[backdrop-filter]:bg-[#0f0f0f]/50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+        <div class="flex items-center space-x-4">
+            <img src="../icons/icon48.png" alt="FloatPilot logo" class="h-8 w-8"/>
+            <h1 class="text-2xl font-extrabold tracking-tight">FloatPilot</h1>
+            <nav class="hidden sm:flex space-x-1 ml-4 text-sm">
+                <a href="/" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Home</a>
+                <a href="/pricing" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Pricing</a>
+                <a href="/configs" class="px-3 py-2 rounded-lg text-lg font-semibold hover:bg-white/5 transition">Configs</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a href="https://www.youtube.com/@xtiskins" target="_blank" aria-label="YouTube" class="opacity-80 hover:opacity-100 transition">
+                <img src="../icons/icon-youtube.png" alt="YouTube" class="w-7 h-5 rounded"/>
+            </a>
+            <a href="https://x.com/xtiskins" target="_blank" aria-label="X (Twitter)" class="opacity-80 hover:opacity-100 transition">
+                <img src="../icons/icon-x.jpg" alt="X" class="w-6 h-6 rounded-full"/>
+            </a>
+
+            <!-- Not logged in -->
+            <a href="/api/auth/steam" class="hidden items-center gap-2 bg-black border border-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg font-semibold transition-ease duration-500" id="loginHeaderBtn">Login</a>
+            <!-- Logged in -->
+            <div id="userMenu" class="hidden relative">
+                <button class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-ease duration-500">
+                    <img id="avatarImg" src="" alt="avatar" class="w-7 h-7 rounded-full"/>
+                    <span id="tierBadge" class="px-3 py-1 rounded-lg text-white text-xs border border-black/40 shadow-md"></span>
+                    <span id="ffBalance" class="text-white font-semibold hidden md:inline">100 Credits</span>
+                    <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-64 glass rounded-xl shadow-2xl hidden overflow-hidden" id="userDropdown">
+                    <div class="px-4 py-3 border-b border-white/10">
+                        <p id="steamName" class="font-semibold">Steam name</p>
+                        <p id="steamID" class="text-white/60 text-xs">Steam ID</p>
+                    </div>
+                    <a href="#" id="buyFFBtn" class="block px-4 py-2 hover:bg-[#0068ff] hover:text-black transition font-semibold">Buy Credits</a>
+                    <a href="/transactions" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Transactions</a>
+                    <a href="/configs/owned" class="block px-4 py-2 hover:bg-white hover:text-black transition font-semibold">Configs</a>
+                    <form method="POST" action="/api/logout">
+                        <button type="submit" class="block w-full text-left px-4 py-2 font-semibold text-[#ff5b5b] hover:bg-[#ff5b5b] hover:text-black transition">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="max-w-7xl mx-auto px-6 py-10">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- TOC -->
+        <aside class="lg:w-64 lg:flex-shrink-0">
+            <div class="glass rounded-xl p-4 sticky top-24">
+                <h3 class="text-sm font-bold mb-2 text-white/80">On this page</h3>
+                <nav id="toc" class="text-sm space-y-1 text-white/70">
+                    <a href="#what-we-collect" class="block hover:text-white">1) What we collect</a>
+                    <a href="#how-we-use" class="block hover:text-white">2) How we use data</a>
+                    <a href="#sharing" class="block hover:text-white">3) Sharing</a>
+                    <a href="#data-location" class="block hover:text-white">4) Data location &amp; international transfers</a>
+                    <a href="#retention" class="block hover:text-white">5) Retention</a>
+                    <a href="#your-rights" class="block hover:text-white">6) Your rights (EEA/UK and similar)</a>
+                    <a href="#security" class="block hover:text-white">7) Security</a>
+                    <a href="#children" class="block hover:text-white">8) Children</a>
+                    <a href="#third-party-links" class="block hover:text-white">9) Third-party links</a>
+                    <a href="#changes" class="block hover:text-white">10) Changes to this Policy</a>
+                    <a href="#contact" class="block hover:text-white">11) Contact</a>
+                    <a href="#cookies-storage" class="block hover:text-white">12) Cookies &amp; local storage details</a>
+
+
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <section class="flex-1">
+            <header class="mb-6">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Privacy Policy</h2>
+                <p class="text-white/60 mt-1">Last updated: <span id="lastUpdated">2025-08-21</span></p>
+            </header>
+
+            <article id="tosContent" class="glass rounded-2xl p-6 content">
+                <p>This Privacy Policy explains how we collect, use, and share information when you use the FloatPilot browser extension, website, and related services (the “<strong>Service</strong>”).</p>
+
+                <p>Contact: <a href="mailto:support@floatpilot.store">support@floatpilot.store</a></p>
+
+                <h2 id="what-we-collect">1) What we collect</h2>
+                <ul>
+                    <li><strong>Account &amp; auth (Steam OpenID):</strong> SteamID64, display name, avatar, proof of login.</li>
+                    <li><strong>Usage &amp; settings:</strong> feature toggles (e.g., estimation, bargain helper), configs purchased/uploaded, Credits balance and transactions.</li>
+                    <li><strong>Payments:</strong> processed by Stripe (we don’t store full payment card data).</li>
+                    <li><strong>Technical logs:</strong> user agent, request IDs, error logs, rate-limit counters.</li>
+                    <li><strong>Cookies &amp; local storage:</strong> session/auth cookies on the site; extension storage for preferences</li>
+                </ul>
+
+                <h2 id="how-we-use">2) How we use data</h2>
+                <ul>
+                    <li>Authenticate you via Steam and display your profile info in-app.</li>
+                    <li>Operate features (estimations, configs marketplace), enforce licenses and anti-circumvention protections.</li>
+                    <li>Process payments, maintain Credits balances and transactions.</li>
+                    <li>Maintain security, troubleshoot, measure performance, and improve the Service.</li>
+                </ul>
+
+                <h2 id="sharing">3) Sharing</h2>
+                <p>We share data with service providers that help us run the Service; they only receive what’s needed to perform their services:</p>
+                <ul>
+                    <li><strong>Hosting/infra:</strong> Vercel (site/functions).</li>
+                    <li><strong>Database/storage/auth:</strong> Supabase (database, file storage, operational auth data).</li>
+                    <li><strong>Payments:</strong> Stripe (payment processing, billing).</li>
+                    <li><strong>Authentication:</strong> Steam OpenID (to sign you in).</li>
+                </ul>
+                <p>We do not sell your personal data.</p>
+
+                <h2 id="data-location">4) Data location &amp; international transfers</h2>
+                <p>Data may be processed in the EU/EEA and other countries. Where required, transfers rely on appropriate safeguards such as <strong>Standard Contractual Clauses (SCCs)</strong> or equivalent mechanisms.</p>
+
+                <h2 id="retention">5) Retention</h2>
+                <ul>
+                    <li><strong>Account &amp; transactions:</strong> while your account is active and as required for recordkeeping (e.g., tax, fraud prevention).</li>
+                    <li><strong>Configs and purchase records:</strong> as long as necessary to operate the marketplace and resolve disputes.</li>
+                    <li><strong>Logs:</strong> typically 30–180 days, unless needed longer for security or legal reasons.</li>
+                </ul>
+
+                <h2 id="your-rights">6) Your rights (EEA/UK and similar)</h2>
+                <p>Subject to law, you may have the right to <strong>access</strong>, <strong>rectify</strong>, <strong>erase</strong>, <strong>restrict</strong>, <strong>object</strong>, and <strong>data portability</strong>, and to withdraw consent where processing relies on consent. To exercise your rights, contact <a href="mailto:support@floatpilot.store">support@floatpilot.store</a>. You can lodge a complaint with your local supervisory authority.</p>
+
+                <h2 id="security">7) Security</h2>
+                <p>We use technical and organizational measures (encryption in transit, access controls, least-privilege, monitoring, rate limiting). No method is 100% secure.</p>
+
+                <h2 id="children">8) Children</h2>
+                <p>The Service is not intended for children under the digital age of consent in their country. Do not use the Service if you are under that age.</p>
+
+                <h2 id="third-party-links">9) Third-party links</h2>
+                <p>Links to third-party sites/services (e.g., Steam, CSFloat) are governed by their own policies.</p>
+
+                <h2 id="changes">10) Changes to this Policy</h2>
+                <p>We may update this Policy. We will post the new version here and update the “Last updated” date in the page header. Continued use after changes means you accept the updated Policy.</p>
+
+                <h2 id="contact">11) Contact</h2>
+                <p>Questions or requests? <a href="mailto:support@floatpilot.store">support@floatpilot.store</a></p>
+
+                <h2 id="cookies-storage">12) Cookies &amp; local storage details</h2>
+                <ul>
+                    <li><strong>Session/auth cookies (site):</strong> keep you logged in and secure requests.</li>
+                    <li><strong>Extension storage:</strong> saves your preferences and an API key. You can clear this via your browser’s extension storage controls.</li>
+                    <li>We do not run third-party advertising trackers. Any analytics we use are aggregate and limited to operating and improving the Service.</li>
+                </ul>
+
+            </article>
+
+            <p class="text-xs text-white/50 mt-4">If you have questions about these Terms, contact us at <a href="mailto:support@floatpilot.store" class="underline">support@floatpilot.store</a>.</p>
+        </section>
+    </div>
+</main>
+
+<footer class="text-center text-white/60 text-sm mt-12 mb-6">&copy; 2025 FloatPilot. All rights reserved.</footer>
+
+<script>
+    // --------- Header profile dropdown (unchanged) ---------
+    document.addEventListener('DOMContentLoaded', () => {
+        const ffBalance = document.getElementById('ffBalance');
+
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    document.getElementById('loginHeaderBtn')?.classList.add('hidden');
+                    document.getElementById('userMenu')?.classList.remove('hidden');
+                    document.getElementById('avatarImg').src = data.avatarUrl;
+                    document.getElementById('steamName').textContent = data.displayName;
+                    document.getElementById('steamID').textContent = data.steamID64;
+                    ffBalance.textContent = `${data.ff_balance || 0} Credits`;
+
+                    const tier = data.tier || 'Free';
+                    let tierColor = '#848884';
+                    if (tier === 'Pro') tierColor = '#0068ff';
+
+                    const tierBadge = document.getElementById('tierBadge');
+                    tierBadge.textContent = tier;
+                    tierBadge.style.backgroundColor = tierColor;
+                    tierBadge.style.color = '#000';
+                    tierBadge.style.fontWeight = 'bold';
+                } else {
+                    document.getElementById('loginHeaderBtn')?.classList.remove('hidden');
+                    document.getElementById('userMenu')?.classList.add('hidden');
+                }
+            });
+
+        document.getElementById('userMenu')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            document.getElementById('userDropdown')?.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            const menu = document.getElementById('userMenu');
+            if (dropdown && !dropdown.classList.contains('hidden') && !menu.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+
+    // --- Fetch & render TOS ---
+    const tosContentEl = document.getElementById('tosContent');
+    const lastUpdatedEl = document.getElementById('lastUpdated');
+    const tocEl = document.getElementById('toc');
+
+    function slugify(text){
+        const base = text.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');
+        // ensure uniqueness
+        let slug = base, i = 2;
+        while (document.getElementById(slug)) slug = base + '-' + (i++);
+        return slug;
+    }
+
+    function buildTOC(){
+        const headings = tosContentEl.querySelectorAll('h2, h3');
+        if (!headings.length) { tocEl.innerHTML = '<span class="text-white/50">No sections</span>'; return; }
+        const items = [];
+        headings.forEach(h => {
+            if (!h.id) h.id = slugify(h.textContent);
+            const level = h.tagName.toLowerCase();
+            items.push(`<a href="#${h.id}" class="block hover:text-white ${level==='h3' ? 'ml-4' : ''}">${h.textContent}</a>`);
+        });
+        tocEl.innerHTML = items.join('');
+    }
+
+    // --------- Buy credits modal (unchanged) ---------
+    document.addEventListener('DOMContentLoaded', () => {
+        const buyFFBtn = document.getElementById('buyFFBtn');
+        const buyFFModal = document.getElementById('buyFFModal');
+        const cancelBtn = document.getElementById('cancelFFPurchase');
+        const confirmBtn = document.getElementById('confirmFFPurchase');
+        const ffOptions = document.querySelectorAll('.ff-option');
+        let selectedAmount = null;
+
+        buyFFBtn?.addEventListener('click', () => { buyFFModal.classList.remove('hidden'); });
+        cancelBtn?.addEventListener('click', () => {
+            buyFFModal.classList.add('hidden');
+            ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+            selectedAmount = null;
+        });
+
+        ffOptions.forEach(button => {
+            button.addEventListener('click', () => {
+                ffOptions.forEach(btn => btn.classList.remove('ring-2','ring-[#00ff99]','border-[#00ff99]'));
+                button.classList.add('ring-2','ring-[#00ff99]');
+                selectedAmount = parseInt(button.dataset.value);
+            });
+        });
+
+        confirmBtn?.addEventListener('click', async () => {
+            const steamID = document.getElementById('steamID')?.textContent;
+            if (!steamID || !selectedAmount) return alert('Missing Steam ID or Credits amount');
+
+            try {
+                const res = await fetch('/api/create-checkout-session', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steamId: steamID, ffAmount: selectedAmount })
+                });
+                const { url } = await res.json();
+                if (url) window.location.href = url; else alert('Failed to create Stripe checkout session.');
+            } catch (err) { alert('Error: ' + err.message); }
+        });
+    });
+
+</script>
+</body>
+</html>
