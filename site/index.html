@@ -227,6 +227,48 @@
             <span class="absolute bottom-3 right-3 bg-gradient-to-r from-[#0068ff] to-[#00b3ff] text-black text-[11px] md:text-xs font-bold px-2 py-1 rounded">After</span>
         </div>
     </div>
+    <style>
+        .shot-card{position:relative;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 26px rgba(0,0,0,.45);transition:transform .18s ease, box-shadow .18s ease;max-width:280px;width:100%;max-height:450px;height:100%}
+        .shot-card:hover{transform:translateY(-2px); box-shadow:0 18px 44px rgba(0,0,0,.55)}
+        .shot-explain{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(0,0,0,.58);backdrop-filter:blur(6px);opacity:0;transition:opacity .18s ease}
+        .shot-card:hover .shot-explain{opacity:1}
+        .shot-chip{font-weight:700;border-radius:9999px;padding:6px 12px;font-size:12px;letter-spacing:.2px;border:1px solid currentColor;display:inline-block;text-align:center;line-height:1.25;max-width:90%;white-space:normal}
+        .green{color:#00ff99;background:rgba(0,255,153,.12)}
+        .neutral{color:#facc15;background:rgba(250,204,21,.12);border-color:rgba(250,204,21,.5)}
+        .red{color:#ff6b6b;background:rgba(255,91,91,.12)}
+    </style>
+
+    <section class="mt-14" aria-labelledby="color-legend-pics">
+        <h2 id="color-legend-pics" class="sr-only">Color meanings (screenshots)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 justify-items-center">
+
+            <!-- Underpriced (Green) -->
+            <article class="shot-card" aria-label="Underpriced example">
+                <img src="./icons/download%20(2).png" alt="Underpriced listing card" class="w-full h-auto" loading="lazy"/>
+                <div class="shot-explain">
+                    <span class="shot-chip green">The item is profitable</span>
+                </div>
+            </article>
+
+            <!-- Fair (Neutral) -->
+            <article class="shot-card" aria-label="Fair example">
+                <img src="./icons/download%20(4).png" alt="Fair listing card" class="w-full h-auto" loading="lazy"/>
+                <div class="shot-explain">
+                    <span class="shot-chip neutral">The item would be profitable if the seller accepts a bargain for at most <strong>$233.34</strong></span>
+                </div>
+            </article>
+
+            <!-- Overpriced (Red) -->
+            <article class="shot-card" aria-label="Overpriced example">
+                <img src="./icons/download%20(1).png" alt="Overpriced listing card" class="w-full h-auto" loading="lazy"/>
+                <div class="shot-explain">
+                    <span class="shot-chip red">The item is <strong>NOT</strong> profitable</span>
+                </div>
+            </article>
+
+        </div>
+        <p class="mt-3 text-center text-xs text-white/60 select-none">Hover over a card for more info</p>
+    </section>
 </main>
 
 <!-- Footer -->
