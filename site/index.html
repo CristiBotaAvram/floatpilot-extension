@@ -28,7 +28,6 @@
             transition: box-shadow .2s ease, transform .2s ease, background .2s ease;
         }
         #sliderHandle:hover { box-shadow: 0 14px 36px rgba(0,0,0,.45); background: rgba(255,255,255,.14); }
-        #sliderHandle:active { transform: scale(.98); }
 
         /* vertical divider line between images */
         #divider {
@@ -52,6 +51,37 @@
         /* Modal card polish (IDs/classes preserved) */
         .modal-card { background: rgba(17,18,20,.9); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
         .glass { background: rgba(11,12,15,.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.12); }
+
+
+        /* Rotating word (no verbs) */
+        #rotWord { will-change: transform, opacity; display:inline-block; }
+        .rot-fade-in { animation: rotFadeIn .22s ease forwards; }
+        .rot-fade-out { animation: rotFadeOut .22s ease forwards; }
+        @keyframes rotFadeIn { from { opacity:0; transform: translateY(8px) } to { opacity:1; transform: translateY(0) } }
+        @keyframes rotFadeOut { from { opacity:1; transform: translateY(0) } to { opacity:0; transform: translateY(-8px) } }
+        @media (prefers-reduced-motion: reduce) { .rot-fade-in, .rot-fade-out { animation: none } }
+
+
+        /* --- Chrome Web Store pill button --- */
+        #chromeStoreBtn{position:relative;border-radius:9999px;background:radial-gradient(100% 100% at 50% 0%,#171717 0%,#101010 58%,#0b0b0b 100%);border:1px solid rgba(255,255,255,.08);box-shadow:0 10px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);transition:transform .18s ease,box-shadow .18s ease,background .18s ease;}
+        #chromeStoreBtn::before{content:"";position:absolute;inset:0;border-radius:9999px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0));pointer-events:none;mix-blend:normal;}
+        #chromeStoreBtn:hover{transform:translateY(-1px);box-shadow:0 16px 44px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.09),0 0 0 4px rgba(0,104,255,.12);}
+        #chromeStoreBtn:active{transform:translateY(0);box-shadow:0 10px 24px rgba(0,0,0,.5),inset 0 2px 6px rgba(0,0,0,.35);}
+        #chromeStoreBtn .arrow{opacity:.9;transition:transform .18s ease,opacity .18s ease;}
+        #chromeStoreBtn:hover .arrow{transform:translateX(4px);opacity:1;}
+        #chromeStoreBtn .logoWrap{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3);}
+        @media (prefers-reduced-motion: reduce){#chromeStoreBtn,#chromeStoreBtn .arrow{transition:none}}
+
+        /* --- Get Pro pill button (brand) --- */
+        #getProBtn{position:relative;border-radius:9999px;background:linear-gradient(135deg,#0aa2ff 0%,#00b3ff 50%,#29d3ff 100%);color:#081216;border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 24px rgba(0,160,255,.35),inset 0 1px 0 rgba(255,255,255,.28);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;}
+        #getProBtn::before{content:"";position:absolute;inset:0;border-radius:9999px;background:linear-gradient(180deg, rgba(128, 128, 128, 0.16),rgba(255,255,255,0));pointer-events:none;}
+        #getProBtn:hover{transform:translateY(-1px);box-shadow:0 16px 44px rgba(0,160,255,.45),inset 0 1px 0 rgba(255,255,255,.35),0 0 0 4px rgba(0,179,255,.18);}
+        #getProBtn:active{transform:translateY(0);box-shadow:0 12px 28px rgba(0,160,255,.4),inset 0 2px 6px rgba(0,0,0,.25);}
+        #getProBtn .arrow{opacity:.9;transition:transform .18s ease,opacity .18s ease;}
+        #getProBtn:hover .arrow{transform:translateX(4px);opacity:1;}
+        @media (prefers-reduced-motion: reduce){#getProBtn,#getProBtn .arrow{transition:none}}
+
+
     </style>
 </head>
 <body class="bg-[#0f0f0f] text-white font-sans bg-grid radial-spot min-h-screen">
@@ -156,15 +186,26 @@
     <div class="flex flex-col md:flex-row items-start md:items-center gap-10">
         <!-- Copy -->
         <div class="md:w-5/12 text-lg space-y-4">
-            <p><strong>Instant price intelligence:</strong> FloatPilot’s Estimation Tool overlays live market listings with fair‑value estimates based on recent sales, float, pattern ID, stickers and more.</p>
-            <p><strong>See hidden deals before others:</strong> Color‑coded backgrounds flag listings that are under‑ or over‑valued at a glance.</p>
-            <p><strong>Works right inside CSFloat:</strong> No extra tabs or copy‑paste — just browse, and FloatPilot injects insights directly into listing cards.</p>
-            <div class="pt-4">
-                <a href="/pricing" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0068ff] to-[#00b3ff] px-6 py-3 font-extrabold text-black shadow-lg hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition">
-                    Get Pro
+            <h2 class="text-4xl md:text-5xl font-extrabold leading-tight">
+                <span id="rotWord">Faster</span> <span>Profit</span>
+            </h2>
+            <div class="pt-5 flex flex-wrap items-center gap-3">
+                <a id="getProBtn" href="/pricing" class="group inline-flex items-center gap-3 px-6 py-2.5 rounded-full font-extrabold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0068ff]/60">
+                    <span>Get Pro</span>
+                </a>
+                <a id="chromeStoreBtn" href="https://chromewebstore.google.com/detail/xxxxxxxxxxxxxxxx" target="_blank" rel="noopener" aria-label="Open Chrome Web Store listing" class="group inline-flex items-center gap-3 px-4 py-2 rounded-full text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0068ff]/60">
+                    <span class="logoWrap relative inline-flex items-center justify-center w-7 h-7 rounded-full overflow-hidden">
+                        <img src="./icons/Google_Chrome_icon.svg.png" alt="Chrome" class="w-5 h-5"/>
+                    </span>
+                    <span class="leading-tight text-left">
+                        <span class="block text-[11px] text-white/70">Available on</span>
+                        <span class="block">Chrome Web Store</span>
+                    </span>
+
                 </a>
             </div>
         </div>
+
 
         <!-- Before / After Images -->
         <div class="md:w-7/12 w-full relative select-none" id="compareWrapper">
@@ -183,7 +224,7 @@
             </div>
             <!-- Labels -->
             <span class="absolute bottom-3 left-3 bg-white text-black text-[11px] md:text-xs font-bold px-2 py-1 rounded">Before</span>
-            <span class="absolute bottom-3 right-3 bg-[#0068ff] text-black text-[11px] md:text-xs font-bold px-2 py-1 rounded">After</span>
+            <span class="absolute bottom-3 right-3 bg-gradient-to-r from-[#0068ff] to-[#00b3ff] text-black text-[11px] md:text-xs font-bold px-2 py-1 rounded">After</span>
         </div>
     </div>
 </main>
@@ -192,6 +233,32 @@
 <footer class="text-center text-white/60 text-sm py-10">
     &copy; 2025 FloatPilot · <a class="underline" href="/tos">Terms</a> · <a class="underline" href="/privacy">Privacy</a>
 </footer>
+
+<script>
+    // Rotating word: anchored to "Faster" (no verbs)
+    (function(){
+        document.addEventListener('DOMContentLoaded', function(){
+            var el = document.getElementById('rotWord');
+            if(!el) return;
+            var words = ['Faster','Easier','Smarter','Higher'];
+            var i = 0;
+            function tick(){
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+                el.classList.remove('rot-fade-in');
+                el.classList.add('rot-fade-out');
+                setTimeout(function(){
+                    i = (i + 1) % words.length;
+                    el.textContent = words[i];
+                    el.classList.remove('rot-fade-out');
+                    el.classList.add('rot-fade-in');
+                }, 180);
+            }
+            el.textContent = words[0];
+            el.classList.add('rot-fade-in');
+            setInterval(tick, 1600);
+        });
+    })();
+</script>
 
 <script>
     // --------- Before/After logic (unchanged) ---------

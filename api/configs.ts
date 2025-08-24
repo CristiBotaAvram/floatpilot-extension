@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const allowedOrigins = [
-    'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh',
-    'https://floatpilot.store',
-    'https://www.floatpilot.store'
-];
+// const allowedOrigins = [
+//     'chrome-extension://ofhmnebacgcnibbclefjkojejehaigbh',
+//     'https://floatpilot.store',
+//     'https://www.floatpilot.store'
+// ];
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,

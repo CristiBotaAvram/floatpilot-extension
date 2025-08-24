@@ -1,20 +1,19 @@
 {
   "manifest_version": 3,
   "name": "FloatPilot",
-  "version": "0.3.0",
-  "description": "Analyze CS2 skin floats and market data in real-time to find profitable flips.",
+  "version": "0.1.0",
+  "description": "Analyze CS2 skins and market data to find profitable flips faster than ever before.",
 
   "permissions": [
     "storage",
     "tabs",
     "scripting",
-    "activeTab",
-    "https://www.floatpilot.store/"
+    "activeTab"
   ],
 
   "host_permissions": [
     "https://csfloat.com/*",
-    "https://floatpilot.store/"
+    "https://www.floatpilot.store/"
   ],
 
   "background": {
@@ -66,15 +65,6 @@
         "src/content-scripts/searchFilter.js"
       ],
       "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://csfloat.com/*",
-        "https://steamcommunity.com/*"
-      ],
-      "js": ["src/content-scripts/listingFetcher.js"],
-      "run_at": "document_idle",
-      "all_frames": false
     }
   ],
 

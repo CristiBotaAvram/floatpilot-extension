@@ -45,7 +45,7 @@ export default async function handler(req, res) {
     }
 
     // Optional: After 5 configs, charge FF to go up to 25
-    if (count > 25 ) {
+    if (count > 100 ) {
         return res.status(403).json({ error: 'You can only upload 25 configs!' });
     }
 
