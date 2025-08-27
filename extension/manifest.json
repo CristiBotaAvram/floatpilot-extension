@@ -5,10 +5,7 @@
   "description": "Analyze CS2 skins and market data to find profitable flips faster than ever before.",
 
   "permissions": [
-    "storage",
-    "tabs",
-    "scripting",
-    "activeTab"
+    "storage"
   ],
 
   "host_permissions": [
@@ -16,10 +13,6 @@
     "https://www.floatpilot.store/"
   ],
 
-  "background": {
-    "service_worker": "src/background/sw.js",
-    "type": "module"
-  },
 
   "content_scripts": [
 
@@ -71,11 +64,10 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "icons/icon16.png",
-        "icons/icon48.png",
-        "icons/icon128.png",
-        "offscreen/offscreen.html",
-        "injected/fetch-intercept.js"
+        "public/icons/icon16.png",
+        "public/icons/icon48.png",
+        "public/icons/icon128.png",
+        "public/injected/fetch-intercept.js"
       ],
       "matches": ["<all_urls>"]
     }
@@ -84,15 +76,15 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "public/icons/icon16.png",
+      "48": "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
     }
   },
 
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "public/icons/icon16.png",
+    "48": "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
   }
 }
