@@ -145,6 +145,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <seriesName>${escapeXml(SMARTBILL_SERIES)}</seriesName>
   <issueDate>${issueDateRO}</issueDate>
   <isDraft>false</isDraft>
+  <language>EN</language>
   <sendEmail>true</sendEmail>
   <currency>${(session.currency || 'RON').toUpperCase()}</currency>
   ${clientXML}
