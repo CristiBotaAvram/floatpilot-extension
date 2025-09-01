@@ -25,6 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             },
         ],
         mode: 'payment',
+
+        // ✅ Collect who is paying (so SmartBill has name/email/address)
+        customer_creation: 'always',                // creates a Customer and stores details
+        billing_address_collection: 'required',     // forces full billing address
+        phone_number_collection: { enabled: true }, // optional but useful
         allow_promotion_codes: true,
         success_url: `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.BASE_URL}/pricing`,
