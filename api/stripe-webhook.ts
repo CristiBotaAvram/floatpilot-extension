@@ -51,6 +51,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).send('Missing steamId or ffAmount')
         }
 
+        // --- Log full Stripe session for debugging ---
+        console.log('Stripe session:', JSON.stringify(session, null, 2))
+
         // --- Update FF in Supabase (existing logic) ---
         const { data: allLedger, error: ledgerFetchErr } = await supabase
             .from('ff_ledger')
@@ -95,6 +98,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // --- Create SmartBill invoice (Basic Auth + XML) ---
         try {
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price.product'] })
+            console.log('Stripe line items:', JSON.stringify(lineItems, null, 2))
+
             const customer = session.customer_details
             const clientEmail = customer?.email || session.customer_email || undefined
 
@@ -145,6 +150,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   </products>
 </invoice>`
 
+            console.log('Invoice XML being sent to SmartBill:', invoiceXML)
             const authHeader = 'Basic ' + Buffer.from(`${SMARTBILL_USER}:${SMARTBILL_TOKEN}`).toString('base64')
 
             const sbResp = await fetch(`${SMARTBILL_API_BASE}/invoice`, {
