@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
     root: __dirname,
+    publicDir: false,
 
     build: {
         outDir: '../dist',
-        emptyOutDir: false,
+        emptyOutDir: true,
         rollupOptions: {
             /* -------------------------------------------------- */
             /* ENTRY POINTS                                       */
@@ -67,4 +69,13 @@ export default defineConfig({
             },
         },
     },
+
+    plugins: [
+        viteStaticCopy({
+            targets: [
+                { src: 'manifest.json', dest: '.' },
+                 { src: 'public', dest: '.' } // popup.html, options.html, etc.
+            ],
+        }),
+    ],
 });

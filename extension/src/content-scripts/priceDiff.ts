@@ -149,7 +149,7 @@ function ensureStyle() {
 }
 
 chrome.storage.sync.get('showPriceDiff', (res: { showPriceDiff?: boolean }) => {
-    if (res.showPriceDiff === false) return
+    if (res.showPriceDiff !== true) return
     ensureStyle()
 
     const scan = () => document.querySelectorAll('item-card').forEach(el => processCard(el as HTMLElement))

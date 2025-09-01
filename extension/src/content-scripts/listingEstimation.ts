@@ -16,7 +16,7 @@
     });
 
     const findItemByFloat = (float: number): any | null => {
-        const tolerance = 0.00001;
+        const tolerance = 0.000000001;
         for (const cachedFloatStr in listingDataCache) {
             const cachedFloat = parseFloat(cachedFloatStr);
             if (Math.abs(cachedFloat - float) < tolerance) {

@@ -67,14 +67,14 @@
         "public/icons/icon16.png",
         "public/icons/icon48.png",
         "public/icons/icon128.png",
-        "public/injected/fetch-intercept.js"
+        "injected/fetch-intercept.js"
       ],
       "matches": ["<all_urls>"]
     }
   ],
 
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "public/popup.html",
     "default_icon": {
       "16": "public/icons/icon16.png",
       "48": "public/icons/icon48.png",
