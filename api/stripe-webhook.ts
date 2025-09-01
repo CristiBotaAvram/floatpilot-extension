@@ -20,10 +20,14 @@ const supabase = createClient(
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 // SmartBill env
-const SMARTBILL_TOKEN = process.env.SMARTBILL_TOKEN!
+const SMARTBILL_USER = process.env.SMARTBILL_USER! // SmartBill login (email/username) for Basic auth
+const SMARTBILL_TOKEN = process.env.SMARTBILL_TOKEN! // API token/key
 const SMARTBILL_COMPANY_VAT = process.env.SMARTBILL_COMPANY_VAT! // e.g. RO12345678 (CUI)
 const SMARTBILL_SERIES = process.env.SMARTBILL_SERIES ?? 'FP'
 const SMARTBILL_API_BASE = process.env.SMARTBILL_API_BASE ?? 'https://ws.smartbill.ro/SBORO/api'
+function escapeXml(input: string) {
+    return input.replace(/[<>&'\"]/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;','\'':'&apos;','\"':'&quot;'} as any)[c])
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sig = req.headers['stripe-signature']!
@@ -88,76 +92,78 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(500).json({ error: 'supabase_tx_insert_failed' })
         }
 
-        // --- Create SmartBill invoice (VAT 0%, SmartBill emails the PDF) ---
+        // --- Create SmartBill invoice (Basic Auth + XML) ---
         try {
-            // Expand line items to build invoice products
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price.product'] })
-
             const customer = session.customer_details
             const clientEmail = customer?.email || session.customer_email || undefined
 
-            const invoicePayload = {
-                companyVatCode: SMARTBILL_COMPANY_VAT,
-                seriesName: SMARTBILL_SERIES,
-                issueDate: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
-                isDraft: false,
-                sendEmail: true, // SmartBill will email the PDF to the client
-                client: {
-                    name: customer?.name || clientEmail || 'Client',
-                    email: clientEmail,
-                    address: [customer?.address?.line1, customer?.address?.line2].filter(Boolean).join(', ') || undefined,
-                    city: customer?.address?.city || undefined,
-                    country: customer?.address?.country || undefined,
-                },
-                currency: session.currency?.toUpperCase(),
-                products: lineItems.data.map((li) => {
-                    const qty = li.quantity || 1
-                    const unitGross = (li.amount_total ?? 0) / 100 / qty // Stripe amounts are in minor units
+            const productsXML = lineItems.data.map((li) => {
+                const qty = li.quantity || 1
+                const unitGross = (li.amount_total ?? 0) / 100 / qty
 
-                    // Safely extract product name/code from Stripe types: string | Product | DeletedProduct
-                    let nameFromProduct: string | undefined
-                    let codeFromProduct: string | undefined
-                    const prod = li.price?.product
-                    if (prod && typeof prod !== 'string') {
-                        // prod is Product | DeletedProduct
-                        if ('deleted' in prod && (prod as Stripe.DeletedProduct).deleted) {
-                            // Deleted products don't have a name
-                            codeFromProduct = prod.id
-                        } else {
-                            nameFromProduct = (prod as Stripe.Product).name
-                            codeFromProduct = prod.id
-                        }
-                    }
+                let nameFromProduct: string | undefined
+                const prod = li.price?.product
+                if (prod && typeof prod !== 'string' && !('deleted' in prod)) {
+                    nameFromProduct = (prod as Stripe.Product).name
+                }
 
-                    return {
-                        name: li.description || nameFromProduct || 'Item',
-                        code: codeFromProduct,
-                        quantity: qty,
-                        price: unitGross,
-                        isTaxIncluded: true,
-                        vatPercent: 0, // you are not VAT-registered yet
-                    }
-                }),
-            }
+                const name = li.description || nameFromProduct || 'Item'
+
+                return `
+      <product>
+        <name>${escapeXml(name)}</name>
+        <quantity>${qty}</quantity>
+        <price>${unitGross.toFixed(2)}</price>
+        <isTaxIncluded>true</isTaxIncluded>
+        <vatPercent>0</vatPercent>
+      </product>`
+            }).join('\n')
+
+            const clientXML = `
+      <client>
+        <name>${escapeXml(customer?.name || clientEmail || 'Client')}</name>
+        ${clientEmail ? `<email>${escapeXml(clientEmail)}</email>` : ''}
+        ${customer?.address?.line1 || customer?.address?.line2 ? `<address>${escapeXml([customer?.address?.line1, customer?.address?.line2].filter(Boolean).join(', '))}</address>` : ''}
+        ${customer?.address?.city ? `<city>${escapeXml(customer?.address?.city)}</city>` : ''}
+        ${customer?.address?.country ? `<country>${escapeXml(customer?.address?.country)}</country>` : ''}
+      </client>`
+
+            const issueDateRO = new Date().toLocaleDateString('ro-RO') // e.g. "01.09.2025"
+
+            const invoiceXML = `<?xml version="1.0" encoding="UTF-8"?>
+<invoice>
+  <companyVatCode>${escapeXml(SMARTBILL_COMPANY_VAT)}</companyVatCode>
+  <seriesName>${escapeXml(SMARTBILL_SERIES)}</seriesName>
+  <issueDate>${issueDateRO}</issueDate>
+  <isDraft>false</isDraft>
+  <sendEmail>true</sendEmail>
+  <currency>${(session.currency || 'RON').toUpperCase()}</currency>
+  ${clientXML}
+  <products>
+    ${productsXML}
+  </products>
+</invoice>`
+
+            const authHeader = 'Basic ' + Buffer.from(`${SMARTBILL_USER}:${SMARTBILL_TOKEN}`).toString('base64')
 
             const sbResp = await fetch(`${SMARTBILL_API_BASE}/invoice`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${SMARTBILL_TOKEN}`,
+                    'Content-Type': 'application/xml',
+                    'Accept': 'application/xml',
+                    'Authorization': authHeader,
                 },
-                body: JSON.stringify(invoicePayload),
+                body: invoiceXML,
             })
 
+            const txt = await sbResp.text()
             if (!sbResp.ok) {
-                const txt = await sbResp.text()
                 console.error('SmartBill error:', sbResp.status, txt)
                 return res.status(502).json({ ok: false, smartbill_error: txt })
             }
 
-            const sbData = await sbResp.json().catch(() => null)
-
-            return res.status(200).json({ received: true, smartbill: sbData })
+            return res.status(200).json({ received: true, smartbill: txt.slice(0, 500) })
         } catch (e: any) {
             console.error('SmartBill invocation failed:', e?.message || e)
             return res.status(502).json({ ok: false, error: 'smartbill_call_failed', message: e?.message })
@@ -166,3 +172,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ received: true })
 }
+
