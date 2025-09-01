@@ -155,7 +155,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             const authHeader = 'Basic ' + Buffer.from(`${SMARTBILL_USER}:${SMARTBILL_TOKEN}`).toString('base64')
 
-            const sbResp = await fetch(`${SB_BASE}/invoice`, {
+            const sbResp = await fetch(`${SMARTBILL_API_BASE}/invoice`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/xml',
