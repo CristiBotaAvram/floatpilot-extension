@@ -98,7 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // --- Create SmartBill invoice (Basic Auth + XML) ---
         try {
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price.product'] })
-            console.log('Stripe line items:', JSON.stringify(lineItems, null, 2))
+            console.log('Stripe line items full:', JSON.stringify(lineItems, null, 2))
 
             const customer = session.customer_details
             const clientEmail = customer?.email || session.customer_email || undefined
@@ -116,23 +116,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const name = li.description || nameFromProduct || 'Item'
 
                 return `
-      <product>
-        <name>${escapeXml(name)}</name>
-        <quantity>${qty}</quantity>
-        <price>${unitGross.toFixed(2)}</price>
-        <isTaxIncluded>true</isTaxIncluded>
-        <vatPercent>0</vatPercent>
-      </product>`
+  <product>
+    <name>${escapeXml(name)}</name>
+    <measuringUnitName>buc</measuringUnitName>
+    <currency>${(session.currency || 'RON').toUpperCase()}</currency>
+    <quantity>${qty}</quantity>
+    <price>${unitGross.toFixed(2)}</price>
+    <isTaxIncluded>true</isTaxIncluded>
+    <taxPercentage>0</taxPercentage>
+    <isService>false</isService>
+  </product>`
             }).join('\n')
 
             const clientXML = `
-      <client>
-        <name>${escapeXml(customer?.name || clientEmail || 'Client')}</name>
-        ${clientEmail ? `<email>${escapeXml(clientEmail)}</email>` : ''}
-        ${customer?.address?.line1 || customer?.address?.line2 ? `<address>${escapeXml([customer?.address?.line1, customer?.address?.line2].filter(Boolean).join(', '))}</address>` : ''}
-        ${customer?.address?.city ? `<city>${escapeXml(customer?.address?.city)}</city>` : ''}
-        ${customer?.address?.country ? `<country>${escapeXml(customer?.address?.country)}</country>` : ''}
-      </client>`
+  <client>
+    <name>${escapeXml(customer?.name || clientEmail || 'Client')}</name>
+    ${clientEmail ? `<email>${escapeXml(clientEmail)}</email>` : ''}
+    ${customer?.address?.line1 || customer?.address?.line2 ? `<address>${escapeXml([customer?.address?.line1, customer?.address?.line2].filter(Boolean).join(', '))}</address>` : ''}
+    ${customer?.address?.city ? `<city>${escapeXml(customer?.address?.city)}</city>` : ''}
+    ${customer?.address?.country ? `<country>${escapeXml(customer?.address?.country)}</country>` : ''}
+  </client>`
 
             const issueDateRO = new Date().toLocaleDateString('ro-RO') // e.g. "01.09.2025"
 
@@ -145,15 +148,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <sendEmail>true</sendEmail>
   <currency>${(session.currency || 'RON').toUpperCase()}</currency>
   ${clientXML}
-  <products>
-    ${productsXML}
-  </products>
+  ${productsXML}
 </invoice>`
 
             console.log('Invoice XML being sent to SmartBill:', invoiceXML)
+
             const authHeader = 'Basic ' + Buffer.from(`${SMARTBILL_USER}:${SMARTBILL_TOKEN}`).toString('base64')
 
-            const sbResp = await fetch(`${SMARTBILL_API_BASE}/invoice`, {
+            const sbResp = await fetch(`${SB_BASE}/invoice`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/xml',
@@ -178,4 +180,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ received: true })
 }
+
 
