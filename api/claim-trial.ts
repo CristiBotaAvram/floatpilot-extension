@@ -1,6 +1,7 @@
 // api/claim-trial.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
+import { getSteamID64 } from './_utils/session.js'
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -11,8 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
     try {
-        console.log("Headers: ", req.headers)
-        const steamId = req.headers['x-steamid'] as string
+        const steamId = getSteamID64(req)
         if (!steamId) return res.status(401).json({ error: 'Unauthorized' })
 
         // Check if already claimed
