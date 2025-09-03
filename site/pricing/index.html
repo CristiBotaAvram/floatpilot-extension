@@ -23,6 +23,18 @@
 </head>
 <body class="bg-[#0f0f0f] antialiased text-white font-sans bg-grid radial-spot min-h-screen">
 
+<!-- Free Trial Modal -->
+<div id="trialModal" class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center hidden z-50 p-4">
+    <div class="relative modal-card p-6 rounded-2xl w-full max-w-md text-center">
+        <button id="closeTrialModal" class="absolute top-3 left-3 text-white/80 text-lg font-bold hover:text-white transition">✕</button>
+        <h2 class="text-2xl font-extrabold mb-4 tracking-tight">Free Trial</h2>
+        <p id="trialText" class="mb-6 text-white/70">Are you sure you want to claim the free trial now?</p>
+        <div class="flex justify-center gap-4">
+            <button id="claimTrialBtn" class="px-4 py-2 rounded-lg bg-[#00ff99] hover:brightness-110 text-black font-extrabold shadow-md">Claim</button>
+        </div>
+    </div>
+</div>
+
 <!-- Confirmation Modal -->
 <div id="confirmationModal" class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center hidden z-50 p-4">
     <div class="relative modal-card p-6 rounded-2xl w-full max-w-md text-center">
@@ -165,6 +177,8 @@
                         <li class="px-4 py-2 hover:bg-white/10 cursor-pointer" data-duration="1 month" data-cost="250">1 month</li>
                     </ul>
                 </div>
+                <p id="trialLink" class="text-m text-[#bbb] mt-4 font-semibold text-center cursor-pointer hover:underline">Try for free for 1 hour</p>
+
             </div>
         </div>
     </div>
@@ -176,6 +190,51 @@
 </footer>
 
 <!-- JavaScript functionality for merged Pro tier (unchanged) -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const trialLink = document.getElementById('trialLink');
+        const trialModal = document.getElementById('trialModal');
+        const closeTrialModal = document.getElementById('closeTrialModal');
+        const claimTrialBtn = document.getElementById('claimTrialBtn');
+        const trialText = document.getElementById('trialText');
+
+        // Open modal when clicking "Try for free"
+        trialLink?.addEventListener('click', () => {
+            trialText.textContent = "Are you sure you want to claim the free trial now?";
+            claimTrialBtn.style.display = "inline-block";
+            trialModal.classList.remove('hidden');
+        });
+
+        // Close modal
+        closeTrialModal?.addEventListener('click', () => {
+            trialModal.classList.add('hidden');
+        });
+
+        // Claim trial
+        claimTrialBtn?.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/claim-trial', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert("Free trial activated!");
+                    location.reload();
+                } else {
+                    alert("Error: " + (data.error || "Failed to claim trial."));
+                }
+            } catch (err) {
+                alert("Error claiming trial: " + err.message);
+            }
+            trialModal.classList.add('hidden');
+        });
+    });
+</script>
+
+
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         let selectedTier = null;
