@@ -11,6 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
     try {
+        console.log("Headers: ", req.headers)
         const steamId = req.headers['x-steamid'] as string
         if (!steamId) return res.status(401).json({ error: 'Unauthorized' })
 
