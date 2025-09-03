@@ -58,14 +58,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { error: insertError } = await supabase
             .from('subscriptions')
             .insert({
-                steamId,
+                steam_id: steamId,
                 tier: 'Pro',
                 started_at: start.toISOString(),
                 expires_at: expires.toISOString()
             });
 
         if (insertError) {
-            console.error('Failed to insert subscription:', insertError);
             return res.status(500).json({ error: 'Failed to insert subscription' });
         }
 
@@ -84,7 +83,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ]);
 
         if (txError) {
-            return res.status(500).json({ error: 'Failed to log ledger or transaction' });
+            return res.status(500).json({ error: 'Failed to log transaction' });
         }
 
         return res.status(200).json({ success: true, expiresAt: expires.toISOString() })
