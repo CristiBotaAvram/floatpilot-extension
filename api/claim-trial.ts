@@ -65,6 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
 
         if (insertError) {
+            console.error('Failed to insert subscription:', insertError);
             return res.status(500).json({ error: 'Failed to insert subscription' });
         }
 
