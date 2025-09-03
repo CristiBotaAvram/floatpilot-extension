@@ -74,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Insert transaction
         const { error: txError } = await supabase.from('transactions').insert([
             {
-                steamId,
+                steam_id: steamId,
                 type: '1hour_free_trial',
                 ff_before: 0,
                 ff_after: 0,

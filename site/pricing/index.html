@@ -27,11 +27,15 @@
 <div id="trialModal" class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center hidden z-50 p-4">
     <div class="relative modal-card p-6 rounded-2xl w-full max-w-md text-center">
         <button id="closeTrialModal" class="absolute top-3 left-3 text-white/80 text-lg font-bold hover:text-white transition">✕</button>
-        <h2 class="text-2xl font-extrabold mb-4 tracking-tight">Free Trial</h2>
+        <h2 class="text-2xl font-bold mb-4 tracking-tight">Free Trial</h2>
         <p id="trialText" class="mb-6 text-white/70">Are you sure you want to claim the free trial now?</p>
-        <div class="flex justify-center gap-4">
+        <div class="flex justify-center gap-4 mb-4">
             <button id="claimTrialBtn" class="px-4 py-2 rounded-lg bg-[#00ff99] hover:brightness-110 text-black font-extrabold shadow-md">Claim</button>
         </div>
+        <p class="text-xs text-gray-400">
+            By claiming the free trial, you agree to our
+            <a href="/tos" class="underline hover:text-white">Terms of Service</a>.
+        </p>
     </div>
 </div>
 
@@ -44,7 +48,12 @@
         <div class="relative w-full h-16 bg-[#001f4d] rounded-2xl overflow-hidden cursor-pointer border border-white/10 ring-1 ring-white/10">
             <div id="sliderThumb" class="absolute left-0 top-0 h-full w-16 bg-[#0068ff] text-black text-4xl font-bold flex items-center justify-center rounded-2xl transition-all duration-300 select-none shadow-lg">➜</div>
         </div>
+        <p class="text-xs mt-2 text-gray-400">
+            By confirming, you agree to our
+            <a href="/tos" class="underline hover:text-white">Terms of Service</a>.
+        </p>
     </div>
+
 </div>
 
 <!-- FF Purchase Modal -->
